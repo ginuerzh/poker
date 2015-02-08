@@ -107,7 +107,7 @@ func (o *Occupant) Join(rid string) (room *Room) {
 	for pos, _ := range room.Occupants {
 		if room.Occupants[pos] == nil {
 			room.Occupants[pos] = o
-			room.n++
+			room.N++
 			o.room = room
 			o.Pos = pos
 			break
@@ -127,6 +127,7 @@ func (o *Occupant) Join(rid string) (room *Room) {
 		Type:   MsgPresence,
 		From:   room.Id,
 		Action: ActJoin,
+		Class:  strconv.Itoa(o.Pos),
 		State:  room,
 	})
 
@@ -149,7 +150,7 @@ func (o *Occupant) Leave() (room *Room) {
 		Action: ActLeave,
 	})
 
-	room.n--
+	room.N--
 	room.Occupants[o.Pos] = nil
 	o.room = nil
 	o.Pos = 0

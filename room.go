@@ -17,7 +17,7 @@ type Room struct {
 	Button    int         `json:"button"`
 	Occupants []*Occupant `json:"occupants"`
 	Bet       int         `json:"bet"`
-	n         int
+	N         int         `json:"n"`
 	lock      *sync.Mutex
 }
 
@@ -45,6 +45,10 @@ func NewRoom(id string, n int, sb, bb int) *Room {
 
 func (room *Room) Cap() int {
 	return len(room.Occupants)
+}
+
+func (room *Room) Len() int {
+	return room.N
 }
 
 func (room *Room) Broadcast(message *Message) {
@@ -150,7 +154,7 @@ func (room *Room) start() {
 		return false
 	})
 
-	if dealer == nil || room.Cap() < 2 {
+	if dealer == nil || room.Len() < 2 {
 		return
 	}
 
@@ -163,7 +167,7 @@ func (room *Room) start() {
 
 	// Small Blind
 	sb := dealer.Next()
-	if room.n == 2 {
+	if room.Len() == 2 {
 		sb = dealer
 	}
 	sb.Action = ActCall

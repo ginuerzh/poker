@@ -52,8 +52,11 @@ func main() {
 		return
 	}
 
+	occupant := poker.NewOccupant(conn)
+
 	msg := &poker.Message{
 		Type:   poker.MsgPresence,
+		From:   auth.Text,
 		Action: poker.ActJoin,
 	}
 
@@ -66,4 +69,8 @@ func main() {
 	}
 
 	log.Println("pos", msg.Class)
+
+	for {
+
+	}
 }

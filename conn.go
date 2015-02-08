@@ -48,13 +48,16 @@ func (c *Conn) write(mt int, payload []byte) error {
 
 func (c *Conn) ReadJSON(v interface{}) error {
 	c.ws.SetReadDeadline(time.Now().Add(pongWait))
-	err := c.ws.ReadJSON(v)
-
-	if b, err := json.Marshal(v); err == nil {
-		fmt.Println(">>>", time.Now(), string(b))
+	if err := c.ws.ReadJSON(v); err != nil {
+		log.Println(err)
+		return err
 	}
 
-	return err
+	if b, err := json.Marshal(v); err == nil {
+		fmt.Println(">>>", time.Now().Format("15:04:05"), string(b))
+	}
+
+	return nil
 }
 
 func (c *Conn) WriteJSON(v interface{}) error {
@@ -91,7 +94,7 @@ func (c *Conn) writePump() {
 				return
 			}
 			if b, err := json.Marshal(message); err == nil {
-				fmt.Println("<<<", time.Now(), string(b))
+				fmt.Println("<<<", time.Now().Format("15:04:05"), string(b))
 			}
 		case <-ticker.C:
 			c.ws.SetWriteDeadline(time.Now().Add(writeWait))
