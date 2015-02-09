@@ -42,12 +42,19 @@ func NewConn(ws *websocket.Conn, sendBuffer int) *Conn {
 
 // write writes a message with the given message type and payload.
 func (c *Conn) write(mt int, payload []byte) error {
-	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 	return c.ws.WriteMessage(mt, payload)
 }
 
 func (c *Conn) ReadJSON(v interface{}) error {
-	c.ws.SetReadDeadline(time.Now().Add(pongWait))
+	return c.ReadJSONTimeout(v, -1)
+}
+
+func (c *Conn) ReadJSONTimeout(v interface{}, timeout time.Duration) error {
+	if timeout >= 0 {
+		c.ws.SetReadDeadline(time.Now().Add(timeout))
+	} else {
+		c.ws.SetReadDeadline(time.Time{})
+	}
 	if err := c.ws.ReadJSON(v); err != nil {
 		log.Println(err)
 		return err
@@ -56,7 +63,6 @@ func (c *Conn) ReadJSON(v interface{}) error {
 	if b, err := json.Marshal(v); err == nil {
 		fmt.Println(">>>", time.Now().Format("15:04:05"), string(b))
 	}
-
 	return nil
 }
 
@@ -89,6 +95,7 @@ func (c *Conn) writePump() {
 				c.write(websocket.CloseMessage, []byte{})
 				return
 			}
+			c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.ws.WriteJSON(message); err != nil {
 				log.Println(err)
 				return

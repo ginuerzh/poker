@@ -28,7 +28,7 @@ func NewRoom(id string, n int, sb, bb int) *Room {
 
 	room := &Room{
 		Id:        id,
-		Occupants: make([]*Occupant, sb, bb),
+		Occupants: make([]*Occupant, n),
 		SB:        sb,
 		BB:        bb,
 		lock:      &sync.Mutex{},
@@ -83,7 +83,7 @@ func (room *Room) action(start int) {
 				return true
 			}
 
-			msg, _ := o.GetMessage(readWait)
+			msg, _ := o.GetAction(readWait)
 
 			m := &Message{
 				Id:     room.Id,
@@ -182,6 +182,7 @@ func (room *Room) start() {
 
 	room.Bet = room.BB
 
+	// Round 1 : preflop
 	room.Each(sb.Pos, func(o *Occupant) bool {
 		if o == nil {
 			return true
@@ -199,9 +200,9 @@ func (room *Room) start() {
 	})
 	// Under the Gun
 	utg := bb.Next()
-	// Round 1 : preflop
 	room.action(utg.Pos)
 
+	// Round 2 : Flop
 	room.Cards = []string{"card1", "card2", "card3"}
 	room.Broadcast(&Message{
 		Id:     room.Id,
@@ -209,9 +210,9 @@ func (room *Room) start() {
 		Action: ActFlop,
 		Class:  strings.Join(room.Cards, ","),
 	})
-	// Round 2 : Flop
 	room.action(sb.Pos)
 
+	// Round 3 : Turn
 	room.Cards = append(room.Cards, "card4")
 	room.Broadcast(&Message{
 		Id:     room.Id,
@@ -219,9 +220,9 @@ func (room *Room) start() {
 		Action: ActTurn,
 		Class:  room.Cards[3],
 	})
-	// Round 3 : Turn
 	room.action(sb.Pos)
 
+	// Round 4 : River
 	room.Cards = append(room.Cards, "card5")
 	room.Broadcast(&Message{
 		Id:     room.Id,
@@ -229,8 +230,9 @@ func (room *Room) start() {
 		Action: ActRiver,
 		Class:  room.Cards[4],
 	})
-	// Round 4 : River
 	room.action(sb.Pos)
+
+	// Final : Showdown
 
 }
 

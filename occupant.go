@@ -2,6 +2,7 @@ package poker
 
 import (
 	"errors"
+	"log"
 	"strconv"
 	"time"
 )
@@ -20,49 +21,38 @@ type Occupant struct {
 	conn *Conn
 	room *Room
 
-	recv chan *Message
+	recv    chan *Message
+	Actions chan *Message `json:"-"`
 }
 
 func NewOccupant(conn *Conn) *Occupant {
-	return &Occupant{
-		conn: conn,
-		recv: make(chan *Message, 1),
+	o := &Occupant{
+		conn:    conn,
+		recv:    make(chan *Message, 8),
+		Actions: make(chan *Message, 1),
 	}
+
+	go func() {
+		for {
+			m := &Message{}
+			if err := o.conn.ReadJSON(m); err != nil {
+				close(o.recv)
+				o.recv = nil
+				return
+			}
+			select {
+			case o.recv <- m:
+			default:
+				log.Println("dropped")
+			}
+		}
+	}()
+
+	return o
 }
 
-func (o *Occupant) HandleMessage() error {
-	for {
-		message := &Message{}
-		if err := o.conn.ReadJSON(message); err != nil {
-			return err
-		}
-
-		switch message.Type {
-		case MsgIQ:
-		case MsgPresence:
-			go o.handlePresence(message)
-		case MsgMessage:
-		}
-	}
-}
-
-func (o *Occupant) handlePresence(message *Message) {
-	switch message.Action {
-	case ActActive:
-	case ActJoin:
-		room := o.Join("")
-		if room == nil {
-			o.SendError(1, "room not found")
-			return
-		}
-	case ActLeave:
-		o.Leave()
-	case ActBet:
-		select {
-		case o.recv <- message:
-		default:
-		}
-	}
+func (o *Occupant) Room() *Room {
+	return o.room
 }
 
 func (o *Occupant) Broadcast(message *Message) {
@@ -86,9 +76,27 @@ func (o *Occupant) SendError(code int, err string) error {
 }
 
 func (o *Occupant) GetMessage(timeout time.Duration) (*Message, error) {
-	timer := time.NewTimer(timeout) // timeout: 20s
+	if o.recv == nil {
+		return nil, errors.New("channel closed")
+	}
+	if timeout < 0 {
+		m := <-o.recv
+		return m, nil
+	}
+
+	timer := time.NewTimer(timeout)
 	select {
 	case m := <-o.recv:
+		return m, nil
+	case <-timer.C:
+		return nil, errors.New("timeout")
+	}
+}
+
+func (o *Occupant) GetAction(timeout time.Duration) (*Message, error) {
+	timer := time.NewTimer(timeout)
+	select {
+	case m := <-o.Actions:
 		return m, nil
 	case <-timer.C:
 		return nil, errors.New("timeout")

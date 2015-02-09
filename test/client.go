@@ -1,13 +1,21 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"github.com/ginuerzh/poker"
 	"github.com/gorilla/websocket"
 	"log"
 	"net"
 	"net/url"
+	"os"
 	"strconv"
+	"strings"
 	"time"
+)
+
+const (
+	readWait = 10 * time.Second
 )
 
 func main() {
@@ -52,25 +60,64 @@ func main() {
 		return
 	}
 
-	occupant := poker.NewOccupant(conn)
+	o := poker.NewOccupant(conn)
 
-	msg := &poker.Message{
-		Type:   poker.MsgPresence,
-		From:   auth.Text,
-		Action: poker.ActJoin,
-	}
-
-	if err := conn.WriteJSON(msg); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := conn.ReadJSON(msg); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("pos", msg.Class)
+	go cmdLoop(o)
 
 	for {
+		message, _ := o.GetMessage(-1)
+		if message == nil {
+			break
+		}
 
+		switch message.Type {
+		case poker.MsgPresence:
+			handlePresence(o, message)
+		}
+	}
+
+}
+
+func handlePresence(o *poker.Occupant, message *poker.Message) {
+	switch message.Action {
+	case poker.ActButton:
+
+	}
+}
+
+func cmdLoop(o *poker.Occupant) {
+
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("poker> ")
+		cmd, _ := reader.ReadString('\n')
+		cmd = strings.ToLower(strings.Trim(cmd, " \n"))
+
+		if len(cmd) == 0 {
+			continue
+		}
+		switch cmd[0] {
+		case 'j':
+			o.SendMessage(&poker.Message{
+				Type:   poker.MsgPresence,
+				Action: poker.ActJoin,
+			})
+
+		case 'l':
+			o.SendMessage(&poker.Message{
+				Type:   poker.MsgPresence,
+				Action: poker.ActLeave,
+			})
+		case 'q':
+			return
+		default:
+			bet, _ := strconv.ParseInt(cmd, 10, 32)
+			o.SendMessage(&poker.Message{
+				Type:   poker.MsgPresence,
+				Action: poker.ActBet,
+				Class:  strconv.FormatInt(bet, 10),
+			})
+		}
 	}
 }

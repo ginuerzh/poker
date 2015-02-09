@@ -12,10 +12,11 @@ const (
 	MsgPresence = "presence"
 	MsgMessage  = "message"
 
-	ActPreflop = "preflop"
-	ActFlop    = "flop"
-	ActTurn    = "turn"
-	ActRiver   = "river"
+	ActPreflop  = "preflop"
+	ActFlop     = "flop"
+	ActTurn     = "turn"
+	ActRiver    = "river"
+	ActShowdown = "showdown"
 
 	ActActive = "active"
 	ActJoin   = "join"
@@ -35,6 +36,7 @@ var (
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+		CheckOrigin:     func(r *http.Request) bool { return true },
 	}
 )
 
@@ -72,10 +74,6 @@ func NewError(code int, err string) *Error {
 }
 
 func PokerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", 405)
-		return
-	}
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
@@ -89,9 +87,10 @@ func PokerHandler(w http.ResponseWriter, r *http.Request) {
 			return nil
 		})
 	conn := NewConn(ws, 256)
+	defer conn.Close()
 
 	ver := &Version{}
-	if err := conn.ReadJSON(ver); err != nil {
+	if err := conn.ReadJSONTimeout(ver, readWait); err != nil {
 		return
 	}
 	if err := conn.WriteJSON(ver); err != nil {
@@ -99,7 +98,7 @@ func PokerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	auth := &Auth{}
-	if err := conn.ReadJSON(auth); err != nil {
+	if err := conn.ReadJSONTimeout(auth, readWait); err != nil {
 		return
 	}
 	if err := conn.WriteJSON(&Error{Code: 0, Err: "success"}); err != nil {
@@ -111,5 +110,38 @@ func PokerHandler(w http.ResponseWriter, r *http.Request) {
 	o.Name = auth.Text
 	o.Chips = 1000
 
-	o.HandleMessage()
+	for {
+		message, _ := o.GetMessage(-1)
+		if message == nil {
+			break
+		}
+
+		switch message.Type {
+		case MsgIQ:
+		case MsgPresence:
+			go handlePresence(o, message)
+		case MsgMessage:
+		}
+	}
+
+	o.Leave()
+}
+
+func handlePresence(o *Occupant, message *Message) {
+	switch message.Action {
+	case ActActive:
+	case ActJoin:
+		room := o.Join("")
+		if room == nil {
+			o.SendError(1, "room not found")
+			return
+		}
+	case ActLeave:
+		o.Leave()
+	case ActBet:
+		select {
+		case o.Actions <- message:
+		default:
+		}
+	}
 }
