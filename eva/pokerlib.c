@@ -165,6 +165,7 @@ eval_5cards( int c1, int c2, int c3, int c4, int c5 )
     q = (c1&0xFF) * (c2&0xFF) * (c3&0xFF) * (c4&0xFF) * (c5&0xFF);
     q = findit( q );
 
+    
     return( values[q] );
 }
 

@@ -114,6 +114,7 @@ int main(int argc, char *argv[]) {
 
   printf("Hand: %d-%d %d-%d %d-%d %d-%d %d-%d\n", r1, s1, r2, s2, r3, s3, r4, s4, r5, s5);
 
+  printf( "eval_5cards: %d\n", eval_5cards(c1, c2, c3, c4, c5));
   int rank = hand_rank(eval_5cards(c1, c2, c3, c4, c5));
 
   print_rank(rank);

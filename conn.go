@@ -13,7 +13,7 @@ const (
 	// Time allowed to write a message to the peer.
 	writeWait = 10 * time.Second
 
-	readWait = 15 * time.Second
+	readWait = 60 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Second
@@ -27,13 +27,13 @@ const (
 
 type Conn struct {
 	ws   *websocket.Conn
-	send chan interface{}
+	send chan []byte
 }
 
 func NewConn(ws *websocket.Conn, sendBuffer int) *Conn {
 	conn := &Conn{
 		ws:   ws,
-		send: make(chan interface{}, sendBuffer),
+		send: make(chan []byte, sendBuffer),
 	}
 	go conn.writePump()
 
@@ -46,17 +46,16 @@ func (c *Conn) write(mt int, payload []byte) error {
 }
 
 func (c *Conn) ReadJSON(v interface{}) error {
-	return c.ReadJSONTimeout(v, -1)
+	return c.ReadJSONTimeout(v, 0)
 }
 
 func (c *Conn) ReadJSONTimeout(v interface{}, timeout time.Duration) error {
-	if timeout >= 0 {
+	if timeout > 0 {
 		c.ws.SetReadDeadline(time.Now().Add(timeout))
 	} else {
 		c.ws.SetReadDeadline(time.Time{})
 	}
 	if err := c.ws.ReadJSON(v); err != nil {
-		log.Println(err)
 		return err
 	}
 
@@ -67,8 +66,13 @@ func (c *Conn) ReadJSONTimeout(v interface{}, timeout time.Duration) error {
 }
 
 func (c *Conn) WriteJSON(v interface{}) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
 	select {
-	case c.send <- v:
+	case c.send <- b:
 		return nil
 	default:
 		return errors.New("buffer full")
@@ -96,13 +100,12 @@ func (c *Conn) writePump() {
 				return
 			}
 			c.ws.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.ws.WriteJSON(message); err != nil {
+			if err := c.write(websocket.TextMessage, message); err != nil {
 				log.Println(err)
 				return
 			}
-			if b, err := json.Marshal(message); err == nil {
-				fmt.Println("<<<", time.Now().Format("15:04:05"), string(b))
-			}
+
+			fmt.Println("<<<", time.Now().Format("15:04:05"), string(message))
 		case <-ticker.C:
 			c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.write(websocket.PingMessage, []byte{}); err != nil {

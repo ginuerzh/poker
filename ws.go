@@ -2,6 +2,7 @@ package poker
 
 import (
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,6 +18,7 @@ const (
 	ActTurn     = "turn"
 	ActRiver    = "river"
 	ActShowdown = "showdown"
+	ActPot      = "pot"
 
 	ActActive = "active"
 	ActJoin   = "join"
@@ -25,11 +27,13 @@ const (
 	ActButton = "button"
 	ActState  = "state"
 
-	ActCall  = "call"
-	ActCheck = "check"
-	ActRaise = "raise"
-	ActFold  = "fold"
-	ActAllin = "allin"
+	ActAction = "action"
+	ActReady  = "ready"
+	ActCall   = "call"
+	ActCheck  = "check"
+	ActRaise  = "raise"
+	ActFold   = "fold"
+	//ActAllin  = "allin"
 )
 
 var (
@@ -41,18 +45,18 @@ var (
 )
 
 type Message struct {
-	Id     string        `json:"id,omitempty"`
-	Type   string        `json:"type"`
-	From   string        `json:"from,omitempty"`
-	To     string        `json:"to,omitempty"`
-	Action string        `json:"action"`
-	Class  string        `json:"class,omitempty"`
-	Body   []interface{} `json:"body,omitempty"`
-	State  *Room         `json:"state,omitempty"`
+	Id       string    `json:"id,omitempty"`
+	Type     string    `json:"type"`
+	From     string    `json:"from,omitempty"`
+	To       string    `json:"to,omitempty"`
+	Action   string    `json:"action"`
+	Class    string    `json:"class,omitempty"`
+	Occupant *Occupant `json:"occupant,omitempty"`
+	Room     *Room     `json:"room,omitempty"`
 }
 
 type Version struct {
-	Id  string `json:"id"`
+	//Id  string `json:"id"`
 	Ver string `json:"version"`
 }
 
@@ -61,9 +65,16 @@ type Auth struct {
 	Text      string `json:"text"`
 }
 
+type AuthResp struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Level int    `json:"level"`
+	Chips int    `json:"chips"`
+}
+
 type Error struct {
-	Code int    `json:"code"`
-	Err  string `json:"error"`
+	Code int    `json:"code,omitempty"`
+	Err  string `json:"error,omitempty"`
 }
 
 func NewError(code int, err string) *Error {
@@ -101,17 +112,17 @@ func PokerHandler(w http.ResponseWriter, r *http.Request) {
 	if err := conn.ReadJSONTimeout(auth, readWait); err != nil {
 		return
 	}
-	if err := conn.WriteJSON(&Error{Code: 0, Err: "success"}); err != nil {
+
+	o := NewOccupant(strconv.FormatInt(time.Now().Unix(), 10), conn)
+	o.Name = auth.Text
+	o.Chips = 10000
+
+	if err := conn.WriteJSON(o); err != nil {
 		return
 	}
 
-	o := NewOccupant(conn)
-	o.Id = strconv.FormatInt(time.Now().UnixNano(), 10)
-	o.Name = auth.Text
-	o.Chips = 1000
-
 	for {
-		message, _ := o.GetMessage(-1)
+		message, _ := o.GetMessage(0)
 		if message == nil {
 			break
 		}
@@ -125,14 +136,14 @@ func PokerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	o.Leave()
+	log.Println(o.Name, "disconnected.")
 }
 
 func handlePresence(o *Occupant, message *Message) {
 	switch message.Action {
 	case ActActive:
 	case ActJoin:
-		room := o.Join("")
-		if room == nil {
+		if room := o.Join("0"); room == nil {
 			o.SendError(1, "room not found")
 			return
 		}

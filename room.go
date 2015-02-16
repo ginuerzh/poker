@@ -1,29 +1,36 @@
 package poker
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
+const (
+	actionWait = 20 * time.Second
+)
+
 type Room struct {
 	Id        string      `json:"id"`
 	SB        int         `json:"sb"`
 	BB        int         `json:"bb"`
-	Cards     []string    `json:"cards"`
-	Mainpot   int         `json:"mainpot"`
-	Sidepot   []int       `json"sidepot"`
+	Cards     []Card      `json:"cards"`
+	Pot       []int       `json:"pot"`
+	Timeout   int         `json:"timeout"`
 	Button    int         `json:"button"`
 	Occupants []*Occupant `json:"occupants"`
 	Bet       int         `json:"bet"`
 	N         int         `json:"n"`
-	lock      *sync.Mutex
+	remain    int
+	lock      sync.Mutex
+	deck      *Deck
 }
 
 func NewRoom(id string, n int, sb, bb int) *Room {
 	if n <= 0 {
-		n = 10 // default 10 occupants
+		n = 9 // default 9 occupants
 	}
 
 	room := &Room{
@@ -31,12 +38,15 @@ func NewRoom(id string, n int, sb, bb int) *Room {
 		Occupants: make([]*Occupant, n),
 		SB:        sb,
 		BB:        bb,
-		lock:      &sync.Mutex{},
+		Pot:       make([]int, 1),
+		Timeout:   20,
+		lock:      sync.Mutex{},
+		deck:      NewDeck(),
 	}
 	go func() {
 		for {
 			room.start()
-			time.Sleep(1 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}()
 
@@ -47,8 +57,46 @@ func (room *Room) Cap() int {
 	return len(room.Occupants)
 }
 
-func (room *Room) Len() int {
-	return room.N
+func (room *Room) Occupant(id string) *Occupant {
+	for _, o := range room.Occupants {
+		if o != nil && o.Id == id {
+			return o
+		}
+	}
+
+	return nil
+}
+
+func (room *Room) AddOccupant(o *Occupant) int {
+	room.lock.Lock()
+	defer room.lock.Unlock()
+
+	for pos, _ := range room.Occupants {
+		if room.Occupants[pos] == nil {
+			room.Occupants[pos] = o
+			room.N++
+			o.Room = room
+			o.Pos = pos + 1
+			break
+		}
+	}
+
+	return o.Pos
+}
+
+func (room *Room) DelOccupant(o *Occupant) {
+	if o == nil || o.Pos == 0 {
+		return
+	}
+
+	room.lock.Lock()
+	defer room.lock.Unlock()
+
+	room.Occupants[o.Pos-1] = nil
+	room.N--
+	if o.Action == ActReady || len(o.Cards) > 0 {
+		room.remain--
+	}
 }
 
 func (room *Room) Broadcast(message *Message) {
@@ -59,6 +107,7 @@ func (room *Room) Broadcast(message *Message) {
 	}
 }
 
+// start starts from 0
 func (room *Room) Each(start int, f func(o *Occupant) bool) {
 	end := (room.Cap() + start - 1) % room.Cap()
 	i := start
@@ -72,51 +121,199 @@ func (room *Room) Each(start int, f func(o *Occupant) bool) {
 	f(room.Occupants[i])
 }
 
-func (room *Room) action(start int) {
+func (room *Room) start() {
+	var dealer *Occupant
+
+	room.deck.Shuffle()
+
+	room.Each(0, func(o *Occupant) bool {
+		if o != nil && o.Chips < room.BB {
+			o.Leave()
+		}
+		return true
+	})
+
+	// Select Dealer
+	room.Each((room.Button+1)%room.Cap(), func(o *Occupant) bool {
+		if o == nil || o.Chips < room.BB {
+			return true
+		}
+		room.Button = o.Pos
+		dealer = o
+		return false
+	})
+
+	if dealer == nil {
+		return
+	}
+
+	room.lock.Lock()
+	if room.N < 2 {
+		room.lock.Unlock()
+		return
+	}
+	// Small Blind
+	sb := dealer.Next()
+	if room.N == 2 { // one-to-one
+		sb = dealer
+	}
+	// Big Blind
+	bb := sb.Next()
+	bbPos := bb.Pos
+
+	room.Pot = make([]int, 1)
+	room.Bet = 0
+	room.Cards = nil
+	room.remain = 0
+	room.Each(0, func(o *Occupant) bool {
+		if o != nil {
+			o.Bet = 0
+			o.Cards = nil
+			o.Hand = 0
+			o.Action = ActReady
+			room.remain++
+		}
+		return true
+	})
+	room.lock.Unlock()
+
+	room.Broadcast(&Message{
+		From:   room.Id,
+		Type:   MsgPresence,
+		Action: ActButton,
+		Class:  strconv.Itoa(room.Button),
+	})
+
+	room.betting(sb.Pos, room.SB)
+	room.betting(bb.Pos, room.BB)
+
+	// Round 1 : preflop
+	room.Each(sb.Pos-1, func(o *Occupant) bool {
+		if o == nil {
+			return true
+		}
+		o.Cards = []Card{room.deck.Take(), room.deck.Take()}
+
+		o.SendMessage(&Message{
+			From:   room.Id,
+			Type:   MsgPresence,
+			Action: ActPreflop,
+			Class:  o.Cards[0].String() + "," + o.Cards[1].String(),
+		})
+		return true
+	})
+
+	room.action(bbPos%room.Cap() + 1)
+	if room.remain <= 1 {
+		goto showdown
+	}
+
+	// Round 2 : Flop
+	room.ready()
+	room.Cards = []Card{
+		room.deck.Take(),
+		room.deck.Take(),
+		room.deck.Take(),
+	}
+	room.Broadcast(&Message{
+		From:   room.Id,
+		Type:   MsgPresence,
+		Action: ActFlop,
+		Class:  room.Cards[0].String() + "," + room.Cards[1].String() + "," + room.Cards[2].String(),
+	})
+	room.action(0)
+	if room.remain <= 1 {
+		goto showdown
+	}
+
+	// Round 3 : Turn
+	room.ready()
+	room.Cards = append(room.Cards, room.deck.Take())
+	room.Broadcast(&Message{
+		From:   room.Id,
+		Type:   MsgPresence,
+		Action: ActTurn,
+		Class:  room.Cards[3].String(),
+	})
+	room.action(0)
+	if room.remain <= 1 {
+		goto showdown
+	}
+
+	// Round 4 : River
+	room.ready()
+	room.Cards = append(room.Cards, room.deck.Take())
+	room.Broadcast(&Message{
+		From:   room.Id,
+		Type:   MsgPresence,
+		Action: ActRiver,
+		Class:  room.Cards[4].String(),
+	})
+	room.action(0)
+
+	room.Each(0, func(o *Occupant) bool {
+		if o == nil || len(o.Cards) == 0 {
+			return true
+		}
+
+		var hand [7]Card
+		cards := hand[0:0:7]
+		cards = append(cards, o.Cards...)
+		cards = append(cards, room.Cards...)
+
+		v := Eva7Hand(hand)
+		o.Hand = HandRank(v)
+		return true
+	})
+
+showdown:
+
+	// Final : Showdown
+	room.Broadcast(&Message{
+		From:   room.Id,
+		Type:   MsgPresence,
+		Action: ActShowdown,
+		Room:   room,
+	})
+}
+
+func (room *Room) action(pos int) {
 	skip := 0
+	if pos == 0 { // start from button left
+		pos = (room.Button)%room.Cap() + 1
+	}
 
 	for {
 		raised := 0
 
-		room.Each(start, func(o *Occupant) bool {
-			if o == nil || o.Action == ActFold || o.Chips == 0 || o.Pos+1 == skip {
+		room.Each(pos-1, func(o *Occupant) bool {
+			if room.remain <= 1 {
+				return false
+			}
+			if o == nil || o.Pos == skip || o.Chips == 0 || len(o.Cards) == 0 {
 				return true
 			}
 
-			msg, _ := o.GetAction(readWait)
-
-			m := &Message{
-				Id:     room.Id,
+			room.Broadcast(&Message{
+				From:   room.Id,
 				Type:   MsgPresence,
-				From:   o.Id,
-				Action: ActBet,
-				Class:  "-1",
-			}
+				Action: ActAction,
+				Class:  fmt.Sprintf("%d,%d", o.Pos, room.Bet),
+			})
+			msg, _ := o.GetAction(time.Duration(room.Timeout) * time.Second)
 
+			n := 0
+			// timeout or leave
 			if msg == nil || len(msg.Class) == 0 {
-				o.Action = ActFold
-				room.Broadcast(m)
-				return true
+				n = -1
+			} else {
+				n, _ = strconv.Atoi(msg.Class)
 			}
 
-			m.Class = msg.Class
-			room.Broadcast(m)
+			room.betting(o.Pos, n)
 
-			n, _ := strconv.Atoi(msg.Class)
-			if n < 0 {
-				o.Action = ActFold
-			} else if n == 0 {
-				o.Action = ActCheck
-			} else if n <= room.Bet {
-				o.Action = ActCall
-				o.Chips -= (n - o.Bet)
-				o.Bet = n
-			} else {
-				o.Action = ActRaise
-				o.Chips -= (n - o.Bet)
-				room.Bet = n
-				o.Bet = room.Bet
-				raised = o.Pos + 1 // bet raised
+			if o.Action == ActRaise {
+				raised = o.Pos
 				return false
 			}
 
@@ -127,117 +324,64 @@ func (room *Room) action(start int) {
 			break
 		}
 
-		start = raised - 1
-		skip = start
+		pos = raised
+		skip = pos
 	}
 
+	var pots []string
+	for _, pot := range room.Pot {
+		pots = append(pots, strconv.Itoa(pot))
+	}
+	room.Broadcast(&Message{
+		From:   room.Id,
+		Type:   MsgPresence,
+		Action: ActPot,
+		Class:  strings.Join(pots, ","),
+	})
+}
+
+func (room *Room) ready() {
+	room.Bet = 0
+	room.lock.Lock()
+	defer room.lock.Unlock()
+
 	room.Each(0, func(o *Occupant) bool {
-		if o != nil {
-			room.Mainpot += o.Bet
-			o.Bet = 0
-			o.Action = ""
+		if o == nil {
+			return true
 		}
+		o.Bet = 0
+		o.Action = ActReady
 		return true
 	})
 }
 
-func (room *Room) start() {
-
-	var dealer *Occupant
-	// Select Dealer
-	room.Each((room.Button+1)%room.Cap(), func(o *Occupant) bool {
-		if o == nil {
-			return true
-		}
-		room.Button = o.Pos
-		dealer = o
-		return false
-	})
-
-	if dealer == nil || room.Len() < 2 {
+func (room *Room) betting(pos, n int) {
+	if pos <= 0 {
 		return
 	}
 
-	room.Broadcast(&Message{
-		Id:     room.Id,
-		Type:   MsgPresence,
-		Action: ActButton,
-		Class:  strconv.Itoa(room.Button),
-	})
-
-	// Small Blind
-	sb := dealer.Next()
-	if room.Len() == 2 {
-		sb = dealer
+	room.lock.Lock()
+	o := room.Occupants[pos-1]
+	if o == nil {
+		return
 	}
-	sb.Action = ActCall
-	sb.Bet = room.SB
-	sb.Chips -= sb.Bet
+	o.Betting(n)
+	if o.Action == ActFold { // fold
+		room.remain--
+	}
+	room.lock.Unlock()
 
-	// Big Blind
-	bb := sb.Next()
-	bb.Action = ActRaise
-	bb.Bet = room.BB
-	bb.Chips -= bb.Bet
-
-	room.Bet = room.BB
-
-	// Round 1 : preflop
-	room.Each(sb.Pos, func(o *Occupant) bool {
-		if o == nil {
-			return true
-		}
-		card1, card2 := "card1", "card2"
-		o.Cards = []string{card1, card2}
-
-		o.SendMessage(&Message{
-			Id:     room.Id,
-			Type:   MsgPresence,
-			Action: ActPreflop,
-			Class:  "card1,card2",
-		})
-		return true
-	})
-	// Under the Gun
-	utg := bb.Next()
-	room.action(utg.Pos)
-
-	// Round 2 : Flop
-	room.Cards = []string{"card1", "card2", "card3"}
 	room.Broadcast(&Message{
 		Id:     room.Id,
 		Type:   MsgPresence,
-		Action: ActFlop,
-		Class:  strings.Join(room.Cards, ","),
+		From:   o.Id,
+		Action: ActBet,
+		Class:  strconv.Itoa(n),
 	})
-	room.action(sb.Pos)
-
-	// Round 3 : Turn
-	room.Cards = append(room.Cards, "card4")
-	room.Broadcast(&Message{
-		Id:     room.Id,
-		Type:   MsgPresence,
-		Action: ActTurn,
-		Class:  room.Cards[3],
-	})
-	room.action(sb.Pos)
-
-	// Round 4 : River
-	room.Cards = append(room.Cards, "card5")
-	room.Broadcast(&Message{
-		Id:     room.Id,
-		Type:   MsgPresence,
-		Action: ActRiver,
-		Class:  room.Cards[4],
-	})
-	room.action(sb.Pos)
-
-	// Final : Showdown
-
 }
 
 var (
-	rooms = map[string]*Room{"": NewRoom("", 10, 5, 10)}
+	rooms = map[string]*Room{"0": NewRoom("0", 9, 5, 10)}
 )
 
 func GetRoom(rid string) *Room {

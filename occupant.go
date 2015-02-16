@@ -3,33 +3,37 @@ package poker
 import (
 	"errors"
 	"log"
-	"strconv"
+	//"strconv"
 	"time"
 )
 
 type Occupant struct {
-	Id    string `json:"id"`
-	Name  string `json:"name"`
-	Level int    `json:"level"`
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Profile string `json:"profile"`
+	Level   int    `json:"level"`
+	Chips   int    `json:"chips"`
 
-	Pos    int      `json:"index"`
-	Chips  int      `json:"chips"`
-	Bet    int      `json:"bet"`
-	Action string   `json:"action"`
-	Cards  []string `json:"cards"`
+	Pos    int    `json:"index,omitempty"`
+	Bet    int    `json:"bet,omitempty"`
+	Action string `json:"action,omitempty"`
+	Cards  []Card `json:"cards,omitempty"`
+	Hand   int    `json:"hand,omitempty"`
 
 	conn *Conn
-	room *Room
+	Room *Room `json:"-"`
 
 	recv    chan *Message
 	Actions chan *Message `json:"-"`
+	timer   *time.Timer   // action timer
 }
 
-func NewOccupant(conn *Conn) *Occupant {
+func NewOccupant(id string, conn *Conn) *Occupant {
 	o := &Occupant{
+		Id:      id,
 		conn:    conn,
-		recv:    make(chan *Message, 8),
-		Actions: make(chan *Message, 1),
+		recv:    make(chan *Message, 128),
+		Actions: make(chan *Message, 8),
 	}
 
 	go func() {
@@ -51,16 +55,12 @@ func NewOccupant(conn *Conn) *Occupant {
 	return o
 }
 
-func (o *Occupant) Room() *Room {
-	return o.room
-}
-
 func (o *Occupant) Broadcast(message *Message) {
-	if o.room == nil {
+	if o.Room == nil {
 		return
 	}
 
-	for _, oc := range o.room.Occupants {
+	for _, oc := range o.Room.Occupants {
 		if oc != nil && oc != o {
 			oc.SendMessage(message)
 		}
@@ -79,7 +79,7 @@ func (o *Occupant) GetMessage(timeout time.Duration) (*Message, error) {
 	if o.recv == nil {
 		return nil, errors.New("channel closed")
 	}
-	if timeout < 0 {
+	if timeout <= 0 {
 		m := <-o.recv
 		return m, nil
 	}
@@ -93,12 +93,39 @@ func (o *Occupant) GetMessage(timeout time.Duration) (*Message, error) {
 	}
 }
 
+func (o *Occupant) Betting(n int) {
+	room := o.Room
+	if room == nil {
+		return
+	}
+
+	if n < 0 {
+		o.Action = ActFold
+		o.Cards = nil
+		n = 0
+	} else if n == 0 {
+		o.Action = ActCheck
+	} else if n+o.Bet <= room.Bet {
+		o.Action = ActCall
+		o.Chips -= n
+		o.Bet += n
+	} else {
+		o.Action = ActRaise
+		o.Chips -= n
+		o.Bet += n
+		room.Bet = o.Bet
+	}
+	room.Pot[0] += n
+
+}
+
 func (o *Occupant) GetAction(timeout time.Duration) (*Message, error) {
-	timer := time.NewTimer(timeout)
+	o.timer = time.NewTimer(timeout)
+
 	select {
 	case m := <-o.Actions:
 		return m, nil
-	case <-timer.C:
+	case <-o.timer.C:
 		return nil, errors.New("timeout")
 	}
 }
@@ -109,71 +136,68 @@ func (o *Occupant) Join(rid string) (room *Room) {
 		return
 	}
 
-	room.lock.Lock()
-	defer room.lock.Unlock()
+	o.Bet = 0
+	o.Cards = nil
+	o.Hand = 0
+	o.Action = ""
+	o.Pos = 0
+	o.Room = nil
 
-	for pos, _ := range room.Occupants {
-		if room.Occupants[pos] == nil {
-			room.Occupants[pos] = o
-			room.N++
-			o.room = room
-			o.Pos = pos
-			break
-		}
-	}
+	room.AddOccupant(o)
 
 	o.Broadcast(&Message{
-		Id:     room.Id,
-		Type:   MsgPresence,
-		From:   o.Id,
-		Action: ActJoin,
-		Class:  strconv.Itoa(o.Pos),
+		From:     room.Id,
+		Type:     MsgPresence,
+		Action:   ActJoin,
+		Occupant: o,
 	})
-
 	o.SendMessage(&Message{
-		Id:     room.Id,
-		Type:   MsgPresence,
 		From:   room.Id,
-		Action: ActJoin,
-		Class:  strconv.Itoa(o.Pos),
-		State:  room,
+		Type:   MsgPresence,
+		Action: ActState,
+		Room:   room,
 	})
 
 	return
 }
 
 func (o *Occupant) Leave() (room *Room) {
-	room = o.room
+	room = o.Room
 	if room == nil {
 		return
 	}
 
-	room.lock.Lock()
-	defer room.lock.Unlock()
+	room.DelOccupant(o)
 
 	o.Broadcast(&Message{
-		Id:     room.Id,
-		Type:   MsgPresence,
-		From:   o.Id,
-		Action: ActLeave,
+		From:     room.Id,
+		Type:     MsgPresence,
+		Action:   ActLeave,
+		Occupant: o,
 	})
 
-	room.N--
-	room.Occupants[o.Pos] = nil
-	o.room = nil
+	o.Bet = 0
+	o.Cards = nil
+	o.Hand = 0
+	o.Action = ""
 	o.Pos = 0
+	o.Room = nil
+	if o.timer != nil {
+		o.timer.Reset(0)
+	}
 
 	return
 }
 
 func (o *Occupant) Next() *Occupant {
-	if o.room == nil {
+	room := o.Room
+	if room == nil {
 		return nil
 	}
 
-	for i := (o.Pos + 1) % o.room.Cap(); i != o.Pos; i = (i + 1) % o.room.Cap() {
-		if o.room.Occupants[i] != nil {
-			return o.room.Occupants[i]
+	for i := (o.Pos) % room.Cap(); i != o.Pos-1; i = (i + 1) % room.Cap() {
+		if room.Occupants[i] != nil {
+			return room.Occupants[i]
 		}
 	}
 
