@@ -38,18 +38,24 @@ var MainState = function() {
     this.button1;                       //按钮1
     this.button2;                       //按钮2
     this.button3;                       //按钮3
+    this.buttonGroup1;
+    this.buttonGroup2;
+    this.buttonGroup3;
     this.waitbutton1;                   //等待时按钮1
     this.waitbutton2;                   //等待时按钮2
     this.waitbutton3;                   //等待时按钮3
-    this.waitGroup1;
-    this.waitGroup2;
-    this.waitGroup3;
+    this.waitButtonGroup1;
+    this.waitButtonGroup2;
+    this.waitButtonGroup3;
     this.lbLookorGiveup;                //文本(看牌或弃牌)
-    this.imgLookorGiveup;               //选择(看牌或弃牌)
     this.lbCall;                        //文本(跟注)
-    this.imgCall;                       //选择(跟注)
     this.lbCallEvery;                   //文本(全下)
-    this.imgCallEvery;                  //选择(全下)
+    this.lbLookorGiveupWait;            //文本(看牌或弃牌,等待)
+    this.imgLookorGiveupWait;           //选择(看牌或弃牌,等待)
+    this.lbCallWait;                    //文本(跟注,等待)
+    this.imgCallWait;                   //选择(跟注,等待)
+    this.lbCallEveryWait;               //文本(全下,等待)
+    this.imgCallEveryWait;              //选择(全下,等待)
     this.blinds;                        //盲注控件
     this.publicCards;                   //公共牌（五张）
     this.praviteCards;                  //底牌(别人的八张)
@@ -94,6 +100,7 @@ MainState.prototype = {
         game.load.image("dcardBK", "assets/card_backs_rotate.png");
         game.load.image("checkOn", "assets/check-on.png");
         game.load.image("checkOff", "assets/check-off.png");
+        game.load.image("chipbox", "assets/add-chips-box.png");
     },
 
     create: function() {
@@ -195,9 +202,6 @@ MainState.prototype = {
         this.button1.scale.setTo(this.scale, this.scale);
         this.button2.scale.setTo(this.scale, this.scale);
         this.button3.scale.setTo(this.scale, this.scale);
-        this.button1.visible = false;
-        this.button2.visible = false;
-        this.button3.visible = false;
         this.waitbutton1 = game.add.button(buttonPosRate1.x * imageBK.width + xOffset, buttonPosRate1.y * imageBK.height + yOffset, 'buttonblue', this.waitOnClick1, this);
         this.waitbutton2 = game.add.button(buttonPosRate2.x * imageBK.width + xOffset, buttonPosRate2.y * imageBK.height + yOffset, 'buttonblue', this.waitOnClick2, this);
         this.waitbutton3 = game.add.button(buttonPosRate3.x * imageBK.width + xOffset, buttonPosRate3.y * imageBK.height + yOffset, 'buttonblue', this.waitOnClick3, this);
@@ -205,42 +209,69 @@ MainState.prototype = {
         this.waitbutton2.scale.setTo(this.scale, this.scale);
         this.waitbutton3.scale.setTo(this.scale, this.scale);
 
-        this.waitGroup1 = game.add.group();
-        this.waitGroup2 = game.add.group();
-        this.waitGroup3 = game.add.group();
-        this.waitGroup1.visible = false;
-        this.waitGroup2.visible = false;
-        this.waitGroup3.visible = false;
-        var style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
-        this.lbLookorGiveup = game.add.text(buttonPosRate1.x * imageBK.width + xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.waitbutton1.height, "看牌或弃牌", style);
-        this.lbLookorGiveup.anchor.set(0, 0.5);
+        this.buttonGroup1 = game.add.group();
+        this.buttonGroup2 = game.add.group();
+        this.buttonGroup3 = game.add.group();
+        this.buttonGroup1.visible = false;
+        this.buttonGroup2.visible = false;
+        this.buttonGroup3.visible = false;
+        this.waitButtonGroup1 = game.add.group();
+        this.waitButtonGroup2 = game.add.group();
+        this.waitButtonGroup3 = game.add.group();
+        this.waitButtonGroup1.visible = false;
+        this.waitButtonGroup2.visible = false;
+        this.waitButtonGroup3.visible = false;
+
+
+        var style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
+        this.lbLookorGiveup = game.add.text(buttonPosRate1.x * imageBK.width + xOffset + 0.5 * this.button1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.button1.height, "弃牌", style);
+        this.lbLookorGiveup.anchor.set(0.5);
         this.lbLookorGiveup.scale.setTo(this.scale, this.scale);
-        this.imgLookorGiveup = game.add.image(buttonPosRate1.x * imageBK.width + xOffset + 0.2 * this.waitbutton1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.waitbutton1.height, "checkOff");
-        this.imgLookorGiveup.anchor.set(0.5);
-        this.imgLookorGiveup.scale.setTo(this.scale, this.scale);
-        this.waitGroup1.add(this.waitbutton1);
-        this.waitGroup1.add(this.lbLookorGiveup);
-        this.waitGroup1.add(this.imgLookorGiveup);
-        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
-        this.lbCall = game.add.text(buttonPosRate2.x * imageBK.width + xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.waitbutton2.height, "跟注", style);
+        this.buttonGroup1.add(this.button1);
+        this.buttonGroup1.add(this.lbLookorGiveup);
+        style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
+        this.lbCall = game.add.text(buttonPosRate2.x * imageBK.width + xOffset + 0.2 * this.button2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.button2.height, "跟注", style);
         this.lbCall.anchor.set(0, 0.5);
         this.lbCall.scale.setTo(this.scale, this.scale);
-        this.imgCall = game.add.image(buttonPosRate2.x * imageBK.width + xOffset + 0.2 * this.waitbutton2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.waitbutton2.height, "checkOff");
-        this.imgCall.anchor.set(0.5);
-        this.imgCall.scale.setTo(this.scale, this.scale);
-        this.waitGroup2.add(this.waitbutton2);
-        this.waitGroup2.add(this.lbCall);
-        this.waitGroup2.add(this.imgCall);
-        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
-        this.lbCallEvery = game.add.text(buttonPosRate3.x * imageBK.width + xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
-        this.lbCallEvery.anchor.set(0, 0.5);
+        this.buttonGroup2.add(this.button2);
+        this.buttonGroup2.add(this.lbCall);
+        style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button3.width, align: "center" };
+        this.lbCallEvery = game.add.text(buttonPosRate3.x * imageBK.width + xOffset + 0.5 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "加注", style);
+        this.lbCallEvery.anchor.set(0.5);
         this.lbCallEvery.scale.setTo(this.scale, this.scale);
-        this.imgCallEvery = game.add.image(buttonPosRate3.x * imageBK.width + xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "checkOff");
-        this.imgCallEvery.anchor.set(0.5);
-        this.imgCallEvery.scale.setTo(this.scale, this.scale);
-        this.waitGroup3.add(this.waitbutton3);
-        this.waitGroup3.add(this.lbCallEvery);
-        this.waitGroup3.add(this.imgCallEvery);
+        this.buttonGroup3.add(this.button3);
+        this.buttonGroup3.add(this.lbCallEvery);
+
+        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
+        this.lbLookorGiveupWait = game.add.text(buttonPosRate1.x * imageBK.width + xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.waitbutton1.height, "看牌或弃牌", style);
+        this.lbLookorGiveupWait.anchor.set(0, 0.5);
+        this.lbLookorGiveupWait.scale.setTo(this.scale, this.scale);
+        this.imgLookorGiveupWait = game.add.image(buttonPosRate1.x * imageBK.width + xOffset + 0.2 * this.waitbutton1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.waitbutton1.height, "checkOff");
+        this.imgLookorGiveupWait.anchor.set(0.5);
+        this.imgLookorGiveupWait.scale.setTo(this.scale, this.scale);
+        this.waitButtonGroup1.add(this.waitbutton1);
+        this.waitButtonGroup1.add(this.lbLookorGiveupWait);
+        this.waitButtonGroup1.add(this.imgLookorGiveupWait);
+        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
+        this.lbCallWait = game.add.text(buttonPosRate2.x * imageBK.width + xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.waitbutton2.height, "跟注", style);
+        this.lbCallWait.anchor.set(0, 0.5);
+        this.lbCallWait.scale.setTo(this.scale, this.scale);
+        this.imgCallWait = game.add.image(buttonPosRate2.x * imageBK.width + xOffset + 0.2 * this.waitbutton2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.waitbutton2.height, "checkOff");
+        this.imgCallWait.anchor.set(0.5);
+        this.imgCallWait.scale.setTo(this.scale, this.scale);
+        this.waitButtonGroup2.add(this.waitbutton2);
+        this.waitButtonGroup2.add(this.lbCallWait);
+        this.waitButtonGroup2.add(this.imgCallWait);
+        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
+        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * imageBK.width + xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
+        this.lbCallEveryWait.anchor.set(0, 0.5);
+        this.lbCallEveryWait.scale.setTo(this.scale, this.scale);
+        this.imgCallEveryWait = game.add.image(buttonPosRate3.x * imageBK.width + xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "checkOff");
+        this.imgCallEveryWait.anchor.set(0.5);
+        this.imgCallEveryWait.scale.setTo(this.scale, this.scale);
+        this.waitButtonGroup3.add(this.waitbutton3);
+        this.waitButtonGroup3.add(this.lbCallEveryWait);
+        this.waitButtonGroup3.add(this.imgCallEveryWait);
 
         var style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
         this.blinds = game.add.text(this.background.width / 2 + xOffset, 0.25 * this.background.height + yOffset, "$" + this.sb + " / $" + this.bb, style);
@@ -297,12 +328,16 @@ MainState.prototype = {
         if(this.waitSelected1)
         {
             this.waitSelected1 = false;
-            this.imgLookorGiveup.loadTexture("checkOff", this.imgLookorGiveup.frame);
+            this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
         }
         else
         {
             this.waitSelected1 = true;
-            this.imgLookorGiveup.loadTexture("checkOn", this.imgLookorGiveup.frame);
+            this.waitSelected2 = false;
+            this.waitSelected3 = false;
+            this.imgLookorGiveupWait.loadTexture("checkOn", this.imgLookorGiveupWait.frame);
+            this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
+            this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
         }
     },
 
@@ -311,12 +346,16 @@ MainState.prototype = {
         if(this.waitSelected2)
         {
             this.waitSelected2 = false;
-            this.imgCall.loadTexture("checkOff", this.imgCall.frame);
+            this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
         }
         else
         {
+            this.waitSelected1 = false;
             this.waitSelected2 = true;
-            this.imgCall.loadTexture("checkOn", this.imgCall.frame);
+            this.waitSelected3 = false;
+            this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
+            this.imgCallWait.loadTexture("checkOn", this.imgCallWait.frame);
+            this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
         }
     },
 
@@ -325,45 +364,29 @@ MainState.prototype = {
         if(this.waitSelected3)
         {
             this.waitSelected3 = false;
-            this.imgCallEvery.loadTexture("checkOff", this.imgCallEvery.frame);
+            this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
         }
         else
         {
+            this.waitSelected1 = false;
+            this.waitSelected2 = false;
             this.waitSelected3 = true;
-            this.imgCallEvery.loadTexture("checkOn", this.imgCallEvery.frame);
+            this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
+            this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
+            this.imgCallEveryWait.loadTexture("checkOn", this.imgCallEveryWait.frame);
         }
     },
 
     actionOnClick1:function()
     {
-        this.showCoinAnime();
     },
 
     actionOnClick2:function()
     {
-        this.light.visible = false;
     },
 
     actionOnClick3:function()
     {
-        if(this.drawRectAnime.isPainting)
-        {
-            this.drawRectAnime.stop();
-            return;
-        }
-
-        var userRect = this.userList[this.currentDrawUser].rect;
-        this.drawLight(userRect.left + userRect.width / 2, userRect.top + userRect.height / 2);
-        this.drawRectAnime.clean();
-        this.drawRectAnime.setpara(userRect.left, userRect.top, userRect.width, userRect.height, 8 * this.scale, 10);
-        this.drawRectAnime.setLineWidth(5 * this.scale);
-        this.drawRectAnime.draw();
-
-        this.currentDrawUser++;
-        if(this.currentDrawUser >= this.userList.length)
-        {
-            this.currentDrawUser = 0;
-        }
     },
 
     showCoinAnime:function()
@@ -418,9 +441,12 @@ MainState.prototype = {
                 this.userID = data.id;
                 game.betApi.setUserID(this.userID);
                 this.loginCertification = true;
-                this.waitGroup1.visible = true;
-                this.waitGroup2.visible = true;
-                this.waitGroup3.visible = true;
+                //this.buttonGroup1.visible = true;
+                //this.buttonGroup2.visible = true;
+                //this.buttonGroup3.visible = true;
+                //this.waitButtonGroup1.visible = true;
+                //this.waitButtonGroup2.visible = true;
+                //this.waitButtonGroup3.visible = true;
 
                 game.betApi.setRoomID(this.roomID);
                 game.betApi.enterRoom(function(isOK){
