@@ -396,6 +396,7 @@ MainState.prototype = {
         }
     },
 
+    // 看或弃牌
     waitOnClick1:function()
     {
         if(this.waitSelected1)
@@ -414,6 +415,7 @@ MainState.prototype = {
         }
     },
 
+    // 自动看牌／自动跟注
     waitOnClick2:function()
     {
         if(this.waitSelected2)
@@ -432,6 +434,7 @@ MainState.prototype = {
         }
     },
 
+    // 跟任何注
     waitOnClick3:function()
     {
         if(this.waitSelected3)
@@ -450,14 +453,17 @@ MainState.prototype = {
         }
     },
 
+    // 弃牌
     actionOnClick1:function()
     {
     },
 
+    // 跟注
     actionOnClick2:function()
     {
     },
 
+    // 加注
     actionOnClick3:function()
     {
         if(this.chipboxGroup.visible)
@@ -809,6 +815,10 @@ MainState.prototype = {
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
         }
+    },
+
+    _showAllCards:function() {
+
     }
 };
 
