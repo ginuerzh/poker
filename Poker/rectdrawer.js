@@ -2,7 +2,7 @@
 
 var graphic;
 
-var rectdrawer = function()
+var rectdrawer = function(group)
 {
     this.x;
     this.y;
@@ -26,6 +26,10 @@ var rectdrawer = function()
     this.drawpoint = [];
 
     graphic = game.add.graphics(0, 0);
+    if(group)
+    {
+        group.add(graphic);
+    }
     this.isPainting = false;
     this.timer;
     this.c;
@@ -38,6 +42,7 @@ var rectdrawer = function()
 rectdrawer.prototype = {
 
     setpara: function(x,y,width,height,radius,timecount) {
+
         this.x = x;
         this.y = y;
         this.w = width;

@@ -62,6 +62,16 @@ var MainState = function() {
     this.selfCards;                     //底牌(自己的两张)
     this.chipPoolBK;                    //筹码池背景
     this.chipPool;                      //筹码池
+    this.chipbox;                       //加注选择框
+    this.chipboxButton1;                //加注选择按钮1
+    this.chipboxButton2;                //加注选择按钮2
+    this.chipboxButton3;                //加注选择按钮3
+    this.chipboxButton4;                //加注选择按钮4
+    this.chipboxText1;                  //加注选择按钮文字1
+    this.chipboxText2;                  //加注选择按钮文字2
+    this.chipboxText3;                  //加注选择按钮文字3
+    this.chipboxText4;                  //加注选择按钮文字4
+    this.chipboxGroup;
 }
 
 MainState.prototype = {
@@ -138,6 +148,8 @@ MainState.prototype = {
 
         game.load.onFileComplete.add(this.fileComplete, this);
 
+        var groupUser = game.add.group();
+
         for (var i = 0; i < this.userPosRate.length; i++)
         {
             var dict = this.userPosRate[i];
@@ -154,6 +166,7 @@ MainState.prototype = {
             {
                 user.create("", "defaultUserImage", "", false);
             }
+            user.setGroup(groupUser);
             this.userList.push(user);
         }
 
@@ -192,6 +205,42 @@ MainState.prototype = {
         imageCard2.visible = false;
         this.selfCards.push(imageCard2);
 
+        this.light = game.add.sprite(imageBK.width / 2 + xOffset, imageBK.height / 2 + yOffset, 'light');
+        this.light.anchor.setTo(0, 0.5);
+        this.light.visible = false;
+
+        this.chipbox = game.add.sprite(0, 0, "chipbox");
+        this.chipbox.scale.setTo(this.scale, this.scale);
+        this.chipboxButton1 = game.add.button(0, 0, 'buttonyellow', this.chipOnClick1, this);
+        this.chipboxButton2 = game.add.button(0, 0, 'buttonblue', this.chipOnClick2, this);
+        this.chipboxButton3 = game.add.button(0, 0, 'buttonblue', this.chipOnClick3, this);
+        this.chipboxButton4 = game.add.button(0, 0, 'buttonblue', this.chipOnClick4, this);
+        var style = { font: "28px Arial", fill: "#CE8D00"};
+        this.chipboxText1 = game.add.text(0, 0, "全部", style);
+        style = { font: "28px Arial", fill: "#0069B2"};
+        this.chipboxText2 = game.add.text(0, 0, "120", style);
+        this.chipboxText3 = game.add.text(0, 0, "80", style);
+        this.chipboxText4 = game.add.text(0, 0, "50", style);
+        this.chipboxGroup = game.add.group();
+        this.chipboxText1.anchor.set(0.5);
+        this.chipboxText2.anchor.set(0.5);
+        this.chipboxText3.anchor.set(0.5);
+        this.chipboxText4.anchor.set(0.5);
+        this.chipboxText1.scale.setTo(this.scale, this.scale);
+        this.chipboxText2.scale.setTo(this.scale, this.scale);
+        this.chipboxText3.scale.setTo(this.scale, this.scale);
+        this.chipboxText4.scale.setTo(this.scale, this.scale);
+        this.chipboxGroup.add(this.chipbox);
+        this.chipboxGroup.add(this.chipboxButton1);
+        this.chipboxGroup.add(this.chipboxButton2);
+        this.chipboxGroup.add(this.chipboxButton3);
+        this.chipboxGroup.add(this.chipboxButton4);
+        this.chipboxGroup.add(this.chipboxText1);
+        this.chipboxGroup.add(this.chipboxText2);
+        this.chipboxGroup.add(this.chipboxText3);
+        this.chipboxGroup.add(this.chipboxText4);
+        this.chipboxGroup.visible = false;
+
         var buttonPosRate1 = {x:0.167, y:0.881};
         var buttonPosRate2 = {x:0.394, y:0.881};
         var buttonPosRate3 = {x:0.62, y:0.881};
@@ -222,8 +271,7 @@ MainState.prototype = {
         this.waitButtonGroup2.visible = false;
         this.waitButtonGroup3.visible = false;
 
-
-        var style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
+        style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
         this.lbLookorGiveup = game.add.text(buttonPosRate1.x * imageBK.width + xOffset + 0.5 * this.button1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.button1.height, "弃牌", style);
         this.lbLookorGiveup.anchor.set(0.5);
         this.lbLookorGiveup.scale.setTo(this.scale, this.scale);
@@ -273,7 +321,34 @@ MainState.prototype = {
         this.waitButtonGroup3.add(this.lbCallEveryWait);
         this.waitButtonGroup3.add(this.imgCallEveryWait);
 
-        var style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
+        this.chipbox.x = this.button3.x + this.button3.width * 0.2;
+        this.chipbox.y = this.button3.y - this.chipbox.height * 0.99;
+        this.chipboxButton1.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton1.y = this.chipbox.y + this.chipbox.height * 0.08;
+        this.chipboxButton1.width = this.chipbox.width * 0.6;
+        this.chipboxButton1.height = this.chipbox.height * 0.18;
+        this.chipboxButton2.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton2.y = this.chipbox.y + this.chipbox.height * 0.31;
+        this.chipboxButton2.width = this.chipbox.width * 0.6;
+        this.chipboxButton2.height = this.chipbox.height * 0.18;
+        this.chipboxButton3.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton3.y = this.chipbox.y + this.chipbox.height * 0.54;
+        this.chipboxButton3.width = this.chipbox.width * 0.6;
+        this.chipboxButton3.height = this.chipbox.height * 0.18;
+        this.chipboxButton4.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton4.y = this.chipbox.y + this.chipbox.height * 0.78;
+        this.chipboxButton4.width = this.chipbox.width * 0.6;
+        this.chipboxButton4.height = this.chipbox.height * 0.18;
+        this.chipboxText1.x = this.chipboxButton1.x + this.chipboxButton1.width * 0.5;
+        this.chipboxText1.y = this.chipboxButton1.y + this.chipboxButton1.height * 0.45;
+        this.chipboxText2.x = this.chipboxButton2.x + this.chipboxButton2.width * 0.5;
+        this.chipboxText2.y = this.chipboxButton2.y + this.chipboxButton2.height * 0.45;
+        this.chipboxText3.x = this.chipboxButton3.x + this.chipboxButton3.width * 0.5;
+        this.chipboxText3.y = this.chipboxButton3.y + this.chipboxButton3.height * 0.45;
+        this.chipboxText4.x = this.chipboxButton4.x + this.chipboxButton4.width * 0.5;
+        this.chipboxText4.y = this.chipboxButton4.y + this.chipboxButton4.height * 0.45;
+
+        style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
         this.blinds = game.add.text(this.background.width / 2 + xOffset, 0.25 * this.background.height + yOffset, "$" + this.sb + " / $" + this.bb, style);
         this.blinds.anchor.set(0.5);
 
@@ -297,11 +372,7 @@ MainState.prototype = {
             star.rotation = 100*Math.random();
         }
 
-        this.light = game.add.sprite(imageBK.width / 2 + xOffset, imageBK.height / 2 + yOffset, 'light');
-        this.light.anchor.setTo(0, 0.5);
-        this.light.visible = false;
-
-        this.drawRectAnime = new rectdrawer();
+        this.drawRectAnime = new rectdrawer(groupUser);
 
         var that = this;
         game.betApi.connect();
@@ -387,6 +458,34 @@ MainState.prototype = {
 
     actionOnClick3:function()
     {
+        if(this.chipboxGroup.visible)
+        {
+            this.chipboxGroup.visible = false;
+        }
+        else
+        {
+            this.chipboxGroup.visible = true;
+        }
+    },
+
+    chipOnClick1:function()
+    {
+        this.chipboxGroup.visible = false;
+    },
+
+    chipOnClick2:function()
+    {
+        this.chipboxGroup.visible = false;
+    },
+
+    chipOnClick3:function()
+    {
+        this.chipboxGroup.visible = false;
+    },
+
+    chipOnClick4:function()
+    {
+        this.chipboxGroup.visible = false;
     },
 
     showCoinAnime:function()
@@ -441,9 +540,9 @@ MainState.prototype = {
                 this.userID = data.id;
                 game.betApi.setUserID(this.userID);
                 this.loginCertification = true;
-                //this.buttonGroup1.visible = true;
-                //this.buttonGroup2.visible = true;
-                //this.buttonGroup3.visible = true;
+                this.buttonGroup1.visible = true;
+                this.buttonGroup2.visible = true;
+                this.buttonGroup3.visible = true;
                 //this.waitButtonGroup1.visible = true;
                 //this.waitButtonGroup2.visible = true;
                 //this.waitButtonGroup3.visible = true;

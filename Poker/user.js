@@ -7,6 +7,7 @@ var User = function() {
 	this.coinTextRect = {left:0, top:0};
 	this.param = {userName:"", userImage:"defaultUserImage", userCoin:"", isPlayer:"", userID:"", seatNum:-1};
 	this.scale = 1;
+	this.group;
 	this.lbname;
 	this.imagebody;
 	this.lbcoin;
@@ -56,6 +57,7 @@ User.prototype = {
 		this.imagebody.scale.setTo(this.rect.width * 0.9 / this.imagebody.width, this.rect.height * 0.595 / this.imagebody.height);
 		this.lbcoin = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.9, this.param["userCoin"], style);
 		this.lbcoin.anchor.set(0.5);
+		this.lbcoin.scale.setTo(this.scale, this.scale);
 
 		this.imageCoin = game.add.image(this.coinRect.left, this.coinRect.top, "chip01");
 		this.imageCoin.width = this.coinRect.width;
@@ -147,5 +149,18 @@ User.prototype = {
 	setScale:function(scale)
 	{
 		this.scale = scale;
+	},
+
+	setGroup:function(group)
+	{
+		this.group = group;
+		this.group.add(this.containerplayer);
+		this.group.add(this.containeruser);
+		this.group.add(this.containerblank);
+		this.group.add(this.lbname);
+		this.group.add(this.imagebody);
+		this.group.add(this.lbcoin);
+		this.group.add(this.imageCoin);
+		this.group.add(this.textCoin);
 	}
 }
