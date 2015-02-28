@@ -85,7 +85,7 @@ BetApi.prototype = {
 		this.betServer.sendCommand(data, callback);
 	},
 
-	getRoomWholeStatus:function() {
+	getRoomWholeStatus:function(callback) {
 
 		var data = {type:"iq", id:"getRoomWholeStatus", from:this.userID, to:this.roomID, action:"get", class:"state"};
 		this.betServer.sendCommand(data, callback);
