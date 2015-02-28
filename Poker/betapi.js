@@ -71,6 +71,14 @@ BetApi.prototype = {
 		this.betServer.sendCommand(data, callback);
 	},
 
+	betFold:function(callback) {
+		this.bet("-1", callback);
+	},
+
+	betCheck:function(callback) {
+		this.bet("0", callback);
+	},
+
 	bet:function(number, callback) {
 
 		var data = {type:"presence", id:"bet", from:this.userID, to:this.roomID, action:"bet", class:number};

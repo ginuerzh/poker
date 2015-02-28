@@ -2,11 +2,50 @@
 
 var game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
 
+
+
+
 // game main state
 var MainState = function() {
 
     this.strVersion = "1.0";
+    this.CONST = {}
 
+    //弃牌
+    this.CONST.BetType_Fold = 0;
+    //让牌/看注
+    this.CONST.BetType_Check = 1;
+    //跟注
+    this.CONST.BetType_Call = 2;
+    //加注
+    this.CONST.BetType_Raise = 3;
+    //全压
+    this.CONST.BetType_ALL = 4;
+
+
+    //10 - 皇家同花顺(Royal Flush)
+    //9  - 同花顺(Straight Flush)
+    //8  - 四条(Four of a Kind)
+    //7  - 葫芦(Fullhouse)
+    //6  - 同花(Flush)
+    //5  - 顺子(Straight)
+    //4  - 三条(Three of a kind)
+    //3  - 两对(Two Pairs)
+    //2  - 一对(One Pair)
+    //1  - 高牌(High Card)
+    this.CONST.CardType_RoyalFlush = 10;
+    this.CONST.CardType_StraightFlush = 9;
+    this.CONST.CardType_FourOfAKind = 8;
+    this.CONST.CardType_Fullhouse = 7;
+    this.CONST.CardType_Flush = 6;
+    this.CONST.CardType_Straight = 5;
+    this.CONST.CardType_ThreeOfAKind = 4;
+    this.CONST.CardType_TwoPairs = 3;
+    this.CONST.CardType_OnePairs = 2;
+    this.CONST.CardType_HighCard = 1;
+
+    this.CONST.CardTypeNames= ["高牌", "一对", "两对", "三条", "顺子","同花","葫芦","四条","同花顺","皇家同花顺"]
+    
     //param
     this.userPosRate;                   //九个座位的坐标，按比值
     this.userSizeRate;                  //座位的大小，按比例
@@ -17,7 +56,7 @@ var MainState = function() {
     this.currentRoomID;                 //房间ID
     this.scale;                         //全局缩放比
 
-    this.currentDrawUser;               //当前玩家
+    //this.currentDrawUser;               //当前玩家
     this.bb;                            //大盲注
     this.sb;                            //小盲注
     this.currentBettinglines;           //当前注额
@@ -73,6 +112,16 @@ var MainState = function() {
     this.chipboxText3;                  //加注选择按钮文字3
     this.chipboxText4;                  //加注选择按钮文字4
     this.chipboxGroup;
+
+
+    // game current data
+    this.gameStateObj = {}
+    this.gameStateObj.bb;                            //大盲注
+    this.gameStateObj.sb;                            //小盲注
+    this.gameStateObj.bet;                           //当前下注额
+    this.gameStateObj.buttonSeatNumber;              //庄家座位号
+    this.gameStateObj.playerCount;                   //当前玩家数
+    this.gameStateObj.chips;                         //当前玩家手上的筹码
 }
 
 MainState.prototype = {
@@ -456,11 +505,17 @@ MainState.prototype = {
     // 弃牌
     actionOnClick1:function()
     {
+        game.betApi.betFold(function(isok) {
+            // send OK or NOK
+        });
     },
 
     // 跟注
     actionOnClick2:function()
     {
+        game.betApi.bet(this.gameStateObj.bet,function(isok) {
+            // send OK or NOK
+        })
     },
 
     // 加注
@@ -565,12 +620,8 @@ MainState.prototype = {
                 this.userID = data.id;
                 game.betApi.setUserID(this.userID);
                 this.loginCertification = true;
-                this.buttonGroup1.visible = true;
-                this.buttonGroup2.visible = true;
-                this.buttonGroup3.visible = true;
-                //this.waitButtonGroup1.visible = true;
-                //this.waitButtonGroup2.visible = true;
-                //this.waitButtonGroup3.visible = true;
+
+                this._currentPlayButtonUpdate(false)
 
                 game.betApi.setRoomID(this.roomID);
                 game.betApi.enterRoom(function(isOK){
@@ -603,7 +654,7 @@ MainState.prototype = {
             }
             else if(data.action == "gone")      //服务器广播离开房间的玩家
             {
-
+                this.handleGone(data)
             }
             else if(data.action == "join")      //服务器通报加入游戏的玩家
             {
@@ -633,7 +684,7 @@ MainState.prototype = {
             }
             else if(data.action == "showdown")  //服务器通报摊牌和比牌
             {
-
+                this.handleShowDown(data);
             }
             else if(data.action == "state")  //服务器通报房间信息
             {
@@ -673,6 +724,12 @@ MainState.prototype = {
         user.param.userID = occupant.id;
     },
 
+    handleGone:function(data) {
+        var goneUserID = data.occupant.id;
+        var user = this._userByUserID(goneUserID)
+        // TODO
+    },
+
     handleButton:function(data)
     {
         this.bankerPos = data.class;
@@ -697,41 +754,72 @@ MainState.prototype = {
     handleAction:function(data)
     {
         var arrayInfo = data.class.split(",");
-        for(var i = 0; i < this.userList.length; i++)
-        {
-            if(this.userList[i].param["seatNum"] == arrayInfo[0])
-            {
-                this.currentDrawUser = i;
-                if(this.drawRectAnime.isPainting)
-                {
-                    this.drawRectAnime.stop();
-                }
+        var seatNum = arrayInfo[0]; //座位号
+        var bet = arrayInfo[1]; //单注额
+        this.gameStateObj.bet = bet
 
-                var userRect = this.userList[this.currentDrawUser].rect;
-                this.drawLight(userRect.left + userRect.width / 2, userRect.top + userRect.height / 2);
-                this.drawRectAnime.clean();
-                this.drawRectAnime.setpara(userRect.left, userRect.top, userRect.width, userRect.height, 8 * this.scale, this.timeoutMaxCount);
-                this.drawRectAnime.setLineWidth(5 * this.scale);
-                this.drawRectAnime.draw();
-                if(i == (this.userList.length - 1) / 2)
-                {
-                }
-                break;
-            }
+        var user = this._userBySeatNum(seatNum)
+
+        // 当前玩家
+        if (user.param.userID == this.userID) {
+            this._currentPlayButtonUpdate(true);
+
+            // TODO:
+
+        } else {
+            this._currentPlayButtonUpdate(false);
         }
+
+        // draw time progress
+        if(this.drawRectAnime.isPainting)
+        {
+            this.drawRectAnime.stop();
+        }
+
+        var userRect = user.rect;
+        this.drawLight(userRect.left + userRect.width / 2, userRect.top + userRect.height / 2);
+        this.drawRectAnime.clean();
+        this.drawRectAnime.setpara(userRect.left, userRect.top, userRect.width, userRect.height, 8 * this.scale, this.timeoutMaxCount);
+        this.drawRectAnime.setLineWidth(5 * this.scale);
+        this.drawRectAnime.draw();
+
+
     },
 
     handleBet:function(data)
     {
-        for (var i = 0; i < this.userList.length; i++)
-        {
-            var user = this.userList[i];
-            if(user.param.userID == data.from)
-            {
-                user.setUseCoin(data.class);
-                break;
+        var betvalue = data.class
+        var betType = this._betTypeByBet(betvalue);
+     
+        switch(betType){
+            case this.CONST.BetType_ALL:
+            case this.CONST.BetType_Call:
+            case this.CONST.BetType_Raise: {
+                var user = this._userByUserID(data.from)
+                if (user) {
+                    user.setUseCoin(betvalue);
+                } else {
+                    console.log("ERROR: can't find user, userid:",data.from);
+                }
             }
+            break;
+            //弃牌
+            case this.CONST.BetType_Fold:
+                break;
+            //看牌
+            case this.CONST.BetType_Check:
+                break;
+            default:
+                console.log("ERROR: betType not a vaid value:",betType);
+                break;
         }
+
+
+    },
+
+    handleShowDown:function(data)
+    {
+        console.log("showdown:",data);
     },
 
     handleState:function(data)
@@ -817,9 +905,55 @@ MainState.prototype = {
         }
     },
 
-    _showAllCards:function() {
 
-    }
+    // ulitiy function
+
+    _betTypeByBet:function(bet) {
+        var betType = 0
+        if(bet < 0) {
+            betType = this.CONST.BetType_Fold
+        } else if(bet == 0) {
+            betType = this.CONST.BetType_Check
+        } else if(bet == this.gameStateObj.bet) {
+            betType = this.CONST.BetType_Call
+        } else if(bet > this.gameStateObj.bet) {
+            betType = this.CONST.BetType_Raise
+        } else if(bet == this.gameStateObj.chips) {
+            betType = this.CONST.BetType_ALL
+        } else {
+            console.log("error bet value :", bet);
+        }
+        return betType
+    },
+
+    _userByUserParam:function(key, value) {
+        for (var i =0;  i < this.userList.length;  i++) {
+            var obj = this.userList[i];
+            if (obj.param[key] == value) {
+                return obj;
+            }
+        }
+        return null
+    },
+
+    _userByUserID:function(userid) {
+        return this._userByUserParam("userID", userid)
+    },
+
+    _userBySeatNum:function(seatnum) {
+        return this._userByUserParam("seatNum", seatnum)
+    },
+
+
+    _currentPlayButtonUpdate:function(isCurrentPlayer) {
+        this.waitButtonGroup1.visible = !isCurrentPlayer;
+        this.waitButtonGroup2.visible = !isCurrentPlayer;
+        this.waitButtonGroup3.visible = !isCurrentPlayer;
+
+        this.buttonGroup1.visible = isCurrentPlayer;
+        this.buttonGroup2.visible = isCurrentPlayer;
+        this.buttonGroup3.visible = isCurrentPlayer;
+    },
 };
 
 game.betApi = new BetApi();
