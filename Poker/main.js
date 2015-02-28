@@ -726,13 +726,14 @@ MainState.prototype = {
 
     handleGone:function(data) {
         var goneUserID = data.occupant.id;
-        var user = this._userByUserID(goneUserID)
-        // TODO
+        var user = this._userByUserID(goneUserID);
+        user.reset();
     },
 
     handleButton:function(data)
     {
         this.bankerPos = data.class;
+        this._initNewRound()
     },
 
     handlePreflop:function(data)
@@ -770,19 +771,7 @@ MainState.prototype = {
             this._currentPlayButtonUpdate(false);
         }
 
-        // draw time progress
-        if(this.drawRectAnime.isPainting)
-        {
-            this.drawRectAnime.stop();
-        }
-
-        var userRect = user.rect;
-        this.drawLight(userRect.left + userRect.width / 2, userRect.top + userRect.height / 2);
-        this.drawRectAnime.clean();
-        this.drawRectAnime.setpara(userRect.left, userRect.top, userRect.width, userRect.height, 8 * this.scale, this.timeoutMaxCount);
-        this.drawRectAnime.setLineWidth(5 * this.scale);
-        this.drawRectAnime.draw();
-
+        this._drawUserProgress(user.rect.left, user.rect.width, user.rect.top, user.rect.height)
 
     },
 
@@ -790,12 +779,12 @@ MainState.prototype = {
     {
         var betvalue = data.class
         var betType = this._betTypeByBet(betvalue);
+        var user = this._userByUserID(data.from)
      
         switch(betType){
             case this.CONST.BetType_ALL:
             case this.CONST.BetType_Call:
             case this.CONST.BetType_Raise: {
-                var user = this._userByUserID(data.from)
                 if (user) {
                     user.setUseCoin(betvalue);
                 } else {
@@ -805,6 +794,7 @@ MainState.prototype = {
             break;
             //弃牌
             case this.CONST.BetType_Fold:
+                user.setGiveUp(true);
                 break;
             //看牌
             case this.CONST.BetType_Check:
@@ -820,6 +810,8 @@ MainState.prototype = {
     handleShowDown:function(data)
     {
         console.log("showdown:",data);
+        this._stopDrawUserProgress();
+
     },
 
     handleState:function(data)
@@ -954,6 +946,47 @@ MainState.prototype = {
         this.buttonGroup2.visible = isCurrentPlayer;
         this.buttonGroup3.visible = isCurrentPlayer;
     },
+
+    _drawUserProgress:function(left, width, top, height) {
+        this._stopDrawUserProgress()
+
+        this.drawLight(left + width / 2, top + height / 2);
+        this.drawRectAnime.clean();
+        this.drawRectAnime.setpara(left, top, width, height, 8 * this.scale, this.timeoutMaxCount);
+        this.drawRectAnime.setLineWidth(5 * this.scale);
+        this.drawRectAnime.draw();
+    },
+
+    _stopDrawUserProgress:function() {
+        // draw time progress
+        if(this.drawRectAnime.isPainting)
+        {
+            this.drawRectAnime.stop();
+        }
+
+        this.drawRectAnime.clean();
+    },
+
+    _initNewRound:function() {
+        for (var i =0;  i < this.userList.length;  i++) {
+            var user = this.userList[i]
+            if (user.giveUp == true) {
+                user.setGiveUp(false);
+            }
+        }
+
+        this.waitSelected1 = false;
+        this.waitSelected2 = false;
+        this.waitSelected3 = false;
+
+        this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
+        this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
+        this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
+    }
+
+    _autoAction:function() {
+        if (this.waitSelected2) {};
+    }
 };
 
 game.betApi = new BetApi();

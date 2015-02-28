@@ -80,7 +80,7 @@ rectdrawer.prototype = {
         {
             var s = this.setPoint(i);
             this.drawpoint.push({x:s[0], y:s[1]});
-            console.log("push: ",s[0], s[1]);
+            //console.log("push: ",s[0], s[1]);
         }
         this.drawpoint.push({x:this.x + this.r, y:this.y});
     },
