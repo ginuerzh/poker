@@ -772,15 +772,17 @@ MainState.prototype = {
         }
 
         this._drawUserProgress(user.rect.left, user.rect.width, user.rect.top, user.rect.height)
-
-
     },
 
     handleBet:function(data)
     {
-        var betvalue = data.class
+        var arrayInfo = data.class.split(",");
+        var betvalue = arrayInfo[0]
+        var chips = arrayInfo[1]
         var betType = this._betTypeByBet(betvalue);
         var user = this._userByUserID(data.from)
+
+        user.setParam(null, null, chips, null)
      
         switch(betType){
             case this.CONST.BetType_ALL:
@@ -813,6 +815,21 @@ MainState.prototype = {
         console.log("showdown:",data);
         this._stopDrawUserProgress();
 
+        var roomInfo = data.room;
+        var playerList = roomInfo.occupants;
+
+        for (var i = playerList.length - 1; i >= 0; i--) {
+            var occupantInfo = playerList[i]
+             if(!occupantInfo) {
+                continue;
+             }
+
+            var user = this._userByUserID(occupantInfo.id)
+            if(!user.giveUp && user.param.userID != occupantInfo.id) {
+                this._stopDrawUserProgress()
+                user.setWinCard(occupantInfo.cards[0], occupantInfo.cards[1]);
+            }
+        };
     },
 
     handleState:function(data)
@@ -971,7 +988,7 @@ MainState.prototype = {
     _initNewRound:function() {
         for (var i =0;  i < this.userList.length;  i++) {
             var user = this.userList[i]
-            if (user.giveUp == true) {
+            if (user.giveUp === true) {
                 user.setGiveUp(false);
             }
         }
@@ -983,7 +1000,7 @@ MainState.prototype = {
         this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
         this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
         this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
-    }
+    },
 
     _autoAction:function() {
         if (this.waitSelected2) {};
