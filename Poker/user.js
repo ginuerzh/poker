@@ -16,6 +16,7 @@ var User = function() {
 	this.containerblank;
 	this.imageCoin;
 	this.textCoin;
+	this.winCards = [];
 }
 
 User.prototype = {
@@ -71,6 +72,13 @@ User.prototype = {
 		}
 		this.textCoin.visible = false;
 		this.imageCoin.visible = false;
+
+		this.winCards[0] = game.add.image(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.26, "cardBK");
+		this.winCards[0].scale.setTo(this.scale * 0.75, this.scale * 0.75);
+		this.winCards[1] = game.add.image(this.rect.left + this.rect.width * 0.4, this.rect.top + this.rect.height * 0.26, "cardBK");
+		this.winCards[1].scale.setTo(this.scale * 0.75, this.scale * 0.75);
+		this.winCards[0].visible = false;
+		this.winCards[1].visible = false;
 	},
 
 	setRect:function(x, y, width, height) {
@@ -171,6 +179,8 @@ User.prototype = {
 		this.group.add(this.lbcoin);
 		this.group.add(this.imageCoin);
 		this.group.add(this.textCoin);
+		this.group.add(this.winCards[0]);
+		this.group.add(this.winCards[1]);
 	},
 
 	setGiveUp:function(bGiveUp)
@@ -191,11 +201,25 @@ User.prototype = {
 			this.lbcoin.alpha = alpha;
 			this.imageCoin.alpha = alpha;
 			this.textCoin.alpha = alpha;
+			this.winCards[0].alpha = alpha;
+			this.winCards[1].alpha = alpha;
 		}
 	},
 
-	reset: function()
+	setWinCard:function(key1, key2)
 	{
+		this.winCards[0].visible = true;
+		this.winCards[1].visible = true;
+		this.imagebody.visible = false;
+		this.winCards[0].loadTexture(key1, this.winCards[0].frame);
+		this.winCards[1].loadTexture(key2, this.winCards[1].frame);
+	},
+
+	reset:function()
+	{
+		this.winCards[0].visible = false;
+		this.winCards[1].visible = false;
+		this.imagebody.visible = true;
 		this.param["userName"] = "";
 		this.param["userCoin"] = "";
 		this.setParam("", "defaultUserImage", "");

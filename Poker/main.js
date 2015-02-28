@@ -196,7 +196,7 @@ MainState.prototype = {
         var userCoinWidth = 27 * this.scale;
         var userTextRate = [{x:0.69, y:0.292}, {x:0.856, y:0.329}, {x:0.768, y:0.484}, {x:0.61, y:0.613}, {x:0.5, y:0.557}, {x:0.339, y:0.613}, {x:0.173, y:0.484}, {x:0.142, y:0.329}, {x:0.306, y:0.292}];
 
-        game.load.onFileComplete.add(this.fileComplete, this);
+        game.load.onFileComplete.add(this._fileComplete, this);
 
         var groupUser = game.add.group();
 
@@ -435,7 +435,7 @@ MainState.prototype = {
         //game.physics.arcade.collide(this.starGroup, platforms);
     },*/
 
-    fileComplete:function(progress, cacheKey, success, totalLoaded, totalFiles)
+    _fileComplete:function(progress, cacheKey, success, totalLoaded, totalFiles)
     {
         if(cacheKey.indexOf("userImage") != -1)
         {
@@ -551,7 +551,7 @@ MainState.prototype = {
         this.chipboxGroup.visible = false;
     },
 
-    showCoinAnime:function()
+    _showCoinAnime:function()
     {
         this.starGroup.forEach(function(child){
             child.y = 0;
@@ -560,7 +560,7 @@ MainState.prototype = {
         }, this);
     },
 
-    drawLight:function(targetX, targetY)
+    _drawLight:function(targetX, targetY)
     {
         var xOffset = (game.width - this.background.width) / 2;
         var yOffset = (game.height - this.background.height) / 2;
@@ -777,7 +777,7 @@ MainState.prototype = {
         }
 
         var userRect = user.rect;
-        this.drawLight(userRect.left + userRect.width / 2, userRect.top + userRect.height / 2);
+        this._drawLight(userRect.left + userRect.width / 2, userRect.top + userRect.height / 2);
         this.drawRectAnime.clean();
         this.drawRectAnime.setpara(userRect.left, userRect.top, userRect.width, userRect.height, 8 * this.scale, this.timeoutMaxCount);
         this.drawRectAnime.setLineWidth(5 * this.scale);
