@@ -32,6 +32,7 @@ var MainState = function() {
     this.starGroup;                     //掉落金币动画对象
     this.light;                         //聚光灯
     this.drawRectAnime;                 //画边框对象
+    this.lightTween;                    //聚光灯旋转动画
 
     //control
     this.background;                    //背景图
@@ -208,6 +209,7 @@ MainState.prototype = {
         this.light = game.add.sprite(imageBK.width / 2 + xOffset, imageBK.height / 2 + yOffset, 'light');
         this.light.anchor.setTo(0, 0.5);
         this.light.visible = false;
+        this.lightTween = game.add.tween(this.light);
 
         this.chipbox = game.add.sprite(0, 0, "chipbox");
         this.chipbox.scale.setTo(this.scale, this.scale);
@@ -379,10 +381,10 @@ MainState.prototype = {
         game.betApi.registerCallback(this.callbackOpen.bind(that), this.callbackClose.bind(that), this.callbackMessage.bind(that), this.callbackError.bind(that));
     },
 
-    update:function()
+    /*update:function()
     {
         //game.physics.arcade.collide(this.starGroup, platforms);
-    },
+    },*/
 
     fileComplete:function(progress, cacheKey, success, totalLoaded, totalFiles)
     {
@@ -501,11 +503,28 @@ MainState.prototype = {
     {
         var xOffset = (game.width - this.background.width) / 2;
         var yOffset = (game.height - this.background.height) / 2;
-        this.light.visible = true;
         var length = Math.sqrt((this.light.x - targetX) * (this.light.x - targetX) + (this.light.y - targetY) * (this.light.y - targetY));
-        this.light.width = length;
         var angleFinal = Math.atan2((this.background.height / 2 - targetY - yOffset), (targetX - this.background.width / 2 - xOffset)) * 180 / 3.1415926;
-        this.light.angle = -angleFinal;
+        while(angleFinal >= 180)
+        {
+            angleFinal -= 360;
+        }
+        while(angleFinal < -180)
+        {
+            angleFinal += 360;
+        }
+
+        if(!this.light.visible)
+        {
+            this.light.visible = true;
+            this.light.width = length;
+            this.light.angle = -angleFinal;
+        }
+        else
+        {
+            var tween = game.add.tween(this.light);
+            tween.to({ width:length, angle: -angleFinal }, 500, Phaser.Easing.Linear.None, true);
+        }
     },
 
     callbackOpen:function(data)

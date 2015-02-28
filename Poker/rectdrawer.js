@@ -112,7 +112,7 @@ rectdrawer.prototype = {
     {
         this.num = 0;
         this.t = this.c / (this.m1 * 1000 / this.refreshFrequency);
-        console.log("pusht: ", this.t)
+        //console.log("pusht: ", this.t)
         this.timer = game.time.create(false);
 
         this.timer.loop(this.refreshFrequency, this.updateCounter, this);

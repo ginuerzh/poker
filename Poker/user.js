@@ -139,10 +139,19 @@ User.prototype = {
 	setUseCoin:function(usedCoin)
 	{
 		this.textCoin.setText(usedCoin);
-		if(this.textCoin.text != "" )
+		if(this.coinTextRect.left < this.coinRect.left)
+		{
+			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.5;
+		}
+		if(usedCoin != "")
 		{
 			this.textCoin.visible = true;
 			this.imageCoin.visible = true;
+		}
+		else
+		{
+			this.textCoin.visible = false;
+			this.imageCoin.visible = false;
 		}
 	},
 
@@ -162,5 +171,35 @@ User.prototype = {
 		this.group.add(this.lbcoin);
 		this.group.add(this.imageCoin);
 		this.group.add(this.textCoin);
+	},
+
+	setGiveUp:function(bGiveUp)
+	{
+		var alpha = 1;
+		if(bGiveUp)
+		{
+			alpha = 0.5;
+		}
+
+		if(this.group)
+		{
+			this.containerplayer.alpha = alpha;
+			this.containeruser.alpha = alpha;
+			this.containerblank.alpha = alpha;
+			this.lbname.alpha = alpha;
+			this.imagebody.alpha = alpha;
+			this.lbcoin.alpha = alpha;
+			this.imageCoin.alpha = alpha;
+			this.textCoin.alpha = alpha;
+		}
+	},
+
+	reset: function()
+	{
+		this.param["userName"] = "";
+		this.param["userCoin"] = "";
+		this.setParam("", "defaultUserImage", "");
+		this.setGiveUp(false);
+		this.setUseCoin("");
 	}
 }
