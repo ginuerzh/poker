@@ -243,6 +243,7 @@ User.prototype = {
 	setWinCard:function(key1, key2)
 	{
 		var that = this;
+		var animationTime = 500;
 		this.winGroup.visible = true;
 		this.imagebody.visible = false;
 		this.winCards[0].loadTexture(key1, this.winCards[0].frame);
@@ -254,19 +255,19 @@ User.prototype = {
 		this.winLightDot[1].visible = true;
 		this.containerwinEffect.alpha = 1;
 		var tween1 = game.add.tween(this.winLightDot[0]);
-		tween1.to({ y:this.containerwin.y - this.containerwin.height * 0.3 }, 500, Phaser.Easing.Linear.None, true);
+		tween1.to({ y:this.containerwin.y - this.containerwin.height * 0.3 }, animationTime, Phaser.Easing.Linear.None, true);
 		tween1.onComplete.add(function() {
 			that.winLightDot[0].visible = false;
 		}, this);
 		var tween2 = game.add.tween(this.winLightDot[1]);
-		tween2.to({ y:this.containerwin.y + this.containerwin.height * 0.3 }, 500, Phaser.Easing.Linear.None, true);
+		tween2.to({ y:this.containerwin.y + this.containerwin.height * 0.3 }, animationTime, Phaser.Easing.Linear.None, true);
 		tween2.onComplete.add(function() {
 			that.winLightDot[1].visible = false;
 		}, this);
 		var tween3 = game.add.tween(this.containerwinEffect.scale);
-		tween3.to({ x: this.scale * 1.5, y: this.scale * 1.5 }, 500, Phaser.Easing.Linear.None, true);
+		tween3.to({ x: this.scale * 1.3, y: this.scale * 1.3 }, animationTime, Phaser.Easing.Linear.None, true);
 		var tween4 = game.add.tween(this.containerwinEffect);
-		tween4.to({ alpha: 0 }, 500, Phaser.Easing.Linear.None, true);
+		tween4.to({ alpha: 0 }, animationTime, Phaser.Easing.Linear.None, true);
 
 		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		this.lbname.setStyle(style);

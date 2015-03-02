@@ -856,13 +856,13 @@ MainState.prototype = {
         //初始化公共牌
         for(var i = 0; i < publicCards.length; i++)
         {
-            this.publicCards.visible = true;
-            this.publicCards.key = publicCards[i];
+            this.publicCards[i].visible = true;
+            this.publicCards[i].loadTexture(publicCards[i], this.publicCards[i].frame);
         }
         for(var i = publicCards.length; i < this.publicCards.length; i++)
         {
-            this.publicCards.visible = false;
-            this.publicCards.key = "cardBK";
+            this.publicCards[i].visible = false;
+            this.publicCards[i].loadTexture("cardBK", this.publicCards[i].frame);
         }
 
         //初始化筹码池
