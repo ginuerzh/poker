@@ -7,6 +7,10 @@ var User = function() {
 	this.coinTextRect = {left:0, top:0};
 	this.param = {userName:"", userImage:"defaultUserImage", userCoin:"", isPlayer:"", userID:"", seatNum:-1};
 	this.scale = 1;
+	this.giveUp = false;
+
+
+
 	this.group;
 	this.lbname;
 	this.imagebody;
@@ -186,6 +190,8 @@ User.prototype = {
 	setGiveUp:function(bGiveUp)
 	{
 		var alpha = 1;
+		this.giveUp = bGiveUp;
+
 		if(bGiveUp)
 		{
 			alpha = 0.5;
