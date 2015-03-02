@@ -71,7 +71,7 @@ var MainState = function() {
     this.starGroup;                     //掉落金币动画对象
     this.light;                         //聚光灯
     this.drawRectAnime;                 //画边框对象
-    this.lightTween;                    //聚光灯旋转动画
+    this.animation;                     //动画特效类
 
     //control
     this.background;                    //背景图
@@ -168,6 +168,7 @@ MainState.prototype = {
 
     create: function() {
 
+        this.animation = new Animations();
         var imageBK = game.add.image(0, 0, "gamecenterbackground");
         var xScale = game.width / imageBK.width;
         var yScale = game.height / imageBK.height;
@@ -201,6 +202,7 @@ MainState.prototype = {
 
         game.load.onFileComplete.add(this._fileComplete, this);
 
+        this.animation.setPosParam(this.background.width, this.background.height, xOffset, yOffset);
         var groupUser = game.add.group();
 
         for (var i = 0; i < this.userPosRate.length; i++)
@@ -223,16 +225,18 @@ MainState.prototype = {
             this.userList.push(user);
         }
 
-        this.cardPosRate = [{x:0.312, y:0.378}, {x:0.390, y:0.378}, {x:0.468, y:0.378}, {x:0.546, y:0.378}, {x:0.624, y:0.378}];
+        this.cardPosRate = [{x:0.344, y:0.456}, {x:0.422, y:0.456}, {x:0.5, y:0.456}, {x:0.578, y:0.456}, {x:0.656, y:0.456}];
         this.cardSizeRate = {width:0.064, height:0.156};
         for (var i = 0; i < this.cardPosRate.length; i++)
         {
             var dict = this.cardPosRate[i];
             var imageCard = game.add.image(dict.x * imageBK.width + xOffset, dict.y * imageBK.height + yOffset, "cardBK");
+            imageCard.anchor.set(0.5);
             imageCard.scale.setTo(this.scale, this.scale);
             imageCard.visible = false;
             this.publicCards.push(imageCard);
         }
+        this.animation.setPublicCard(this.publicCards);
 
         var preflopBKRate = [{x:0.722, y:0.203}, {x:0.889, y:0.241}, {x:0.945, y:0.594}, {x:0.787, y:0.788}, {x:0.167, y:0.788}, {x:0.011, y:0.594}, {x:0.071, y:0.241}, {x:0.236, y:0.203}];
         for (var i = 0; i < preflopBKRate.length; i++)
@@ -261,7 +265,7 @@ MainState.prototype = {
         this.light = game.add.sprite(imageBK.width / 2 + xOffset, imageBK.height / 2 + yOffset, 'light');
         this.light.anchor.setTo(0, 0.5);
         this.light.visible = false;
-        this.lightTween = game.add.tween(this.light);
+        this.animation.setLight(this.light);
 
         this.chipbox = game.add.sprite(0, 0, "chipbox");
         this.chipbox.scale.setTo(this.scale, this.scale);
@@ -565,34 +569,6 @@ MainState.prototype = {
         }, this);
     },
 
-    _drawLight:function(targetX, targetY)
-    {
-        var xOffset = (game.width - this.background.width) / 2;
-        var yOffset = (game.height - this.background.height) / 2;
-        var length = Math.sqrt((this.light.x - targetX) * (this.light.x - targetX) + (this.light.y - targetY) * (this.light.y - targetY));
-        var angleFinal = Math.atan2((this.background.height / 2 - targetY - yOffset), (targetX - this.background.width / 2 - xOffset)) * 180 / 3.1415926;
-        while(angleFinal >= 180)
-        {
-            angleFinal -= 360;
-        }
-        while(angleFinal < -180)
-        {
-            angleFinal += 360;
-        }
-
-        if(!this.light.visible)
-        {
-            this.light.visible = true;
-            this.light.width = length;
-            this.light.angle = -angleFinal;
-        }
-        else
-        {
-            var tween = game.add.tween(this.light);
-            tween.to({ width:length, angle: -angleFinal }, 500, Phaser.Easing.Linear.None, true);
-        }
-    },
-
     callbackOpen:function(data)
     {
         console.log("callbackOpen " + data);
@@ -854,6 +830,8 @@ MainState.prototype = {
             publicCards = [];
         }
         //初始化公共牌
+        var lstCardID = [];
+        var lstCardImage = [];
         for(var i = 0; i < publicCards.length; i++)
         {
             this.publicCards[i].visible = true;
@@ -973,7 +951,7 @@ MainState.prototype = {
     _drawUserProgress:function(left, width, top, height) {
         this._stopDrawUserProgress()
 
-        this._drawLight(left + width / 2, top + height / 2);
+        this.animation.showLight(left + width / 2, top + height / 2);
         this.drawRectAnime.clean();
         this.drawRectAnime.setpara(left, top, width, height, 8 * this.scale, this.timeoutMaxCount);
         this.drawRectAnime.setLineWidth(5 * this.scale);
