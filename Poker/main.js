@@ -131,6 +131,8 @@ MainState.prototype = {
         game.load.image('playerBK', 'assets/player-me.png');
         game.load.image('userBK', 'assets/player-guest.png');
         game.load.image('blankBK', 'assets/player-blank.png');
+        game.load.image("winBK", "assets/win-frame-bg.png");
+        game.load.image("winBKFrame", "assets/win-frame.png");
         game.load.image('defaultUserImage', 'assets/coin.png');
         game.load.image('buttonblue', 'assets/btn-blue.png');
         game.load.image('buttongrey', 'assets/btn-grey.png');
@@ -161,6 +163,7 @@ MainState.prototype = {
         game.load.image("checkOn", "assets/check-on.png");
         game.load.image("checkOff", "assets/check-off.png");
         game.load.image("chipbox", "assets/add-chips-box.png");
+        game.load.image("winLight", "assets/light_dot.png");
     },
 
     create: function() {

@@ -9,8 +9,6 @@ var User = function() {
 	this.scale = 1;
 	this.giveUp = false;
 
-
-
 	this.group;
 	this.lbname;
 	this.imagebody;
@@ -18,9 +16,13 @@ var User = function() {
 	this.containerplayer;
 	this.containeruser;
 	this.containerblank;
+	this.containerwin;
+	this.containerwinEffect;
 	this.imageCoin;
 	this.textCoin;
 	this.winCards = [];
+	this.winLightDot = [];
+	this.winGroup;
 }
 
 User.prototype = {
@@ -32,20 +34,51 @@ User.prototype = {
 		this.param["userCoin"] = userCoin;
 		this.param["isPlayer"] = isPlayer;
 
-		this.containerplayer = game.add.image(this.rect.left, this.rect.top, "playerBK");
-		this.containeruser = game.add.image(this.rect.left, this.rect.top, "userBK");
-		this.containerblank = game.add.image(this.rect.left, this.rect.top, "blankBK");
-		this.containerplayer.scale.setTo(this.rect.width / this.containerplayer.width, this.rect.height / this.containerplayer.height);
-		this.containeruser.scale.setTo(this.rect.width / this.containeruser.width, this.rect.height / this.containeruser.height);
-		this.containerblank.scale.setTo(this.rect.width / this.containerblank.width, this.rect.height / this.containerblank.height);
+		this.containerplayer = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "playerBK");
+		this.containeruser = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "userBK");
+		this.containerblank = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "blankBK");
+		this.containerwin = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "winBK");
+		this.containerwinEffect = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "winBKFrame");
+		this.containerplayer.anchor.set(0.5);
+		this.containeruser.anchor.set(0.5);
+		this.containerblank.anchor.set(0.5);
+		this.containerwin.anchor.set(0.5);
+		this.containerwinEffect.anchor.set(0.5);
+		this.containerplayer.scale.setTo(this.scale, this.scale);
+		this.containeruser.scale.setTo(this.scale, this.scale);
+		this.containerblank.scale.setTo(this.scale, this.scale);
+		this.containerwin.scale.setTo(this.scale, this.scale);
+		this.containerwinEffect.scale.setTo(this.scale, this.scale);
+		this.winLightDot[0] = game.add.sprite(this.containerwin.x - this.containerwin.width * 0.41, this.containerwin.y + this.containerwin.height * 0.3, "winLight");
+		this.winLightDot[0].scale.setTo(this.scale, this.scale);
+		this.winLightDot[1] = game.add.sprite(this.containerwin.x + this.containerwin.width * 0.41, this.containerwin.y - this.containerwin.height * 0.3, "winLight");
+		this.winLightDot[1].scale.setTo(this.scale, this.scale);
+		this.winLightDot[0].anchor.set(0.5);
+		this.winLightDot[1].anchor.set(0.5);
+		this.winCards[0] = game.add.image(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.26, "cardBK");
+		this.winCards[0].scale.setTo(this.scale * 0.75, this.scale * 0.75);
+		this.winCards[1] = game.add.image(this.rect.left + this.rect.width * 0.4, this.rect.top + this.rect.height * 0.26, "cardBK");
+		this.winCards[1].scale.setTo(this.scale * 0.75, this.scale * 0.75);
+
+		this.winGroup = game.add.group();
+		this.winGroup.add(this.containerwin);
+		this.winGroup.add(this.containerwinEffect);
+		this.winGroup.add(this.winLightDot[0]);
+		this.winGroup.add(this.winLightDot[1]);
+		this.winGroup.add(this.winCards[0]);
+		this.winGroup.add(this.winCards[1]);
+		this.containerwinEffect.alpha = 1;
+
 		this.containerplayer.visible = false;
 		this.containeruser.visible = false;
 		this.containerblank.visible = true;
+		this.winGroup.visible = false;
 		if(this.param["userName"] && this.param["userName"] != "")
 		{
 			this.containerplayer.visible = false;
 			this.containeruser.visible = true;
 			this.containerblank.visible = false;
+			this.winGroup.visible = false;
 		}
 		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		if(isPlayer)
@@ -53,6 +86,7 @@ User.prototype = {
 			this.containerplayer.visible = true;
 			this.containeruser.visible = false;
 			this.containerblank.visible = false;
+			this.winGroup.visible = false;
 			style = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		}
 		this.lbname = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.1, this.param["userName"], style);
@@ -76,13 +110,6 @@ User.prototype = {
 		}
 		this.textCoin.visible = false;
 		this.imageCoin.visible = false;
-
-		this.winCards[0] = game.add.image(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.26, "cardBK");
-		this.winCards[0].scale.setTo(this.scale * 0.75, this.scale * 0.75);
-		this.winCards[1] = game.add.image(this.rect.left + this.rect.width * 0.4, this.rect.top + this.rect.height * 0.26, "cardBK");
-		this.winCards[1].scale.setTo(this.scale * 0.75, this.scale * 0.75);
-		this.winCards[0].visible = false;
-		this.winCards[1].visible = false;
 	},
 
 	setRect:function(x, y, width, height) {
@@ -122,11 +149,13 @@ User.prototype = {
 		this.containerplayer.visible = false;
 		this.containeruser.visible = false;
 		this.containerblank.visible = true;
+		this.winGroup.visible = false;
 		if(this.param["userName"] && this.param["userName"] != "")
 		{
 			this.containerplayer.visible = false;
 			this.containeruser.visible = true;
 			this.containerblank.visible = false;
+			this.winGroup.visible = false;
 		}
 		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		if(this.param["isPlayer"])
@@ -134,6 +163,7 @@ User.prototype = {
 			this.containerplayer.visible = true;
 			this.containeruser.visible = false;
 			this.containerblank.visible = false;
+			this.winGroup.visible = false;
 			style = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		}
 		this.lbname.setText(this.param["userName"]);
@@ -178,13 +208,12 @@ User.prototype = {
 		this.group.add(this.containerplayer);
 		this.group.add(this.containeruser);
 		this.group.add(this.containerblank);
+		this.group.add(this.winGroup);
 		this.group.add(this.lbname);
 		this.group.add(this.imagebody);
 		this.group.add(this.lbcoin);
 		this.group.add(this.imageCoin);
 		this.group.add(this.textCoin);
-		this.group.add(this.winCards[0]);
-		this.group.add(this.winCards[1]);
 	},
 
 	setGiveUp:function(bGiveUp)
@@ -202,29 +231,52 @@ User.prototype = {
 			this.containerplayer.alpha = alpha;
 			this.containeruser.alpha = alpha;
 			this.containerblank.alpha = alpha;
+			this.winGroup.alpha = alpha;
 			this.lbname.alpha = alpha;
 			this.imagebody.alpha = alpha;
 			this.lbcoin.alpha = alpha;
 			this.imageCoin.alpha = alpha;
 			this.textCoin.alpha = alpha;
-			this.winCards[0].alpha = alpha;
-			this.winCards[1].alpha = alpha;
 		}
 	},
 
 	setWinCard:function(key1, key2)
 	{
-		this.winCards[0].visible = true;
-		this.winCards[1].visible = true;
+		var that = this;
+		this.winGroup.visible = true;
 		this.imagebody.visible = false;
 		this.winCards[0].loadTexture(key1, this.winCards[0].frame);
 		this.winCards[1].loadTexture(key2, this.winCards[1].frame);
+		this.winLightDot[0].y = this.containerwin.y + this.containerwin.height * 0.3;
+		this.winLightDot[1].y = this.containerwin.y - this.containerwin.height * 0.3;
+		this.containerwinEffect.scale.setTo(this.scale, this.scale);
+		this.winLightDot[0].visible = true;
+		this.winLightDot[1].visible = true;
+		this.containerwinEffect.alpha = 1;
+		var tween1 = game.add.tween(this.winLightDot[0]);
+		tween1.to({ y:this.containerwin.y - this.containerwin.height * 0.3 }, 500, Phaser.Easing.Linear.None, true);
+		tween1.onComplete.add(function() {
+			that.winLightDot[0].visible = false;
+		}, this);
+		var tween2 = game.add.tween(this.winLightDot[1]);
+		tween2.to({ y:this.containerwin.y + this.containerwin.height * 0.3 }, 500, Phaser.Easing.Linear.None, true);
+		tween2.onComplete.add(function() {
+			that.winLightDot[1].visible = false;
+		}, this);
+		var tween3 = game.add.tween(this.containerwinEffect.scale);
+		tween3.to({ x: this.scale * 1.5, y: this.scale * 1.5 }, 500, Phaser.Easing.Linear.None, true);
+		var tween4 = game.add.tween(this.containerwinEffect);
+		tween4.to({ alpha: 0 }, 500, Phaser.Easing.Linear.None, true);
+
+		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+		this.lbname.setStyle(style);
+		this.lbcoin.setStyle(style);
+
 	},
 
 	reset:function()
 	{
-		this.winCards[0].visible = false;
-		this.winCards[1].visible = false;
+		this.winGroup.visible = false;
 		this.imagebody.visible = true;
 		this.param["userName"] = "";
 		this.param["userCoin"] = "";
