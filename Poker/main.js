@@ -402,6 +402,7 @@ MainState.prototype = {
         style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
         this.blinds = game.add.text(this.background.width / 2 + xOffset, 0.25 * this.background.height + yOffset, "$" + this.sb + " / $" + this.bb, style);
         this.blinds.anchor.set(0.5);
+        this.blinds.scale.setTo(this.scale);
 
         this.chipPoolBK = game.add.image(0.451 * imageBK.width + xOffset, 0.306 * imageBK.height + yOffset, "chipPool");
         this.chipPoolBK.scale.setTo(this.scale, this.scale);
@@ -409,6 +410,7 @@ MainState.prototype = {
         style = { font: "16px Arial", fill: "#FFFFFF", wordWrap: true, wordWrapWidth: this.chipPoolBK.width, align: "center" };
         this.chipPool = game.add.text(this.chipPoolBK.x + this.chipPoolBK.width / 2, this.chipPoolBK.y + this.chipPoolBK.height / 2, "0", style);
         this.chipPool.anchor.set(0.5);
+        this.chipPool.scale.setTo(this.scale);
 
         this.starGroup = game.add.group();
         this.starGroup.enableBody = true;
@@ -953,10 +955,10 @@ MainState.prototype = {
         this.buttonGroup1.visible = isCurrentPlayer;
         this.buttonGroup2.visible = isCurrentPlayer;
         this.buttonGroup3.visible = isCurrentPlayer;
-    },
+    }
 };
 
 game.betApi = new BetApi();
 
 game.state.add("MainState", MainState);
-game.state.start("MainState")
+game.state.start("MainState");
