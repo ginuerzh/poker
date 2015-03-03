@@ -85,7 +85,8 @@ var MainState = function() {
     this.drawRectAnime;                 //画边框对象
 
     this.animation;                     //动画特效类
-
+    //this.deskCardIDs = []
+    //this.lstCardImage = []
 
     //control
     this.background;                    //背景图
@@ -760,20 +761,38 @@ MainState.prototype = {
             var card = this.praviteCards[i];
             card.visible = true;
         }
+
     },
     
     handleFlop:function(data)
     {
+        var arrayParam = data.class.split(",");
+        var arrayCards = arrayParam.slice(0,3) 
+        this.animation.setPublicCard(this.publicCards);
+        this._flopAnimation(arrayCards[0], arrayCards[1], arrayCards[2])
 
+        var cardType = arrayParam[4]
+        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
+        // TODO setName
     },
     handleTurn:function(data)
     {
+        var arrayCards = data.class.split(",");
+        this._turnAnimation(arrayCards[0])
 
+        var cardType = arrayCards[1]
+        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
+        // TODO setName
     },
 
     handleRiver:function(data)
     {
+        var arrayCards = data.class.split(",");
+        this._riverAnimation(arrayCards[0])
 
+        var cardType = arrayCards[1]
+        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
+        // TODO setName
     },
 
     handleAction:function(data)
@@ -787,7 +806,11 @@ MainState.prototype = {
 
         // 当前玩家
         if (user.param.userID == this.userID) {
-            this.gameStateObj.mybet = bet
+
+            if ( parseInt(bet) > 0 ) {
+                this.gameStateObj.mybet = bet
+            };
+
             this._currentPlayButtonUpdate(true);
             this._autoAction();
 
@@ -863,6 +886,7 @@ MainState.prototype = {
             }
         };
     },
+
 
     handleState:function(data)
     {
@@ -1035,6 +1059,7 @@ MainState.prototype = {
        this._setBetButtonsVisible(false)
        this._setWaitButtonsVisible(false)
        this._resetGameRoundStatus()
+       this._resetPublicCard();
     },
 
     _clearWaitButtons:function() {
@@ -1089,7 +1114,55 @@ MainState.prototype = {
         this.gameStateObj.mybetOnDesk = 0;
     },
 
+    _flopAnimation:function(card1, card2, card3) {
+        var deskCardIDs = []
+        //var arrayCards = data.class.split(",");
+        //var publicCards = [arrayCards[0], arrayCards[1], arrayCards[2]];
+        var publicCards = [card1, card2, card3];
+
+        var lstCardImage = [];
+        for (var i = 0; i < publicCards.length; i++) {
+            this.animation.publicCards[i].visible = true;
+            deskCardIDs.push(i);
+            lstCardImage.push(publicCards[i]);
+        }
+        this.animation.showPublicCard(deskCardIDs, lstCardImage, true);
+    },
+
+    _turnAnimation:function(card) {
+        //this.animation.publicCards.push(card)
+
+        var deskCardIDs = [3]
+        var lstCardImage = [card]
+        this.animation.publicCards[deskCardIDs].visible = true;
+        this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
+    },
+
+    _riverAnimation:function(card) {
+        //this.animation.publicCards.push(card)
+
+        var deskCardIDs = [4]
+        var lstCardImage = [card]
+        this.animation.publicCards[deskCardIDs].visible = true;
+        this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
+    },
+
+
+    _resetPublicCard:function() 
+    {
+        for(var i = 0; i < this.publicCards.length; i++)
+        {
+            this.publicCards[i].visible = false;
+            this.publicCards[i].loadTexture("cardBK", this.publicCards[i].frame);
+        }
+        for(var i = this.publicCards.length; i < this.publicCards.length; i++)
+        {
+            this.publicCards[i].visible = false;
+            this.publicCards[i].loadTexture("cardBK", this.publicCards[i].frame);
+        }
+    },
 };
+
 
 game.betApi = new BetApi();
 
