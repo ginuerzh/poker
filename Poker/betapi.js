@@ -81,7 +81,7 @@ BetApi.prototype = {
 
 	bet:function(number, callback) {
 
-		var data = {type:"presence", id:"bet", from:this.userID, to:this.roomID, action:"bet", class:number};
+		var data = {type:"presence", id:"bet", from:this.userID, to:this.roomID, action:"bet", class:number+""};
 		this.betServer.sendCommand(data, callback);
 	},
 
