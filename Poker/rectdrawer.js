@@ -88,6 +88,7 @@ rectdrawer.prototype = {
     setLineWidth:function(nLineWidth)
     {
         this.lineWidth = nLineWidth;
+        graphic.lineStyle(this.lineWidth, 0xff00ff, 1);
     },
 
     _getPt:function(n1, n2, perc)
@@ -142,7 +143,6 @@ rectdrawer.prototype = {
         {
             if(this.num < this.c)
             {
-                graphic.lineStyle(this.lineWidth, 0xff00ff, 1);
                 graphic.moveTo(this.drawpoint[this.num].x, this.drawpoint[this.num].y);
                 graphic.lineTo(this.drawpoint[this.num + 1].x, this.drawpoint[this.num + 1].y);
                 this.num++;
