@@ -738,7 +738,7 @@ MainState.prototype = {
     handleGone:function(data) {
         var goneUserID = data.occupant.id;
         var user = this._userByUserID(goneUserID);
-        user.reset();
+        user.clean();
     },
 
     handleButton:function(data)
@@ -873,18 +873,29 @@ MainState.prototype = {
         var roomInfo = data.room;
         var playerList = roomInfo.occupants;
 
+        var maxHand = 0
+        var maxHandIndex = 0
+
         for (var i = playerList.length - 1; i >= 0; i--) {
             var occupantInfo = playerList[i]
-             if(!occupantInfo) {
-                continue;
-             }
 
-            var user = this._userByUserID(occupantInfo.id)
-            if(!user.giveUp && user.param.userID != occupantInfo.id) {
-                this._stopDrawUserProgress()
-                user.setWinCard(occupantInfo.cards[0], occupantInfo.cards[1]);
+            if(!occupantInfo) {
+                continue;
             }
+
+            var hand = occupantInfo.hand
+            if (maxHand < hand) {
+                maxHand = hand
+                maxHandIndex = i
+            };
         };
+
+        var winOccupantItem = playerList[maxHandIndex]
+        var winUser = this._userByUserID(winOccupantItem.id)
+        if (winOccupantItem.action != "fold") {
+             winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+        };
+       
     },
 
 
@@ -1050,10 +1061,16 @@ MainState.prototype = {
     _initNewRound:function() {
         for (var i =0;  i < this.userList.length;  i++) {
             var user = this.userList[i]
+
+            user.reset()
+            /*
             if (user.giveUp === true) {
                 user.setGiveUp(false);
             }
+            */
         }
+
+
 
        this._clearWaitButtons()
        this._setBetButtonsVisible(false)
@@ -1086,7 +1103,7 @@ MainState.prototype = {
 
     _disconnectReset:function() {
         for (var i =0;  i < this.userList.length;  i++) {
-            this.userList[i].reset();
+            this.userList[i].clean();
         }
 
         this.light.visible = false;
@@ -1162,6 +1179,8 @@ MainState.prototype = {
         }
     },
 };
+
+
 
 
 game.betApi = new BetApi();

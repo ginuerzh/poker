@@ -277,6 +277,14 @@ User.prototype = {
 
 	reset:function()
 	{
+	    this.winGroup.visible = false;
+	    this.setGiveUp(false);
+	    this.imagebody.visible = true;
+	    this.setUseCoin("");
+	},
+
+	clean:function() 
+	{
 		this.winGroup.visible = false;
 		this.imagebody.visible = true;
 		this.param["userName"] = "";
