@@ -190,6 +190,7 @@ User.prototype = {
 			coin.width = this.coinRect.width;
 			coin.height = this.coinRect.height;
 			this.imageCoin.push(coin);
+			this.group.add(coin);
 			this.animation.showChipMove(coin, this.coinRect.left, this.coinRect.top - this.imageCoin.length * coin.height * 0.1111);
 		}
 		else

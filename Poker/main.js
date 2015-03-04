@@ -78,6 +78,9 @@ var MainState = function() {
     this.waitSelected2;                 //等待时按钮选择状态2
     this.waitSelected3;                 //等待时按钮选择状态3
 
+    this.sliderMinNum;                  //滑块最小值
+    this.sliderMaxNum;                  //滑块最大值
+
     //class
     this.userList;                      //玩家对象
     this.starGroup;                     //掉落金币动画对象
@@ -127,6 +130,9 @@ var MainState = function() {
     this.chipboxText2;                  //加注选择按钮文字2
     this.chipboxText3;                  //加注选择按钮文字3
     this.chipboxText4;                  //加注选择按钮文字4
+    this.chipboxSliderGroove;           //加注滑条凹槽
+    this.chipboxSliderHandle;           //加注滑条滑块
+    this.chipboxTextSlider;             //加注滑块当前值
     this.chipboxGroup;
 
 
@@ -177,6 +183,7 @@ MainState.prototype = {
         game.load.image("checkOff", "assets/check-off.png");
         game.load.image("chipbox", "assets/add-chips-box.png");
         game.load.image("winLight", "assets/light_dot.png");
+        game.load.image("groove", "assets/sliderGroove.png");
     },
 
     create: function() {
@@ -194,6 +201,8 @@ MainState.prototype = {
         this.loginCertification = false;
         this.currentDrawUser = 0;
         this.timeoutMaxCount = 30;
+        this.sliderMinNum = 0;
+        this.sliderMaxNum = 100;
         this.userList = [];
         this.userID = "";
         this.userName = "cmdTest";
@@ -293,7 +302,6 @@ MainState.prototype = {
         this.chipboxText2 = game.add.text(0, 0, "120", style);
         this.chipboxText3 = game.add.text(0, 0, "80", style);
         this.chipboxText4 = game.add.text(0, 0, "50", style);
-        this.chipboxGroup = game.add.group();
         this.chipboxText1.anchor.set(0.5);
         this.chipboxText2.anchor.set(0.5);
         this.chipboxText3.anchor.set(0.5);
@@ -302,6 +310,15 @@ MainState.prototype = {
         this.chipboxText2.scale.setTo(this.scale, this.scale);
         this.chipboxText3.scale.setTo(this.scale, this.scale);
         this.chipboxText4.scale.setTo(this.scale, this.scale);
+        this.chipboxSliderGroove = game.add.sprite(0, 0, "groove");
+        this.chipboxSliderHandle = game.add.sprite(0, 0, "buttonblue");
+        this.chipboxSliderGroove.anchor.set(0.5);
+        this.chipboxSliderHandle.anchor.set(0.5);
+        style = { font: "32px Arial", fill: "#CE8D00"};
+        this.chipboxTextSlider = game.add.text(0, 0, "0", style);
+        this.chipboxTextSlider.anchor.set(0.5);
+        this.chipboxTextSlider.scale.setTo(this.scale, this.scale);
+        this.chipboxGroup = game.add.group();
         this.chipboxGroup.add(this.chipbox);
         this.chipboxGroup.add(this.chipboxButton1);
         this.chipboxGroup.add(this.chipboxButton2);
@@ -311,6 +328,9 @@ MainState.prototype = {
         this.chipboxGroup.add(this.chipboxText2);
         this.chipboxGroup.add(this.chipboxText3);
         this.chipboxGroup.add(this.chipboxText4);
+        this.chipboxGroup.add(this.chipboxSliderGroove);
+        this.chipboxGroup.add(this.chipboxSliderHandle);
+        this.chipboxGroup.add(this.chipboxTextSlider);
         this.chipboxGroup.visible = false;
 
         var buttonPosRate1 = {x:0.167, y:0.881};
@@ -389,23 +409,24 @@ MainState.prototype = {
         this.waitButtonGroup3.add(this.lbCallEveryWait);
         this.waitButtonGroup3.add(this.imgCallEveryWait);
 
-        this.chipbox.x = this.button3.x + this.button3.width * 0.2;
+        this.chipbox.x = this.button3.x + this.button3.width * 0.04;
         this.chipbox.y = this.button3.y - this.chipbox.height * 0.99;
-        this.chipboxButton1.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipbox.width = this.button3.width * 0.92;
+        this.chipboxButton1.x = this.chipbox.x + this.chipbox.width * 0.1;
         this.chipboxButton1.y = this.chipbox.y + this.chipbox.height * 0.08;
-        this.chipboxButton1.width = this.chipbox.width * 0.6;
+        this.chipboxButton1.width = this.chipbox.width * 0.3;
         this.chipboxButton1.height = this.chipbox.height * 0.18;
-        this.chipboxButton2.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton2.x = this.chipbox.x + this.chipbox.width * 0.1;
         this.chipboxButton2.y = this.chipbox.y + this.chipbox.height * 0.31;
-        this.chipboxButton2.width = this.chipbox.width * 0.6;
+        this.chipboxButton2.width = this.chipbox.width * 0.3;
         this.chipboxButton2.height = this.chipbox.height * 0.18;
-        this.chipboxButton3.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton3.x = this.chipbox.x + this.chipbox.width * 0.1;
         this.chipboxButton3.y = this.chipbox.y + this.chipbox.height * 0.54;
-        this.chipboxButton3.width = this.chipbox.width * 0.6;
+        this.chipboxButton3.width = this.chipbox.width * 0.3;
         this.chipboxButton3.height = this.chipbox.height * 0.18;
-        this.chipboxButton4.x = this.chipbox.x + this.chipbox.width * 0.2;
+        this.chipboxButton4.x = this.chipbox.x + this.chipbox.width * 0.1;
         this.chipboxButton4.y = this.chipbox.y + this.chipbox.height * 0.78;
-        this.chipboxButton4.width = this.chipbox.width * 0.6;
+        this.chipboxButton4.width = this.chipbox.width * 0.3;
         this.chipboxButton4.height = this.chipbox.height * 0.18;
         this.chipboxText1.x = this.chipboxButton1.x + this.chipboxButton1.width * 0.5;
         this.chipboxText1.y = this.chipboxButton1.y + this.chipboxButton1.height * 0.45;
@@ -415,6 +436,21 @@ MainState.prototype = {
         this.chipboxText3.y = this.chipboxButton3.y + this.chipboxButton3.height * 0.45;
         this.chipboxText4.x = this.chipboxButton4.x + this.chipboxButton4.width * 0.5;
         this.chipboxText4.y = this.chipboxButton4.y + this.chipboxButton4.height * 0.45;
+        this.chipboxTextSlider.x = this.chipbox.x + this.chipbox.width * 0.7;
+        this.chipboxTextSlider.y = this.chipboxButton1.y + this.chipboxButton1.height * 0.5;
+        this.chipboxSliderGroove.width = this.chipbox.width * 0.1;
+        this.chipboxSliderGroove.height = this.chipbox.height * 0.7;
+        this.chipboxSliderGroove.x = this.chipbox.x + this.chipbox.width * 0.7;
+        this.chipboxSliderGroove.y = this.chipboxButton4.y + this.chipboxButton4.height - this.chipboxSliderGroove.height * 0.5;
+        this.chipboxSliderHandle.width = this.chipbox.width * 0.2;
+        this.chipboxSliderHandle.height = this.chipboxSliderHandle.width * 0.5;
+        this.chipboxSliderHandle.x = this.chipbox.x + this.chipbox.width * 0.7;
+        this.chipboxSliderHandle.y = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
+        this.chipboxSliderHandle.inputEnabled = true;
+        this.chipboxSliderHandle.input.enableDrag();
+        this.chipboxSliderHandle.input.setDragLock(false);
+        //this.chipboxSliderHandle.events.onDragStart.add(onDragStart, this);
+        //this.chipboxSliderHandle.events.onDragStop.add(onDragStop, this);
 
         style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
         this.blinds = game.add.text(this.background.width / 2 + xOffset, 0.25 * this.background.height + yOffset, "$" + this.sb + " / $" + this.bb, style);
@@ -449,10 +485,23 @@ MainState.prototype = {
         game.betApi.registerCallback(this.callbackOpen.bind(that), this.callbackClose.bind(that), this.callbackMessage.bind(that), this.callbackError.bind(that));
     },
 
-    /*update:function()
+    update:function()
     {
-        //game.physics.arcade.collide(this.starGroup, platforms);
-    },*/
+        var nMaxPos = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
+        var nMinPos = this.chipboxSliderGroove.y - this.chipboxSliderGroove.height * 0.5 + this.chipboxSliderHandle.height * 0.5;
+        if(this.chipboxSliderHandle.y > nMaxPos)
+        {
+            this.chipboxSliderHandle.y = nMaxPos;
+        }
+        if(this.chipboxSliderHandle.y < nMinPos)
+        {
+            this.chipboxSliderHandle.y = nMinPos;
+        }
+
+        var value = Math.round(this.sliderMaxNum - (this.chipboxSliderHandle.y - nMinPos) / (nMaxPos - nMinPos) * (this.sliderMaxNum - this.sliderMinNum));
+        value = Math.round(value / 5) * 5;
+        this.chipboxTextSlider.setText(value);
+    },
 
     _fileComplete:function(progress, cacheKey, success, totalLoaded, totalFiles)
     {
@@ -1177,6 +1226,21 @@ MainState.prototype = {
             this.publicCards[i].visible = false;
             this.publicCards[i].loadTexture("cardBK", this.publicCards[i].frame);
         }
+    },
+
+    _resetSlider:function(minNum, maxNum)
+    {
+        if(minNum != undefined)
+        {
+            this.sliderMinNum = minNum;
+        }
+        if(maxNum != undefined)
+        {
+            this.sliderMaxNum = maxNum;
+        }
+
+        this.chipboxTextSlider.setText(this.sliderMinNum);
+        this.chipboxSliderHandle.y = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
     }
 };
 
