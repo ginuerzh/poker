@@ -190,7 +190,7 @@ User.prototype = {
 			coin.width = this.coinRect.width;
 			coin.height = this.coinRect.height;
 			this.imageCoin.push(coin);
-			this.animation.showAddChip(coin, this.coinRect.left, this.coinRect.top - this.imageCoin.length * coin.height * 0.1111);
+			this.animation.showChipMove(coin, this.coinRect.left, this.coinRect.top - this.imageCoin.length * coin.height * 0.1111);
 		}
 		else
 		{
@@ -201,6 +201,22 @@ User.prototype = {
 			}
 			this.imageCoin = [];
 		}
+	},
+
+	//this.userList[Math.round(Math.random() * 8)].showGetCoins(this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5);
+	showGetCoins:function(srcX, srcY)
+	{
+		var coin = game.add.image(srcX, srcY, "chip01");
+		coin.anchor.set(0.5);
+		coin.width = this.coinRect.width;
+		coin.height = this.coinRect.height;
+
+		var animationTime = 200;
+		var tween = game.add.tween(coin);
+		tween.to({ x:this.rect.left + this.rect.width / 2, y: this.rect.top + this.rect.height / 2 }, animationTime, Phaser.Easing.Linear.None, true);
+		tween.onComplete.add(function() {
+			coin.destroy();
+		}, this);
 	},
 
 	setScale:function(scale)

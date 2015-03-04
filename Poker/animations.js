@@ -97,7 +97,7 @@ Animations.prototype = {
 		}
 	},
 
-	showAddChip:function(target, targetX, targetY)
+	showChipMove:function(target, targetX, targetY)
 	{
 		var animationTime = 100;
 		var tween = game.add.tween(target);
