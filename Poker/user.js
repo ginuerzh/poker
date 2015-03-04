@@ -104,7 +104,7 @@ User.prototype = {
 		this.textCoin.scale.setTo(this.scale, this.scale);
 		if(this.coinTextRect.left < this.coinRect.left)
 		{
-			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.5;
+			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.9;
 		}
 		this.textCoin.visible = false;
 	},
@@ -180,7 +180,7 @@ User.prototype = {
 		this.textCoin.setText(usedCoin);
 		if(this.coinTextRect.left < this.coinRect.left)
 		{
-			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.5;
+			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.9;
 		}
 		if(usedCoin != "")
 		{
