@@ -46,7 +46,7 @@ var MainState = function() {
     this.CONST.CardType_OnePairs = 2;
     this.CONST.CardType_HighCard = 1;
 
-    this.CONST.CardTypeNames= ["高牌", "一对", "两对", "三条", "顺子","同花","葫芦","四条","同花顺","皇家同花顺"]
+    this.CONST.CardTypeNames= ["", "高牌", "一对", "两对", "三条", "顺子","同花","葫芦","四条","同花顺","皇家同花顺"]
     
     //param
     this.userPosRate;                   //九个座位的坐标，按比值
@@ -731,7 +731,7 @@ MainState.prototype = {
             }
             else if(data.action == "pot")       //服务器通报奖池
             {
-
+                this.handlePot()
             }
             else if(data.action == "action")    //服务器通报当前下注玩家
             {
@@ -780,9 +780,18 @@ MainState.prototype = {
             game.load.image("userImage" + userIndex, occupant.profile, true);
             game.load.start();
         }
-        user.setParam(occupant.name, null, occupant.chips);
+
+        if (occupant.name == "") {
+            console.log("error userName =", occupant.name);
+        }
+
+        user.setParam(occupant.name, occupant.profile, occupant.chips);
         user.param.seatNum = occupant.index;
         user.param.userID = occupant.id;
+    },
+
+    handlePot:function(data) {
+        this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
     },
 
     handleGone:function(data) {
@@ -821,17 +830,14 @@ MainState.prototype = {
         this.animation.setPublicCard(this.publicCards);
         this._flopAnimation(arrayCards[0], arrayCards[1], arrayCards[2])
 
-        var cardType = arrayParam[4]
-        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
-        // TODO setName
+        this._setBetCardType(arrayParam[3])
     },
     handleTurn:function(data)
     {
         var arrayCards = data.class.split(",");
         this._turnAnimation(arrayCards[0])
 
-        var cardType = arrayCards[1]
-        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
+        this._setBetCardType(arrayCards[1])
         // TODO setName
     },
 
@@ -840,9 +846,7 @@ MainState.prototype = {
         var arrayCards = data.class.split(",");
         this._riverAnimation(arrayCards[0])
 
-        var cardType = arrayCards[1]
-        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
-        // TODO setName
+        this._setBetCardType(arrayCards[1])
     },
 
     handleAction:function(data)
@@ -861,8 +865,12 @@ MainState.prototype = {
                 this.gameStateObj.mybet = bet
             };
 
-            this._currentPlayButtonUpdate(true);
-            this._autoAction();
+            if(this._betWaitButtonChecked()) {
+                this._autoAction();
+            } else {
+                this._currentPlayButtonUpdate(true);
+            }
+            
 
         } else {
             this._currentPlayButtonUpdate(false);
@@ -926,6 +934,10 @@ MainState.prototype = {
         var maxHand = 0
         var maxHandIndex = 0
 
+        // 如果都没有hand说明只有一个人下注，没有翻牌的情况
+        var lastHasCardsIndex = -1; //保存最后一个出牌的人index
+        var hashand = false;
+
         for (var i = playerList.length - 1; i >= 0; i--) {
             var occupantInfo = playerList[i]
 
@@ -933,21 +945,36 @@ MainState.prototype = {
                 continue;
             }
 
+            if (occupantInfo.cards) {
+                lastHasCardsIndex = i 
+            }
+
+            if (occupantInfo.hand) {
+                hashand = true
+            }
+
+
             var hand = occupantInfo.hand
             if (maxHand < hand) {
                 maxHand = hand
                 maxHandIndex = i
-            };
+            }
         };
+
+        //只有一个人下注，没有翻牌的情况
+        if (!hashand && lastHasCardsIndex!=-1) {
+           maxHandIndex = lastHasCardsIndex
+        } 
 
         var winOccupantItem = playerList[maxHandIndex]
-        var winUser = this._userByUserID(winOccupantItem.id)
-        if (winOccupantItem.action != "fold") {
-             winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
-        };
-       
-    },
 
+        if (winOccupantItem) {
+            var winUser = this._userByUserID(winOccupantItem.id)
+            if (winOccupantItem.action != "fold") {
+             winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+            }
+        }
+    },
 
     handleState:function(data)
     {
@@ -957,7 +984,7 @@ MainState.prototype = {
         this.roomID = roomInfo.id;
         this.bb = roomInfo.bb;
         this.sb = roomInfo.sb;
-        this.blinds.setText("$" + this.gameStateObj.sb + " / $" + this.bb);
+        this.blinds.setText("$" + this.sb + " / $" + this.bb);
         //this.currentBettinglines = roomInfo.bet;
         this.timeoutMaxCount = roomInfo.timeout;
         var publicCards = roomInfo.cards;
@@ -993,7 +1020,7 @@ MainState.prototype = {
         for (var i = 0; i < this.userList.length; i++)
         {
             var user = this.userList[i];
-            user.setParam("", "defaultUserImage", "");
+            user.setParam(null, "defaultUserImage", "");
         }
         //计算座位偏移量，以自己为5号桌计算
         var playerOffset = 0;
@@ -1028,7 +1055,7 @@ MainState.prototype = {
                 game.load.image("userImage" + index, userInfo.profile, true);
                 game.load.start();
             }
-            user.setParam(userInfo.name, null, userInfo.chips);
+            user.setParam(userInfo.name, userInfo.profile, userInfo.chips);
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
         }
@@ -1111,22 +1138,15 @@ MainState.prototype = {
     _initNewRound:function() {
         for (var i =0;  i < this.userList.length;  i++) {
             var user = this.userList[i]
-
             user.reset()
-            /*
-            if (user.giveUp === true) {
-                user.setGiveUp(false);
-            }
-            */
         }
 
-
-
-       this._clearWaitButtons()
-       this._setBetButtonsVisible(false)
-       this._setWaitButtonsVisible(false)
-       this._resetGameRoundStatus()
+       this._clearWaitButtons();
+       this._setBetButtonsVisible(false);
+       this._setWaitButtonsVisible(false);
+       this._resetGameRoundStatus();
        this._resetPublicCard();
+       this._clearChipPoolCoins();
     },
 
     _clearWaitButtons:function() {
@@ -1134,9 +1154,9 @@ MainState.prototype = {
         this.waitSelected2 = false;
         this.waitSelected3 = false;
 
-        this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
-        this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
-        this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
+        this._betWaitButtonCheckOn(this.imgLookorGiveupWait, false);
+        this._betWaitButtonCheckOn(this.imgCallWait, false);
+        this._betWaitButtonCheckOn(this.imgCallEveryWait, false);
     }, 
 
     _setBetButtonsVisible: function(blVisible) {
@@ -1165,14 +1185,20 @@ MainState.prototype = {
         var user = this._userByUserID(this.userID)
 
         if (this.waitSelected1) {
-            this._actionOnClick1()
+            this.actionOnClick1()
+            this.waitSelected1 = false;
         // 自动看牌/自动跟注
         } else if(this.waitSelected2) {
-            this._actionOnClick2()
+            this.actionOnClick2()
+            this.waitSelected2 = false;
         // 跟任何注
         } else if(this.waitSelected3) {
-            this._actionOnClick3()
+            this.actionOnClick3()
+            this.waitSelected3 = false;
         }
+
+        this._clearWaitButtons();
+        this._setWaitButtonsVisible(false);
     },
 
     _resetGameRoundStatus:function() {
@@ -1241,6 +1267,31 @@ MainState.prototype = {
 
         this.chipboxTextSlider.setText(this.sliderMinNum);
         this.chipboxSliderHandle.y = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
+    },
+
+    _betWaitButtonCheckOn:function(buttonCheckImage, blOn)
+    {
+        var imgid = blOn?"checkOn":"checkOff";
+        buttonCheckImage.loadTexture(imgid, buttonCheckImage.frame);
+    },
+
+    _betWaitButtonChecked:function() 
+    {
+        return this.waitSelected1 || this.waitSelected2 || this.waitSelected3
+    },
+
+    _setBetCardType:function(cardType) {
+        var carTypeName = this.CONST.CardTypeNames[parseInt(cardType)]
+        var user = this._userByUserID(this.userID)
+        user.setUserTitle(carTypeName);
+    },
+
+    _clearChipPoolCoins:function() {
+        for (var i = this.chipPoolCoins.length - 1; i >= 0; i--) {
+            this.chipPoolCoins[i].destroy()
+        }
+
+        this.chipPoolCoins = []
     }
 };
 
