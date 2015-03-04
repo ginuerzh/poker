@@ -97,6 +97,51 @@ Animations.prototype = {
 		}
 	},
 
+	showChipMove:function(target, targetX, targetY)
+	{
+		var animationTime = 100;
+		var tween = game.add.tween(target);
+		tween.to({ x:targetX, y: targetY }, animationTime, Phaser.Easing.Linear.None, true);
+	},
+
+	//this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
+
+	showCollectChip:function(userList, targetX, targetY, existCoin)
+	{
+		var animationTime = 50;
+		var coinSpace = 0.1111;
+		var totalCoins = [];
+		for(var i = 0; i < userList.length; i++)
+		{
+			var user = userList[i];
+			for(var j = 0; j < user.imageCoin.length; j++)
+			{
+				var coin = user.imageCoin[user.imageCoin.length - 1 - j];
+				totalCoins.push(coin);
+			}
+			user.imageCoin = [];
+		}
+
+
+		var nIndex = 0;
+		var showAnimation = function (index) {
+			totalCoins[index].bringToTop();
+			var tween = game.add.tween(totalCoins[index]);
+			tween.to({ x:targetX, y: targetY - (index + existCoin.length) * totalCoins[index].height * coinSpace }, animationTime, Phaser.Easing.Linear.None, true);
+			nIndex++;
+			if(nIndex < totalCoins.length)
+			{
+				tween.onComplete.add(function() {
+					showAnimation(nIndex);
+				}, this);
+			}
+		};
+
+		showAnimation(nIndex);
+
+		return existCoin.concat(totalCoins);
+	},
+
 	//Demo
 	demoShowPublicCard:function() {
 		var publicCards = ["SA", "H2", "C3"];

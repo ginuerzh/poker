@@ -8,6 +8,7 @@ var User = function() {
 	this.param = {userName:"", userImage:"defaultUserImage", userCoin:"", isPlayer:"", userID:"", seatNum:-1};
 	this.scale = 1;
 	this.giveUp = false;
+	this.animation;
 
 	this.group;
 	this.lbname;
@@ -18,7 +19,7 @@ var User = function() {
 	this.containerblank;
 	this.containerwin;
 	this.containerwinEffect;
-	this.imageCoin;
+	this.imageCoin = [];
 	this.textCoin;
 	this.winCards = [];
 	this.winLightDot = [];
@@ -100,18 +101,14 @@ User.prototype = {
 		this.lbcoin.anchor.set(0.5);
 		this.lbcoin.scale.setTo(this.scale, this.scale);
 
-		this.imageCoin = game.add.image(this.coinRect.left, this.coinRect.top, "chip01");
-		this.imageCoin.width = this.coinRect.width;
-		this.imageCoin.height = this.coinRect.height;
 		style = { font: "20px Arial", fill: "#FFFF00"};
 		this.textCoin = game.add.text(this.coinTextRect.left, this.coinTextRect.top, "", style);
 		this.textCoin.scale.setTo(this.scale, this.scale);
 		if(this.coinTextRect.left < this.coinRect.left)
 		{
-			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.5;
+			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.9;
 		}
 		this.textCoin.visible = false;
-		this.imageCoin.visible = false;
 	},
 
 	setUserTitle:function(title) {
@@ -196,23 +193,53 @@ User.prototype = {
 		this.textCoin.setText(usedCoin);
 		if(this.coinTextRect.left < this.coinRect.left)
 		{
-			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.5;
+			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.9;
 		}
 		if(usedCoin != "")
 		{
 			this.textCoin.visible = true;
-			this.imageCoin.visible = true;
+			var coin = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "chip01");
+			coin.anchor.set(0.5);
+			coin.width = this.coinRect.width;
+			coin.height = this.coinRect.height;
+			this.imageCoin.push(coin);
+			this.animation.showChipMove(coin, this.coinRect.left, this.coinRect.top - this.imageCoin.length * coin.height * 0.1111);
 		}
 		else
 		{
 			this.textCoin.visible = false;
-			this.imageCoin.visible = false;
+			for(var i = 0; i < this.imageCoin.length; i++)
+			{
+				this.imageCoin[i].destroy();
+			}
+			this.imageCoin = [];
 		}
+	},
+
+	//this.userList[Math.round(Math.random() * 8)].showGetCoins(this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5);
+	showGetCoins:function(srcX, srcY)
+	{
+		var coin = game.add.image(srcX, srcY, "chip01");
+		coin.anchor.set(0.5);
+		coin.width = this.coinRect.width;
+		coin.height = this.coinRect.height;
+
+		var animationTime = 200;
+		var tween = game.add.tween(coin);
+		tween.to({ x:this.rect.left + this.rect.width / 2, y: this.rect.top + this.rect.height / 2 }, animationTime, Phaser.Easing.Linear.None, true);
+		tween.onComplete.add(function() {
+			coin.destroy();
+		}, this);
 	},
 
 	setScale:function(scale)
 	{
 		this.scale = scale;
+	},
+
+	setAnimation:function(animation)
+	{
+		this.animation = animation;
 	},
 
 	setGroup:function(group)
@@ -225,7 +252,10 @@ User.prototype = {
 		this.group.add(this.lbname);
 		this.group.add(this.imagebody);
 		this.group.add(this.lbcoin);
-		this.group.add(this.imageCoin);
+		for(var i = 0; i < this.imageCoin.length; i++)
+		{
+			this.group.add(this.imageCoin[i]);
+		}
 		this.group.add(this.textCoin);
 	},
 
@@ -267,8 +297,11 @@ User.prototype = {
 			this.lbname.alpha = alpha;
 			this.imagebody.alpha = alpha;
 			this.lbcoin.alpha = alpha;
-			this.imageCoin.alpha = alpha;
 			this.textCoin.alpha = alpha;
+			for(var i = 0; i < this.imageCoin.length; i++)
+			{
+				this.imageCoin[i].alpha = alpha;
+			}
 		}
 	},
 
