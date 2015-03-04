@@ -117,6 +117,7 @@ var MainState = function() {
     this.selfCards;                     //底牌(自己的两张)
     this.chipPoolBK;                    //筹码池背景
     this.chipPool;                      //筹码池
+    this.chipPoolCoinCount;             //收集的筹码块(动画用)
     this.chipbox;                       //加注选择框
     this.chipboxButton1;                //加注选择按钮1
     this.chipboxButton2;                //加注选择按钮2
@@ -165,8 +166,6 @@ MainState.prototype = {
         }
         game.load.image("cardBK", "assets/cards/card_back.png");
         game.load.image("chipPool", "assets/chip-pool.png");
-        game.load.image("chipPool", "assets/chip-pool.png");
-        game.load.image("chipPool", "assets/chip-pool.png");
         game.load.image("chip01", "assets/texas_chip01.png");
         game.load.image("chip05", "assets/texas_chip05.png");
         game.load.image("chip1k", "assets/texas_chip1k.png");
@@ -204,12 +203,13 @@ MainState.prototype = {
         this.publicCards = [];
         this.praviteCards = [];
         this.selfCards = [];
+        this.chipPoolCoinCount = [];
         this.waitSelected1 = false;
         this.waitSelected2 = false;
         this.waitSelected3 = false;
         this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userSizeRate = {width:0.096, height:0.262};
-        var userCoinRate = [{x:0.656, y:0.288}, {x:0.82, y:0.325}, {x:0.831, y:0.48}, {x:0.673, y:0.609}, {x:0.464, y:0.553}, {x:0.305, y:0.609}, {x:0.139, y:0.48}, {x:0.108, y:0.325}, {x:0.27, y:0.288}];
+        var userCoinRate = [{x:0.656, y:0.292}, {x:0.82, y:0.329}, {x:0.831, y:0.484}, {x:0.673, y:0.613}, {x:0.464, y:0.557}, {x:0.305, y:0.613}, {x:0.139, y:0.484}, {x:0.108, y:0.329}, {x:0.27, y:0.292}];
         var userCoinWidth = 27 * this.scale;
         var userTextRate = [{x:0.69, y:0.292}, {x:0.856, y:0.329}, {x:0.768, y:0.484}, {x:0.61, y:0.613}, {x:0.5, y:0.557}, {x:0.339, y:0.613}, {x:0.173, y:0.484}, {x:0.142, y:0.329}, {x:0.306, y:0.292}];
 
@@ -223,8 +223,9 @@ MainState.prototype = {
             var dict = this.userPosRate[i];
             var user = new User();
             user.setScale(this.scale);
+            user.setAnimation(this.animation);
             user.setRect((dict.x - this.userSizeRate.width / 2) * imageBK.width + xOffset, (dict.y - this.userSizeRate.height / 2) * imageBK.height + yOffset, this.userSizeRate.width * imageBK.width, this.userSizeRate.height * imageBK.height);
-            user.setCoinRect(userCoinRate[i].x * imageBK.width + xOffset, userCoinRate[i].y * imageBK.height + yOffset, userCoinWidth, userCoinWidth);
+            user.setCoinRect(userCoinRate[i].x * imageBK.width + userCoinWidth / 2 + xOffset, userCoinRate[i].y * imageBK.height + userCoinWidth / 2 + yOffset, userCoinWidth, userCoinWidth);
             user.setCoinTextPos(userTextRate[i].x * imageBK.width + xOffset, userTextRate[i].y * imageBK.height + yOffset);
             if(dict.x == 0.5)
             {
@@ -466,6 +467,8 @@ MainState.prototype = {
     // 看或弃牌
     waitOnClick1:function()
     {
+        this.userList[Math.round(Math.random() * 8)].setUseCoin(100);
+        return;
         if(this.waitSelected1)
         {
             this.waitSelected1 = false;
@@ -485,6 +488,9 @@ MainState.prototype = {
     // 自动看牌／自动跟注
     waitOnClick2:function()
     {
+        var coins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoinCount.length);
+        this.chipPoolCoinCount = this.chipPoolCoinCount.concat(coins);
+        return;
         if(this.waitSelected2)
         {
             this.waitSelected2 = false;
@@ -1164,7 +1170,6 @@ MainState.prototype = {
         this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
     },
 
-
     _resetPublicCard:function() 
     {
         for(var i = 0; i < this.publicCards.length; i++)
@@ -1177,11 +1182,8 @@ MainState.prototype = {
             this.publicCards[i].visible = false;
             this.publicCards[i].loadTexture("cardBK", this.publicCards[i].frame);
         }
-    },
+    }
 };
-
-
-
 
 game.betApi = new BetApi();
 
