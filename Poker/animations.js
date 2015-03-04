@@ -104,7 +104,7 @@ Animations.prototype = {
 		tween.to({ x:targetX, y: targetY }, animationTime, Phaser.Easing.Linear.None, true);
 	},
 
-	//this.chipPoolCoinCount = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoinCount);
+	//this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
 
 	showCollectChip:function(userList, targetX, targetY, existCoin)
 	{

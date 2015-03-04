@@ -117,7 +117,7 @@ var MainState = function() {
     this.selfCards;                     //底牌(自己的两张)
     this.chipPoolBK;                    //筹码池背景
     this.chipPool;                      //筹码池
-    this.chipPoolCoinCount;             //收集的筹码块(动画用)
+    this.chipPoolCoins;                 //收集的筹码块(动画用)
     this.chipbox;                       //加注选择框
     this.chipboxButton1;                //加注选择按钮1
     this.chipboxButton2;                //加注选择按钮2
@@ -203,7 +203,7 @@ MainState.prototype = {
         this.publicCards = [];
         this.praviteCards = [];
         this.selfCards = [];
-        this.chipPoolCoinCount = [];
+        this.chipPoolCoins = [];
         this.waitSelected1 = false;
         this.waitSelected2 = false;
         this.waitSelected3 = false;
