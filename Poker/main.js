@@ -682,7 +682,7 @@ MainState.prototype = {
             }
             else if(data.action == "pot")       //服务器通报奖池
             {
-
+                this.handlePot()
             }
             else if(data.action == "action")    //服务器通报当前下注玩家
             {
@@ -739,6 +739,10 @@ MainState.prototype = {
         user.setParam(occupant.name, occupant.profile, occupant.chips);
         user.param.seatNum = occupant.index;
         user.param.userID = occupant.id;
+    },
+
+    handlePot:function(data) {
+        this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
     },
 
     handleGone:function(data) {
@@ -1088,11 +1092,12 @@ MainState.prototype = {
             user.reset()
         }
 
-       this._clearWaitButtons()
-       this._setBetButtonsVisible(false)
-       this._setWaitButtonsVisible(false)
-       this._resetGameRoundStatus()
+       this._clearWaitButtons();
+       this._setBetButtonsVisible(false);
+       this._setWaitButtonsVisible(false);
+       this._resetGameRoundStatus();
        this._resetPublicCard();
+       this._clearChipPoolCoins();
     },
 
     _clearWaitButtons:function() {
@@ -1217,7 +1222,14 @@ MainState.prototype = {
         var user = this._userByUserID(this.userID)
         user.setUserTitle(carTypeName);
 
-    }
+    },
+    _clearChipPoolCoins:function() {
+        for (var i = this.chipPoolCoins.length - 1; i >= 0; i--) {
+            this.chipPoolCoins[i].destroy()
+        }
+
+        this.chipPoolCoins = []
+    },
 };
 
 game.betApi = new BetApi();
