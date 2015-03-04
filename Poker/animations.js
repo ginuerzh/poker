@@ -104,10 +104,9 @@ Animations.prototype = {
 		tween.to({ x:targetX, y: targetY }, animationTime, Phaser.Easing.Linear.None, true);
 	},
 
-	//var coins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoinCount.length);
-	//this.chipPoolCoinCount = this.chipPoolCoinCount.concat(coins);
+	//this.chipPoolCoinCount = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoinCount);
 
-	showCollectChip:function(userList, targetX, targetY, existCoinCount)
+	showCollectChip:function(userList, targetX, targetY, existCoin)
 	{
 		var animationTime = 50;
 		var coinSpace = 0.1111;
@@ -128,7 +127,7 @@ Animations.prototype = {
 		var showAnimation = function (index) {
 			totalCoins[index].bringToTop();
 			var tween = game.add.tween(totalCoins[index]);
-			tween.to({ x:targetX, y: targetY - (index + existCoinCount) * totalCoins[index].height * coinSpace }, animationTime, Phaser.Easing.Linear.None, true);
+			tween.to({ x:targetX, y: targetY - (index + existCoin.length) * totalCoins[index].height * coinSpace }, animationTime, Phaser.Easing.Linear.None, true);
 			nIndex++;
 			if(nIndex < totalCoins.length)
 			{
@@ -140,7 +139,7 @@ Animations.prototype = {
 
 		showAnimation(nIndex);
 
-		return totalCoins;
+		return existCoin.concat(totalCoins);
 	},
 
 	//Demo
