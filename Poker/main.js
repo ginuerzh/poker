@@ -467,8 +467,6 @@ MainState.prototype = {
     // 看或弃牌
     waitOnClick1:function()
     {
-        this.userList[Math.round(Math.random() * 8)].setUseCoin(100);
-        return;
         if(this.waitSelected1)
         {
             this.waitSelected1 = false;
@@ -488,9 +486,6 @@ MainState.prototype = {
     // 自动看牌／自动跟注
     waitOnClick2:function()
     {
-        var coins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoinCount.length);
-        this.chipPoolCoinCount = this.chipPoolCoinCount.concat(coins);
-        return;
         if(this.waitSelected2)
         {
             this.waitSelected2 = false;
