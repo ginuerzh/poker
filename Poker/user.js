@@ -23,6 +23,8 @@ var User = function() {
 	this.winCards = [];
 	this.winLightDot = [];
 	this.winGroup;
+
+	this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
 }
 
 User.prototype = {
@@ -112,6 +114,28 @@ User.prototype = {
 		this.imageCoin.visible = false;
 	},
 
+	setUserTitle:function(title) {
+
+		if (title == undefined || title == null) {
+			return
+		}
+
+        this.lbname.style = this.userTitleStyle
+	    
+		this.lbname.scale.setTo(this.scale, this.scale);
+		this.lbname.setText(title);
+
+	},
+
+	setUserName:function(name) {
+		if(name == null) {
+			return;
+		}
+
+		this.param.userName = name;
+		this.setUserTitle(name);
+	},
+
 	setRect:function(x, y, width, height) {
 
 		this.rect = {left:x, top:y, width:width, height:height};
@@ -129,27 +153,17 @@ User.prototype = {
 
 	setParam:function(userName, userImage, userCoin, isPlayer)
 	{
-		if(userName)
-		{
-			this.param["userName"] = userName;
-		}
-		if(userImage)
-		{
-			this.param["userImage"] = userImage;
-		}
-		if(userCoin)
-		{
-			this.param["userCoin"] = userCoin;
-		}
-		if(isPlayer)
-		{
-			this.param["isPlayer"] = isPlayer;
-		}
+		this.setIsPlayer(isPlayer);
+		this.setUserName(userName)
+		this.setUserImage(userImage);
+		this.setChips(userCoin);
+
 
 		this.containerplayer.visible = false;
 		this.containeruser.visible = false;
 		this.containerblank.visible = true;
 		this.winGroup.visible = false;
+
 		if(this.param["userName"] && this.param["userName"] != "")
 		{
 			this.containerplayer.visible = false;
@@ -157,25 +171,24 @@ User.prototype = {
 			this.containerblank.visible = false;
 			this.winGroup.visible = false;
 		}
-		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		if(this.param["isPlayer"])
 		{
 			this.containerplayer.visible = true;
 			this.containeruser.visible = false;
 			this.containerblank.visible = false;
 			this.winGroup.visible = false;
-			style = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+
 		}
-		this.lbname.setText(this.param["userName"]);
-		this.lbname.setStyle(style);
-		//this.lbname.width = this.rect.width * 0.8;
-		//this.lbname.height = this.rect.height * 0.2;
-		this.lbname.scale.setTo(this.scale, this.scale);
-		this.imagebody.scale.setTo(1, 1);
-		this.imagebody.loadTexture(this.param["userImage"], this.imagebody.frame);
-		this.imagebody.scale.setTo(this.rect.width * 0.9 / this.imagebody.width, this.rect.height * 0.595 / this.imagebody.height);
-		this.lbcoin.setText(this.param["userCoin"]);
-		this.lbcoin.setStyle(style);
+	},
+
+	setChips:function(chip) {
+		if (chip == null) {
+			return
+		}
+
+		this.param["userCoin"] = chip;
+		this.lbcoin.setText(chip);
+		this.lbcoin.setStyle(this.userTitleStyle);
 	},
 
 	setUseCoin:function(usedCoin)
@@ -214,6 +227,25 @@ User.prototype = {
 		this.group.add(this.lbcoin);
 		this.group.add(this.imageCoin);
 		this.group.add(this.textCoin);
+	},
+
+	setIsPlayer:function(isPlayer) {
+		this.param.isPlayer = isPlayer
+		if(this.param.isPlayer) {
+	        this.userTitleStyle = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+		} else {
+			this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+		}
+	},
+
+	setUserImage:function(imageid) {
+		if (imageid == null) {
+			return
+		}
+		this.param["userImage"] = imageid;
+	    this.imagebody.scale.setTo(1, 1);
+		this.imagebody.loadTexture(imageid, this.imagebody.frame);
+		this.imagebody.scale.setTo(this.rect.width * 0.9 / this.imagebody.width, this.rect.height * 0.595 / this.imagebody.height);
 	},
 
 	setGiveUp:function(bGiveUp)
@@ -281,6 +313,11 @@ User.prototype = {
 	    this.setGiveUp(false);
 	    this.imagebody.visible = true;
 	    this.setUseCoin("");
+
+	    if (this.param["userName"] == "") {
+	    	console.log("error:error here!")
+	    }
+	    this.setUserTitle(this.param["userName"]);
 	},
 
 	clean:function() 
