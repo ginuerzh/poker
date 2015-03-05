@@ -81,6 +81,8 @@ var MainState = function() {
     this.sliderMinNum;                  //滑块最小值
     this.sliderMaxNum;                  //滑块最大值
 
+    this.chipboxOpened;
+
     //class
     this.userList;                      //玩家对象
     this.starGroup;                     //掉落金币动画对象
@@ -487,20 +489,22 @@ MainState.prototype = {
 
     update:function()
     {
-        var nMaxPos = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
-        var nMinPos = this.chipboxSliderGroove.y - this.chipboxSliderGroove.height * 0.5 + this.chipboxSliderHandle.height * 0.5;
-        if(this.chipboxSliderHandle.y > nMaxPos)
-        {
-            this.chipboxSliderHandle.y = nMaxPos;
-        }
-        if(this.chipboxSliderHandle.y < nMinPos)
-        {
-            this.chipboxSliderHandle.y = nMinPos;
-        }
+        if(this.chipbox.visible) {
+            var nMaxPos = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
+            var nMinPos = this.chipboxSliderGroove.y - this.chipboxSliderGroove.height * 0.5 + this.chipboxSliderHandle.height * 0.5;
+            if(this.chipboxSliderHandle.y > nMaxPos)
+            {
+                this.chipboxSliderHandle.y = nMaxPos;
+            }
+            if(this.chipboxSliderHandle.y < nMinPos)
+            {
+                this.chipboxSliderHandle.y = nMinPos;
+            }
 
-        var value = Math.round(this.sliderMaxNum - (this.chipboxSliderHandle.y - nMinPos) / (nMaxPos - nMinPos) * (this.sliderMaxNum - this.sliderMinNum));
-        value = Math.round(value / 5) * 5;
-        this.chipboxTextSlider.setText(value);
+            var value = Math.round(this.sliderMaxNum - (this.chipboxSliderHandle.y - nMinPos) / (nMaxPos - nMinPos) * (this.sliderMaxNum - this.sliderMinNum));
+            value = Math.round(value / 5) * 5;
+            this.chipboxTextSlider.setText(value);
+        }
     },
 
     _fileComplete:function(progress, cacheKey, success, totalLoaded, totalFiles)
@@ -585,6 +589,8 @@ MainState.prototype = {
     {
         var that = this
         var betdiff = this.gameStateObj.mybet-this.gameStateObj.mybetOnDesk
+
+
         //if (betdiff > 0 ) {
             game.betApi.bet(betdiff,function(isok) {
                 // send OK or NOK
@@ -596,13 +602,32 @@ MainState.prototype = {
     // 加注
     actionOnClick3:function()
     {
+
         if(this.chipboxGroup.visible)
         {
+            var text = this.chipboxTextSlider.text
+            var betValue = parseInt(text)
+
+            var that = this;
+            game.betApi.bet(betValue,function(isok) {
+                // send OK or NOK
+                that._setBetButtonsVisible(false)
+            })
+
             this.chipboxGroup.visible = false;
+
         }
         else
         {
+            var bet = this.gameStateObj.mybet - this.gameStateObj.mybetOnDesk;
+
+            if(bet > 0) {
+                bet=bet*2
+            }
+
+            this._setSliderRange(bet, this.chips);
             this.chipboxGroup.visible = true;
+            this.chipboxOpened = true;
         }
     },
 
@@ -791,7 +816,10 @@ MainState.prototype = {
     },
 
     handlePot:function(data) {
+        var arrayPool = data.class.split(",");
+
         this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
+        this._resetGameRoundStatus()
     },
 
     handleGone:function(data) {
@@ -865,6 +893,17 @@ MainState.prototype = {
                 this.gameStateObj.mybet = bet
             };
 
+            var diffbet = this.gameStateObj.mybet - this.gameStateObj.mybetOnDesk
+
+
+            if(diffbet==0) {
+                this.lbCall.setText("看牌");
+            } else if(diffbet > 0) {
+                this.lbCall.setText("跟注 "+ diffbet);
+            } else {
+                alert("error ＝跟负值＝");
+            }
+
             if(this._betWaitButtonChecked()) {
                 this._autoAction();
             } else {
@@ -888,14 +927,8 @@ MainState.prototype = {
         var chips = parseInt(arrayInfo[2]) // 手上剩余筹码数
 
         var user = this._userByUserID(data.from)
-
-        var betType = this._betTypeByBetTypeNames(betTypeName)
-
         user.setParam(null, null, chips, null)
-
-        if (user.param.userID == this.userID) {
-            this.gameStateObj.mybetOnDesk = betvalue
-        };
+        var betType = this._betTypeByBetTypeNames(betTypeName)
      
         switch(betType){
             case this.CONST.BetType_ALL:
@@ -903,6 +936,9 @@ MainState.prototype = {
             case this.CONST.BetType_Raise: {
                 if (user) {
                     user.setUseCoin(betvalue);
+                    if (user.param.userID == this.userID) {
+                        this.gameStateObj.mybetOnDesk = betvalue
+                    };
                 } else {
                     console.log("ERROR: can't find user, userid:",data.from);
                 }
@@ -911,6 +947,9 @@ MainState.prototype = {
             //弃牌
             case this.CONST.BetType_Fold:
                 user.setGiveUp(true);
+                if (user.param.userID == this.userID) {
+                    this._resetGameRoundStatus()
+                }
                 break;
             //看牌
             case this.CONST.BetType_Check:
@@ -968,10 +1007,12 @@ MainState.prototype = {
 
         var winOccupantItem = playerList[maxHandIndex]
 
-        if (winOccupantItem) {
+        if (winOccupantItem != undefined && winOccupantItem != null) {
             var winUser = this._userByUserID(winOccupantItem.id)
-            if (winOccupantItem.action != "fold") {
-             winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+                if (winOccupantItem.action != "fold") {
+                    if(winOccupantItem.cards != null && winOccupantItem.cards != undefined) {
+                        winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+                    }
             }
         }
     },
@@ -1008,6 +1049,11 @@ MainState.prototype = {
 
         //初始化筹码池
         var chipPoolCount = 0;
+
+        if(!roomInfo.pot) {
+            roomInfo.pot = []
+        }
+
         for(var i = 0; i < roomInfo.pot.length; i++)
         {
             chipPoolCount += roomInfo.pot[i];
@@ -1030,6 +1076,7 @@ MainState.prototype = {
             if(userInfo && userInfo.id == this.userID)
             {
                 playerOffset = (this.userList.length - 1) / 2 - userInfo.index;
+                this.chips = userInfo.chips
                 break;
             }
         }
@@ -1055,7 +1102,7 @@ MainState.prototype = {
                 game.load.image("userImage" + index, userInfo.profile, true);
                 game.load.start();
             }
-            user.setParam(userInfo.name, userInfo.profile, userInfo.chips);
+            user.setParam(userInfo.name, userInfo.profile, userInfo.chips, (userInfo.id == this.userID));
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
         }
@@ -1138,6 +1185,13 @@ MainState.prototype = {
     _initNewRound:function() {
         for (var i =0;  i < this.userList.length;  i++) {
             var user = this.userList[i]
+            if (user.param.seatNum != -1) {
+                console.log("=====UserName:", user.param.userName);
+                if((!user.param.userName) || 
+                    user.param.userName == null) {
+                    console.log("initNewRound null username");
+                }
+            };
             user.reset()
         }
 
@@ -1147,6 +1201,8 @@ MainState.prototype = {
        this._resetGameRoundStatus();
        this._resetPublicCard();
        this._clearChipPoolCoins();
+
+       this.gameStateObj.mybet = this.bb
     },
 
     _clearWaitButtons:function() {
@@ -1202,8 +1258,7 @@ MainState.prototype = {
     },
 
     _resetGameRoundStatus:function() {
-        this.gameStateObj.mybet = this.bb;     //当前玩家需要下注额下
-        this.gameStateObj.bankerPos = 5;       //庄家座位号
+        this.gameStateObj.mybet = 0;     //当前玩家需要下注额下
         this.gameStateObj.mybetOnDesk = 0;
     },
 
@@ -1254,7 +1309,7 @@ MainState.prototype = {
         }
     },
 
-    _resetSlider:function(minNum, maxNum)
+    _setSliderRange:function(minNum, maxNum)
     {
         if(minNum != undefined)
         {

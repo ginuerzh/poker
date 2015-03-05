@@ -125,7 +125,10 @@ Animations.prototype = {
 
 		var nIndex = 0;
 		var showAnimation = function (index) {
-			totalCoins[index].bringToTop();
+			if (totalCoins.length <= index) {
+				return
+			};
+
 			var tween = game.add.tween(totalCoins[index]);
 			tween.to({ x:targetX, y: targetY - (index + existCoin.length) * totalCoins[index].height * coinSpace }, animationTime, Phaser.Easing.Linear.None, true);
 			nIndex++;

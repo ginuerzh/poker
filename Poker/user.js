@@ -261,8 +261,12 @@ User.prototype = {
 	},
 
 	setIsPlayer:function(isPlayer) {
+		if (isPlayer == undefined || isPlayer == null) {
+			return
+		}
+		
 		this.param.isPlayer = isPlayer
-		if(this.param.isPlayer) {
+		if(isPlayer) {
 	        this.userTitleStyle = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		} else {
 			this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
