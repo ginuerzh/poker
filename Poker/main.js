@@ -226,6 +226,7 @@ MainState.prototype = {
         this.waitSelected1 = false;
         this.waitSelected2 = false;
         this.waitSelected3 = false;
+        //this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userSizeRate = {width:0.096, height:0.262};
         var userCoinRate = [{x:0.656, y:0.292}, {x:0.82, y:0.329}, {x:0.831, y:0.484}, {x:0.673, y:0.613}, {x:0.464, y:0.557}, {x:0.305, y:0.613}, {x:0.139, y:0.484}, {x:0.108, y:0.329}, {x:0.27, y:0.292}];
@@ -256,8 +257,8 @@ MainState.prototype = {
                 //user.create("", "defaultUserImage", "", false);
                 user.create("", null, "", false);
             }
-            user.setGroup(groupUser);
-            //user.setVisable(false);
+            user.addUserToGroup(groupUser)
+            user.setVisable(false);
             this.userList.push(user);
         }
 
@@ -282,6 +283,12 @@ MainState.prototype = {
             imageCard.scale.setTo(this.scale, this.scale);
             imageCard.visible = false;
             this.praviteCards.push(imageCard);
+
+            if (i < 4) {
+                this.userList[i].setDcard(imageCard)
+            } else {
+                this.userList[i+1].setDcard(imageCard)
+            }
         }
 
         var selfCardRate = {x:0.57, y:0.79};
@@ -846,7 +853,7 @@ MainState.prototype = {
         user.param.seatNum = occupant.index;
         user.param.userID = occupant.id;
 
-        //user.setVisable(true);
+        user.setVisable(true);
     },
 
     handlePot:function(data) {
@@ -861,7 +868,7 @@ MainState.prototype = {
         var goneUserID = data.occupant.id;
         var user = this._userByUserID(goneUserID);
         user.clean();
-        //user.setVisable(false)
+        user.setVisable(false)
     },
 
     handleButton:function(data)
@@ -896,11 +903,13 @@ MainState.prototype = {
             card.visible = true;
             card.loadTexture(arrayCards[i], card.frame);
         }
+        /*
         for(var i = 0; i < this.praviteCards.length; i++)
         {
             var card = this.praviteCards[i];
             card.visible = true;
         }
+        */
 
     },
     
@@ -1172,7 +1181,7 @@ MainState.prototype = {
             user.setParam(userInfo.name, userInfo.profile, userInfo.chips, (userInfo.id == this.userID));
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
-            //user.setVisable(true)
+            user.setVisable(true)
         }
     },
 

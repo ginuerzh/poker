@@ -25,6 +25,7 @@ var User = function() {
 	this.winCards = [];
 	this.winLightDot = [];
 	this.winGroup;
+	this.dcard
 
 	this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
 }
@@ -262,12 +263,25 @@ User.prototype = {
 
 	setVisable:function(blVisable) {
 		this.groupUser.visible = blVisable
+		if (this.dcard != null && this.dcard != undefined) {
+			this.dcard.visible = blVisable
+		};
 	},
 
-	setGroup:function(group)
+	addUserToGroup:function(group)
 	{
 		this.group = group;
 		this.group.add(this.groupUser);
+	},
+
+	addToUserGroup:function(item) 
+	{
+		this.groupUser.add(item)
+	},
+
+	setDcard:function(dcard) {
+		this.dcard = dcard;
+		dcard.visible = this.groupUser.visible
 	},
 
 	setIsPlayer:function(isPlayer) {
