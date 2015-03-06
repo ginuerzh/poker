@@ -11,6 +11,7 @@ var User = function() {
 	this.animation;
 
 	this.group;
+	this.userGroup;
 	this.lbname;
 	this.imagebody;
 	this.lbcoin;
@@ -109,6 +110,22 @@ User.prototype = {
 			this.textCoin.x = this.coinRect.left - this.textCoin.width - this.coinRect.width * 0.9;
 		}
 		this.textCoin.visible = false;
+
+
+		this.groupUser = game.add.group();
+		this.groupUser.add(this.containerplayer);
+		this.groupUser.add(this.containeruser);
+		this.groupUser.add(this.containerblank);
+		this.groupUser.add(this.winGroup);
+		this.groupUser.add(this.lbname);
+		this.groupUser.add(this.imagebody);
+		this.groupUser.add(this.lbcoin);
+		for(var i = 0; i < this.imageCoin.length; i++)
+		{
+			this.groupUser.add(this.imageCoin[i]);
+		}
+		this.groupUser.add(this.textCoin);
+
 	},
 
 	setUserTitle:function(title) {
@@ -243,28 +260,21 @@ User.prototype = {
 		this.animation = animation;
 	},
 
+	setVisable:function(blVisable) {
+		this.groupUser.visible = blVisable
+	},
+
 	setGroup:function(group)
 	{
 		this.group = group;
-		this.group.add(this.containerplayer);
-		this.group.add(this.containeruser);
-		this.group.add(this.containerblank);
-		this.group.add(this.winGroup);
-		this.group.add(this.lbname);
-		this.group.add(this.imagebody);
-		this.group.add(this.lbcoin);
-		for(var i = 0; i < this.imageCoin.length; i++)
-		{
-			this.group.add(this.imageCoin[i]);
-		}
-		this.group.add(this.textCoin);
+		this.group.add(this.groupUser);
 	},
 
 	setIsPlayer:function(isPlayer) {
 		if (isPlayer == undefined || isPlayer == null) {
 			return
 		}
-		
+
 		this.param.isPlayer = isPlayer
 		if(isPlayer) {
 	        this.userTitleStyle = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };

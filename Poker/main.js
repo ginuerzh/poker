@@ -136,6 +136,9 @@ var MainState = function() {
     this.chipboxSliderHandle;           //加注滑条滑块
     this.chipboxTextSlider;             //加注滑块当前值
     this.chipboxGroup;
+    this.currentBet                     //最近bet值
+    this.currentBetType                 //最近bet类型
+    this.autoCall=0                       // 纪录当前跟注值
 
 
     // game current data
@@ -143,6 +146,9 @@ var MainState = function() {
     this.gameStateObj.mybet;                         //当前玩家需要下注额下
     this.gameStateObj.bankerPos;                     //庄家座位号
     this.gameStateObj.mybetOnDesk;                   //当前玩家本局下注额
+    this.gameStateObj.chipboxValue1 = 10;
+    this.gameStateObj.chipboxValue2 = 20;
+    this.gameStateObj.chipboxValue3 = 40;
 }
 
 
@@ -186,6 +192,8 @@ MainState.prototype = {
         game.load.image("chipbox", "assets/add-chips-box.png");
         game.load.image("winLight", "assets/light_dot.png");
         game.load.image("groove", "assets/sliderGroove.png");
+
+        game.load.image("dealer", "assets/dealer.png");
     },
 
     create: function() {
@@ -240,13 +248,16 @@ MainState.prototype = {
             user.setCoinTextPos(userTextRate[i].x * imageBK.width + xOffset, userTextRate[i].y * imageBK.height + yOffset);
             if(dict.x == 0.5)
             {
-                user.create("", "defaultUserImage", "", true);
+                //user.create("", "defaultUserImage", "", true);
+                user.create("", null, "", true);
             }
             else
             {
-                user.create("", "defaultUserImage", "", false);
+                //user.create("", "defaultUserImage", "", false);
+                user.create("", null, "", false);
             }
             user.setGroup(groupUser);
+            //user.setVisable(false);
             this.userList.push(user);
         }
 
@@ -451,6 +462,7 @@ MainState.prototype = {
         this.chipboxSliderHandle.inputEnabled = true;
         this.chipboxSliderHandle.input.enableDrag();
         this.chipboxSliderHandle.input.setDragLock(false);
+        this.dealer = null;
         //this.chipboxSliderHandle.events.onDragStart.add(onDragStart, this);
         //this.chipboxSliderHandle.events.onDragStop.add(onDragStop, this);
 
@@ -543,6 +555,7 @@ MainState.prototype = {
         {
             this.waitSelected2 = false;
             this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
+            this.lbCallWait.setText("看牌或跟注");
         }
         else
         {
@@ -552,6 +565,15 @@ MainState.prototype = {
             this.imgLookorGiveupWait.loadTexture("checkOff", this.imgLookorGiveupWait.frame);
             this.imgCallWait.loadTexture("checkOn", this.imgCallWait.frame);
             this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
+
+            var bet = this.currentBet - this.gameStateObj.mybetOnDesk;
+            // TODO:
+            if (bet > 0) {
+                this.lbCallWait.setText("跟注 "+ bet);
+            } else if (bet == 0) {
+                this.lbCallWait.setText("看牌");
+            }
+
         }
     },
 
@@ -599,6 +621,17 @@ MainState.prototype = {
         //};
     },
 
+
+    _raseAction:function(value) {
+        var that = this
+        game.betApi.bet(value,function(isok) {
+                // send OK or NOK
+                that._setBetButtonsVisible(false)
+            })
+
+        this.chipboxGroup.visible = false;
+    },
+
     // 加注
     actionOnClick3:function()
     {
@@ -607,14 +640,7 @@ MainState.prototype = {
         {
             var text = this.chipboxTextSlider.text
             var betValue = parseInt(text)
-
-            var that = this;
-            game.betApi.bet(betValue,function(isok) {
-                // send OK or NOK
-                that._setBetButtonsVisible(false)
-            })
-
-            this.chipboxGroup.visible = false;
+            this._raseAction(betValue)
 
         }
         else
@@ -625,6 +651,7 @@ MainState.prototype = {
                 bet=bet*2
             }
 
+            this._updatePoolChipValue(bet*2?bet*2:10*2);
             this._setSliderRange(bet, this.chips);
             this.chipboxGroup.visible = true;
             this.chipboxOpened = true;
@@ -633,22 +660,27 @@ MainState.prototype = {
 
     chipOnClick1:function()
     {
-        this.chipboxGroup.visible = false;
+        //this.chipboxGroup.visible = false;
+        this._setSliderValue(this.chips)
     },
 
     chipOnClick2:function()
     {
-        this.chipboxGroup.visible = false;
+        //this.chipboxGroup.visible = false;
+        //this._setSliderValue(this.gameStateObj.chipboxValue3)
+        this._raseAction(this.gameStateObj.chipboxValue3)
     },
 
     chipOnClick3:function()
     {
-        this.chipboxGroup.visible = false;
+        //this._setSliderValue(this.gameStateObj.chipboxValue2)
+        this._raseAction(this.gameStateObj.chipboxValue2)
     },
 
     chipOnClick4:function()
     {
-        this.chipboxGroup.visible = false;
+        //this._setSliderValue(this.gameStateObj.chipboxValue1)
+        this._raseAction(this.gameStateObj.chipboxValue1)
     },
 
     _showCoinAnime:function()
@@ -756,7 +788,7 @@ MainState.prototype = {
             }
             else if(data.action == "pot")       //服务器通报奖池
             {
-                this.handlePot()
+                this.handlePot(data)
             }
             else if(data.action == "action")    //服务器通报当前下注玩家
             {
@@ -813,6 +845,8 @@ MainState.prototype = {
         user.setParam(occupant.name, occupant.profile, occupant.chips);
         user.param.seatNum = occupant.index;
         user.param.userID = occupant.id;
+
+        //user.setVisable(true);
     },
 
     handlePot:function(data) {
@@ -820,17 +854,36 @@ MainState.prototype = {
 
         this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
         this._resetGameRoundStatus()
+        this.chipPool.setText(arrayPool[0]);
     },
 
     handleGone:function(data) {
         var goneUserID = data.occupant.id;
         var user = this._userByUserID(goneUserID);
         user.clean();
+        //user.setVisable(false)
     },
 
     handleButton:function(data)
     {
         this.gameStateObj.bankerPos = data.class;
+        /*
+        if(this.dealer == null) {
+            this.dealer = game.add.sprite(0, 0, "dealer");
+            this.dealer.scale.setTo(this.scale, this.scale);
+        }
+        */
+
+
+        var user = this._userBySeatNum(this.gameStateObj.bankerPos)
+        if(user) {
+            // TODO:
+            /*
+            var tween = game.add.tween(this.dealer);
+            tween.to({ x:user.textCoin.x+10, y: user.textCoin.y+10 }, 1.5, Phaser.Easing.Linear.None, true);
+            */
+        }
+
         this._initNewRound()
     },
 
@@ -929,6 +982,9 @@ MainState.prototype = {
         var user = this._userByUserID(data.from)
         user.setParam(null, null, chips, null)
         var betType = this._betTypeByBetTypeNames(betTypeName)
+
+        this.currentBet = betvalue
+        this.currentBetType = betType
      
         switch(betType){
             case this.CONST.BetType_ALL:
@@ -942,6 +998,16 @@ MainState.prototype = {
                 } else {
                     console.log("ERROR: can't find user, userid:",data.from);
                 }
+
+                if(betType == this.CONST.BetType_Raise) {
+                    // 当 raise 后 wait button 发生变化
+
+                    //跟注或看牌，取消掉
+                    if(this.waitSelected2 === true) {
+                        this.waitOnClick2()
+                    }
+                }
+
             }
             break;
             //弃牌
@@ -1066,7 +1132,8 @@ MainState.prototype = {
         for (var i = 0; i < this.userList.length; i++)
         {
             var user = this.userList[i];
-            user.setParam(null, "defaultUserImage", "");
+            //user.setParam(null, "defaultUserImage", "");
+            user.setParam(null, null, "");
         }
         //计算座位偏移量，以自己为5号桌计算
         var playerOffset = 0;
@@ -1105,6 +1172,7 @@ MainState.prototype = {
             user.setParam(userInfo.name, userInfo.profile, userInfo.chips, (userInfo.id == this.userID));
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
+            //user.setVisable(true)
         }
     },
 
@@ -1203,12 +1271,18 @@ MainState.prototype = {
        this._clearChipPoolCoins();
 
        this.gameStateObj.mybet = this.bb
+       this.chipPool.setText("0");
+       this.autoCall = 0;
     },
 
     _clearWaitButtons:function() {
         this.waitSelected1 = false;
         this.waitSelected2 = false;
         this.waitSelected3 = false;
+
+        this.lbCallWait.setText("跟注");
+        this.lbLookorGiveupWait.setText("看牌或弃牌")
+        this.lbCallEveryWait.setText("跟所有注")
 
         this._betWaitButtonCheckOn(this.imgLookorGiveupWait, false);
         this._betWaitButtonCheckOn(this.imgCallWait, false);
@@ -1219,6 +1293,11 @@ MainState.prototype = {
         this.buttonGroup1.visible = blVisible;
         this.buttonGroup2.visible = blVisible;
         this.buttonGroup3.visible = blVisible;
+
+        if(blVisible == false) {
+            this.chipboxGroup.visible = false;
+        }
+
     },
 
     _setWaitButtonsVisible:function(blVisible) {
@@ -1249,7 +1328,13 @@ MainState.prototype = {
             this.waitSelected2 = false;
         // 跟任何注
         } else if(this.waitSelected3) {
-            this.actionOnClick3()
+            //this.actionOnClick3()
+            var bet = this.currentBet - this.gameStateObj.mybetOnDesk
+            if(bet > this.chips) {
+                bet = this.chips;
+            }
+
+            this._raseAction(bet)
             this.waitSelected3 = false;
         }
 
@@ -1324,6 +1409,11 @@ MainState.prototype = {
         this.chipboxSliderHandle.y = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
     },
 
+    _setSliderValue:function(value) {
+        this.chipboxTextSlider.setText(value);
+        this.chipboxSliderHandle.y = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
+    },
+
     _betWaitButtonCheckOn:function(buttonCheckImage, blOn)
     {
         var imgid = blOn?"checkOn":"checkOff";
@@ -1347,6 +1437,56 @@ MainState.prototype = {
         }
 
         this.chipPoolCoins = []
+    },
+
+    _updatePoolChipValue:function(minChip) {
+
+        //this.gameStateObj.chipboxValue1 = minChip;
+        //this.gameStateObj.chipboxValue2 = minChip * 2;
+        //this.gameStateObj.chipboxValue3 = minChip * 4;
+
+        var chip1 = minChip;
+        var chip2 =  chip1 * 2;
+        var chip3 = chip2 * 2;
+        this.gameStateObj.chipboxValue1 = chip1;
+        this.gameStateObj.chipboxValue2 = chip2;
+        this.gameStateObj.chipboxValue3 = chip3;
+
+
+        this.chipboxText4.setText(chip1);
+
+        this.chipboxText3.setText(chip2);
+
+        this.chipboxText2.setText(chip3);
+
+        if(chip3 >= this.chips) {
+            this.chipboxButton2.visible = false;
+            this.chipboxText2.visible = false;
+        } else {
+            this.chipboxButton2.visible = true;
+            this.chipboxText2.visible = true;
+        }
+
+        if(chip2 >= this.chips) {
+            this.chipboxButton3.visible = false;
+            this.chipboxText3.visible = false;
+        } else {
+            this.chipboxButton3.visible = true;
+            this.chipboxText3.visible = true;
+        }
+
+        if(chip1 >= this.chips) {
+            this.chipboxButton1.visible = false;
+            this.chipboxText1.visible = false;
+        } else {
+            this.chipboxButton1.visible = true;
+            this.chipboxText1.visible = true;
+        }
+
+    },
+
+    _resetPool:function() {
+        _updatePoolChipValue(this.bb)
     }
 };
 
