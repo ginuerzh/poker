@@ -1,9 +1,11 @@
 package poker
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -33,7 +35,7 @@ const (
 	ActCheck  = "check"
 	ActRaise  = "raise"
 	ActFold   = "fold"
-	//ActAllin  = "allin"
+	ActAllin  = "allin"
 )
 
 var (
@@ -87,6 +89,7 @@ func NewError(code int, err string) *Error {
 func PokerHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 	defer ws.Close()

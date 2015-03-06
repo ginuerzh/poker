@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"io/ioutil"
 	"log"
 	"time"
 )
@@ -55,14 +56,22 @@ func (c *Conn) ReadJSONTimeout(v interface{}, timeout time.Duration) error {
 	} else {
 		c.ws.SetReadDeadline(time.Time{})
 	}
-	if err := c.ws.ReadJSON(v); err != nil {
+
+	return c.readJson(v)
+}
+
+func (c *Conn) readJson(v interface{}) error {
+	_, r, err := c.ws.NextReader()
+	if err != nil {
 		return err
 	}
-
-	if b, err := json.Marshal(v); err == nil {
-		fmt.Println(">>>", time.Now().Format("15:04:05"), string(b))
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
 	}
-	return nil
+	fmt.Println(">>>", time.Now().Format("15:04:05"), string(b))
+
+	return json.Unmarshal(b, v)
 }
 
 func (c *Conn) WriteJSON(v interface{}) error {

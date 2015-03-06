@@ -12,5 +12,6 @@ func init() {
 
 func main() {
 	http.HandleFunc("/", poker.PokerHandler)
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	http.Handle("/poker", http.FileServer(http.Dir("/www/data/poker")))
+	log.Fatal(http.ListenAndServe(":8989", nil))
 }

@@ -152,6 +152,7 @@ func handlePresence(o *poker.Occupant, message *poker.Message) {
 		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(cards[0]))
 		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(cards[1]))
 		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(cards[2]))
+		o.Hand, _ = strconv.Atoi(cards[3])
 	case poker.ActTurn:
 		o.Room.Each(0, func(o *poker.Occupant) bool {
 			if o != nil {
@@ -161,7 +162,9 @@ func handlePresence(o *poker.Occupant, message *poker.Message) {
 			return true
 		})
 		fmt.Println("Turn:", message.Class)
-		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(message.Class))
+		cards := strings.Split(message.Class, ",")
+		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(cards[0]))
+		o.Hand, _ = strconv.Atoi(cards[1])
 	case poker.ActRiver:
 		o.Room.Each(0, func(o *poker.Occupant) bool {
 			if o != nil {
@@ -171,7 +174,9 @@ func handlePresence(o *poker.Occupant, message *poker.Message) {
 			return true
 		})
 		fmt.Println("River:", message.Class)
-		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(message.Class))
+		cards := strings.Split(message.Class, ",")
+		o.Room.Cards = append(o.Room.Cards, poker.ParseCard(cards[0]))
+		o.Hand, _ = strconv.Atoi(cards[1])
 	case poker.ActShowdown:
 		fmt.Println("pot:", o.Room.Pot)
 	case poker.ActAction:
@@ -192,39 +197,17 @@ func handlePresence(o *poker.Occupant, message *poker.Message) {
 	case poker.ActBet:
 		occupant := o.Room.Occupant(message.From)
 		occupant.Room = o.Room
-		n, _ := strconv.Atoi(message.Class)
-		betting(occupant, n)
+		bets := strings.Split(message.Class, ",")
+		occupant.Action = bets[0]
+		occupant.Bet, _ = strconv.Atoi(bets[1])
+		occupant.Chips, _ = strconv.Atoi(bets[2])
+
 		if occupant.Id == o.Id {
 			fmt.Printf("You %s: %d\n", occupant.Action, occupant.Bet)
 		} else {
 			fmt.Printf("%s(%s) %s: %d\n", occupant.Id, occupant.Name, occupant.Action, occupant.Bet)
 		}
 	}
-}
-
-func betting(o *poker.Occupant, n int) {
-	room := o.Room
-	if room == nil {
-		return
-	}
-
-	if n < 0 {
-		o.Action = poker.ActFold
-		o.Cards = nil
-		n = 0
-	} else if n == 0 {
-		o.Action = poker.ActCheck
-	} else if n+o.Bet <= room.Bet {
-		o.Action = poker.ActCall
-		o.Chips -= n
-		o.Bet += n
-	} else {
-		o.Action = poker.ActRaise
-		o.Chips -= n
-		o.Bet += n
-		room.Bet = o.Bet
-	}
-	room.Pot[0] += n
 }
 
 func cmdLoop(o *poker.Occupant) {

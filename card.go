@@ -264,7 +264,7 @@ func (deck *Deck) Take() Card {
 	return card
 }
 
-func HandRank(val int) int {
+func handRank(val int) int {
 	if val > 6185 { // 1277 high card
 		return HgihCard
 	}
@@ -289,10 +289,11 @@ func HandRank(val int) int {
 	if val > 10 { //  156 four-kind
 		return FourOfAKind
 	}
-	if val == 1 {
-		return RoyalFlush
+	if val > 1 {
+		return StraightFlush // 10 straight-flushes
 	}
-	return StraightFlush //   10 straight-flushes
+
+	return RoyalFlush
 }
 
 func eva5cards(cards [5]Card) int {
@@ -336,6 +337,40 @@ func find(key int) int {
 	return -1
 }
 
+func Eva5Hand(cards [5]Card) int {
+	val := eva5cards(cards)
+	hand := handRank(val)
+	return hand<<16 | 0x00ff&^val
+}
+
+var perm6 = [][5]int{
+	{0, 1, 2, 3, 4},
+	{0, 1, 2, 3, 5},
+	{0, 1, 2, 4, 5},
+	{0, 1, 3, 4, 5},
+	{0, 2, 3, 4, 5},
+	{1, 2, 3, 4, 5},
+}
+
+func Eva6Hand(cards [6]Card) int {
+	var hand [5]Card
+
+	best := 0xFFFF
+
+	for i, _ := range perm6 {
+		for j, _ := range hand {
+			hand[j] = cards[perm6[i][j]]
+		}
+		v := eva5cards(hand)
+		if v < best {
+			best = v
+		}
+	}
+
+	rank := handRank(best)
+	return rank<<16 | 0x00ff&^best
+}
+
 var perm7 = [][5]int{
 	{0, 1, 2, 3, 4},
 	{0, 1, 2, 3, 5},
@@ -375,5 +410,6 @@ func Eva7Hand(cards [7]Card) int {
 		}
 	}
 
-	return best
+	rank := handRank(best)
+	return rank<<16 | 0x00ff&^best
 }

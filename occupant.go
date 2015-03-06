@@ -33,7 +33,8 @@ func NewOccupant(id string, conn *Conn) *Occupant {
 		Id:      id,
 		conn:    conn,
 		recv:    make(chan *Message, 128),
-		Actions: make(chan *Message, 8),
+		Actions: make(chan *Message),
+		Profile: "http://172.24.222.42:8082/4,0aaaffedfc7b",
 	}
 
 	go func() {
@@ -93,7 +94,7 @@ func (o *Occupant) GetMessage(timeout time.Duration) (*Message, error) {
 	}
 }
 
-func (o *Occupant) Betting(n int) {
+func (o *Occupant) Betting(n int) (raised bool) {
 	room := o.Room
 	if room == nil {
 		return
@@ -102,6 +103,7 @@ func (o *Occupant) Betting(n int) {
 	if n < 0 {
 		o.Action = ActFold
 		o.Cards = nil
+		o.Hand = 0
 		n = 0
 	} else if n == 0 {
 		o.Action = ActCheck
@@ -114,9 +116,14 @@ func (o *Occupant) Betting(n int) {
 		o.Chips -= n
 		o.Bet += n
 		room.Bet = o.Bet
+		raised = true
 	}
-	room.Pot[0] += n
+	if o.Chips == 0 {
+		o.Action = ActAllin
+	}
+	room.Chips[o.Pos-1] += n
 
+	return
 }
 
 func (o *Occupant) GetAction(timeout time.Duration) (*Message, error) {
@@ -125,6 +132,8 @@ func (o *Occupant) GetAction(timeout time.Duration) (*Message, error) {
 	select {
 	case m := <-o.Actions:
 		return m, nil
+	case <-o.Room.EndChan:
+		return nil, nil
 	case <-o.timer.C:
 		return nil, errors.New("timeout")
 	}
