@@ -145,6 +145,7 @@ var MainState = function() {
     this.gameStateObj = {}
     this.gameStateObj.mybet;                         //当前玩家需要下注额下
     this.gameStateObj.bankerPos;                     //庄家座位号
+    this.gameStateObj.dealerPos;                     //庄家标记位置
     this.gameStateObj.mybetOnDesk;                   //当前玩家本局下注额
     this.gameStateObj.chipboxValue1 = 10;
     this.gameStateObj.chipboxValue2 = 20;
@@ -226,6 +227,7 @@ MainState.prototype = {
         this.waitSelected1 = false;
         this.waitSelected2 = false;
         this.waitSelected3 = false;
+        this.gameStateObj.dealerPos = [{x:0.632, y:0.312}, {x:0.796, y:0.349}, {x:0.841, y:0.434}, {x:0.694, y:0.570}, {x: 0.44, y:0.574}, {x:0.306, y:0.570}, {x:0.154, y:0.434}, {x:0.204, y:0.349}, {x:0.368, y:0.312}];
         //this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userSizeRate = {width:0.096, height:0.262};

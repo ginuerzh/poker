@@ -116,7 +116,7 @@ rectdrawer.prototype = {
         //console.log("pusht: ", this.t)
         this.timer = game.time.create(false);
 
-        this.timer.loop(this.refreshFrequency, this.updateCounter, this);
+        this.timer.loop(Phaser.Timer.SECOND * this.refreshFrequency, this.updateCounter, this);
 
         this.timer.start();
         this.isPainting = true;
