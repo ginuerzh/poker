@@ -2,7 +2,7 @@
 
 var Server = function() {
 
-	this.wsServer = 'ws://localhost:8989';
+	this.wsServer = 'ws://172.24.222.54:8989';
 	this.websocket;
 	this.isConnect;
 	this.openCallback;
