@@ -517,9 +517,11 @@ var MainState = function() {
     this.chipboxSliderHandle;           //加注滑条滑块
     this.chipboxTextSlider;             //加注滑块当前值
     this.chipboxGroup;
-    this.currentBet                     //最近bet值
-    this.currentBetType                 //最近bet类型
-    this.autoCall=0                       // 纪录当前跟注值
+    this.currentBet;                    //最近bet值
+    this.currentBetType;                //最近bet类型
+    this.autoCall=0;                    // 纪录当前跟注值
+    this.xOffset;
+    this.yOffset;
 
 
     // game current data
@@ -581,15 +583,15 @@ MainState.prototype = {
     create: function() {
 
         this.animation = new Animations();
-        var imageBK = game.add.image(0, 0, "gamecenterbackground");
-        var xScale = game.width / imageBK.width;
-        var yScale = game.height / imageBK.height;
+        this.imageBK = game.add.image(0, 0, "gamecenterbackground");
+        var xScale = game.width / this.imageBK.width;
+        var yScale = game.height / this.imageBK.height;
         this.scale = xScale < yScale ? xScale : yScale;
-        var xOffset = (game.width - imageBK.width * this.scale) / 2;
-        var yOffset = (game.height - imageBK.height * this.scale) / 2;
-        imageBK.scale.setTo(this.scale, this.scale);
-        this.background = imageBK;
-        imageBK.reset(xOffset, yOffset);
+        this.xOffset = (game.width - this.imageBK.width * this.scale) / 2;
+        this.yOffset = (game.height - this.imageBK.height * this.scale) / 2;
+        this.imageBK.scale.setTo(this.scale, this.scale);
+        this.background = this.imageBK;
+        this.imageBK.reset(this.xOffset, this.yOffset);
         this.currentDrawUser = 0;
         this.timeoutMaxCount = 30;
         this.sliderMinNum = 0;
@@ -606,7 +608,7 @@ MainState.prototype = {
         this.waitSelected1 = false;
         this.waitSelected2 = false;
         this.waitSelected3 = false;
-        this.gameStateObj.dealerPos = [{x:0.632, y:0.312}, {x:0.796, y:0.349}, {x:0.841, y:0.434}, {x:0.694, y:0.570}, {x: 0.44, y:0.574}, {x:0.306, y:0.570}, {x:0.154, y:0.434}, {x:0.204, y:0.349}, {x:0.368, y:0.312}];
+        this.dealerPosRate = [{x:0.632, y:0.312}, {x:0.796, y:0.349}, {x:0.841, y:0.434}, {x:0.694, y:0.570}, {x: 0.44, y:0.574}, {x:0.306, y:0.570}, {x:0.154, y:0.434}, {x:0.204, y:0.349}, {x:0.368, y:0.312}];
         //this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userSizeRate = {width:0.096, height:0.262};
@@ -616,7 +618,7 @@ MainState.prototype = {
 
         game.load.onFileComplete.add(this._fileComplete, this);
 
-        this.animation.setPosParam(this.background.width, this.background.height, xOffset, yOffset);
+        this.animation.setPosParam(this.background.width, this.background.height, this.xOffset, this.yOffset);
         var groupUser = game.add.group();
 
         for (var i = 0; i < this.userPosRate.length; i++)
@@ -625,9 +627,9 @@ MainState.prototype = {
             var user = new User();
             user.setScale(this.scale);
             user.setAnimation(this.animation);
-            user.setRect((dict.x - this.userSizeRate.width / 2) * imageBK.width + xOffset, (dict.y - this.userSizeRate.height / 2) * imageBK.height + yOffset, this.userSizeRate.width * imageBK.width, this.userSizeRate.height * imageBK.height);
-            user.setCoinRect(userCoinRate[i].x * imageBK.width + userCoinWidth / 2 + xOffset, userCoinRate[i].y * imageBK.height + userCoinWidth / 2 + yOffset, userCoinWidth, userCoinWidth);
-            user.setCoinTextPos(userTextRate[i].x * imageBK.width + xOffset, userTextRate[i].y * imageBK.height + yOffset);
+            user.setRect((dict.x - this.userSizeRate.width / 2) * this.imageBK.width + this.xOffset, (dict.y - this.userSizeRate.height / 2) * this.imageBK.height + this.yOffset, this.userSizeRate.width * this.imageBK.width, this.userSizeRate.height * this.imageBK.height);
+            user.setCoinRect(userCoinRate[i].x * this.imageBK.width + userCoinWidth / 2 + this.xOffset, userCoinRate[i].y * this.imageBK.height + userCoinWidth / 2 + this.yOffset, userCoinWidth, userCoinWidth);
+            user.setCoinTextPos(userTextRate[i].x * this.imageBK.width + this.xOffset, userTextRate[i].y * this.imageBK.height + this.yOffset);
             if(dict.x == 0.5)
             {
                 //user.create("", "defaultUserImage", "", true);
@@ -648,7 +650,7 @@ MainState.prototype = {
         for (var i = 0; i < this.cardPosRate.length; i++)
         {
             var dict = this.cardPosRate[i];
-            var imageCard = game.add.image(dict.x * imageBK.width + xOffset, dict.y * imageBK.height + yOffset, "cardBK");
+            var imageCard = game.add.image(dict.x * this.imageBK.width + this.xOffset, dict.y * this.imageBK.height + this.yOffset, "cardBK");
             imageCard.anchor.set(0.5);
             imageCard.scale.setTo(this.scale, this.scale);
             imageCard.visible = false;
@@ -660,7 +662,7 @@ MainState.prototype = {
         for (var i = 0; i < preflopBKRate.length; i++)
         {
             var dict = preflopBKRate[i];
-            var imageCard = game.add.image(dict.x * imageBK.width + xOffset, dict.y * imageBK.height + yOffset, "dcardBK");
+            var imageCard = game.add.image(dict.x * this.imageBK.width + this.xOffset, dict.y * this.imageBK.height + this.yOffset, "dcardBK");
             imageCard.scale.setTo(this.scale, this.scale);
             imageCard.visible = false;
             this.praviteCards.push(imageCard);
@@ -673,20 +675,20 @@ MainState.prototype = {
         }
 
         var selfCardRate = {x:0.57, y:0.79};
-        var imageCard1 = game.add.image(selfCardRate.x * imageBK.width + xOffset, selfCardRate.y * imageBK.height + yOffset, "cardBK");
+        var imageCard1 = game.add.image(selfCardRate.x * this.imageBK.width + this.xOffset, selfCardRate.y * this.imageBK.height + this.yOffset, "cardBK");
         imageCard1.scale.setTo(this.scale * 0.75, this.scale * 0.75);
         imageCard1.anchor = new PIXI.Point(0.5, 0.5);
         imageCard1.angle = -20;
         imageCard1.visible = false;
         this.selfCards.push(imageCard1);
-        var imageCard2 = game.add.image(selfCardRate.x * imageBK.width + imageCard1.width / 2 + xOffset, selfCardRate.y * imageBK.height + yOffset, "cardBK");
+        var imageCard2 = game.add.image(selfCardRate.x * this.imageBK.width + imageCard1.width / 2 + this.xOffset, selfCardRate.y * this.imageBK.height + this.yOffset, "cardBK");
         imageCard2.scale.setTo(this.scale * 0.75, this.scale * 0.75);
         imageCard2.anchor = new PIXI.Point(0.5, 0.5);
         imageCard2.angle = 20;
         imageCard2.visible = false;
         this.selfCards.push(imageCard2);
 
-        this.light = game.add.sprite(imageBK.width / 2 + xOffset, imageBK.height / 2 + yOffset, 'light');
+        this.light = game.add.sprite(this.imageBK.width / 2 + this.xOffset, this.imageBK.height / 2 + this.yOffset, 'light');
         this.light.anchor.setTo(0, 0.5);
         this.light.visible = false;
         this.animation.setLight(this.light);
@@ -738,15 +740,15 @@ MainState.prototype = {
         var buttonPosRate2 = {x:0.394, y:0.881};
         var buttonPosRate3 = {x:0.62, y:0.881};
         var buttonSizeRate = {width:0.213, height:0.119};
-        this.button1 = game.add.button(buttonPosRate1.x * imageBK.width + xOffset, buttonPosRate1.y * imageBK.height + yOffset, 'buttonyellow', this.actionOnClick1, this);
-        this.button2 = game.add.button(buttonPosRate2.x * imageBK.width + xOffset, buttonPosRate2.y * imageBK.height + yOffset, 'buttonyellow', this.actionOnClick2, this);
-        this.button3 = game.add.button(buttonPosRate3.x * imageBK.width + xOffset, buttonPosRate3.y * imageBK.height + yOffset, 'buttonyellow', this.actionOnClick3, this);
+        this.button1 = game.add.button(buttonPosRate1.x * this.imageBK.width + this.xOffset, buttonPosRate1.y * this.imageBK.height + this.yOffset, 'buttonyellow', this.actionOnClick1, this);
+        this.button2 = game.add.button(buttonPosRate2.x * this.imageBK.width + this.xOffset, buttonPosRate2.y * this.imageBK.height + this.yOffset, 'buttonyellow', this.actionOnClick2, this);
+        this.button3 = game.add.button(buttonPosRate3.x * this.imageBK.width + this.xOffset, buttonPosRate3.y * this.imageBK.height + this.yOffset, 'buttonyellow', this.actionOnClick3, this);
         this.button1.scale.setTo(this.scale, this.scale);
         this.button2.scale.setTo(this.scale, this.scale);
         this.button3.scale.setTo(this.scale, this.scale);
-        this.waitbutton1 = game.add.button(buttonPosRate1.x * imageBK.width + xOffset, buttonPosRate1.y * imageBK.height + yOffset, 'buttonblue', this.waitOnClick1, this);
-        this.waitbutton2 = game.add.button(buttonPosRate2.x * imageBK.width + xOffset, buttonPosRate2.y * imageBK.height + yOffset, 'buttonblue', this.waitOnClick2, this);
-        this.waitbutton3 = game.add.button(buttonPosRate3.x * imageBK.width + xOffset, buttonPosRate3.y * imageBK.height + yOffset, 'buttonblue', this.waitOnClick3, this);
+        this.waitbutton1 = game.add.button(buttonPosRate1.x * this.imageBK.width + this.xOffset, buttonPosRate1.y * this.imageBK.height + this.yOffset, 'buttonblue', this.waitOnClick1, this);
+        this.waitbutton2 = game.add.button(buttonPosRate2.x * this.imageBK.width + this.xOffset, buttonPosRate2.y * this.imageBK.height + this.yOffset, 'buttonblue', this.waitOnClick2, this);
+        this.waitbutton3 = game.add.button(buttonPosRate3.x * this.imageBK.width + this.xOffset, buttonPosRate3.y * this.imageBK.height + this.yOffset, 'buttonblue', this.waitOnClick3, this);
         this.waitbutton1.scale.setTo(this.scale, this.scale);
         this.waitbutton2.scale.setTo(this.scale, this.scale);
         this.waitbutton3.scale.setTo(this.scale, this.scale);
@@ -761,49 +763,49 @@ MainState.prototype = {
         this._setWaitButtonsVisible(false)
 
         style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
-        this.lbLookorGiveup = game.add.text(buttonPosRate1.x * imageBK.width + xOffset + 0.5 * this.button1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.button1.height, "弃牌", style);
+        this.lbLookorGiveup = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.5 * this.button1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.button1.height, "弃牌", style);
         this.lbLookorGiveup.anchor.set(0.5);
         this.lbLookorGiveup.scale.setTo(this.scale, this.scale);
         this.buttonGroup1.add(this.button1);
         this.buttonGroup1.add(this.lbLookorGiveup);
         style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
-        this.lbCall = game.add.text(buttonPosRate2.x * imageBK.width + xOffset + 0.2 * this.button2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.button2.height, "跟注", style);
+        this.lbCall = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.button2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.button2.height, "跟注", style);
         this.lbCall.anchor.set(0, 0.5);
         this.lbCall.scale.setTo(this.scale, this.scale);
         this.buttonGroup2.add(this.button2);
         this.buttonGroup2.add(this.lbCall);
         style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button3.width, align: "center" };
-        this.lbCallEvery = game.add.text(buttonPosRate3.x * imageBK.width + xOffset + 0.5 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "加注", style);
+        this.lbCallEvery = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.5 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "加注", style);
         this.lbCallEvery.anchor.set(0.5);
         this.lbCallEvery.scale.setTo(this.scale, this.scale);
         this.buttonGroup3.add(this.button3);
         this.buttonGroup3.add(this.lbCallEvery);
 
         style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
-        this.lbLookorGiveupWait = game.add.text(buttonPosRate1.x * imageBK.width + xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.waitbutton1.height, "看牌或弃牌", style);
+        this.lbLookorGiveupWait = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton1.height, "看牌或弃牌", style);
         this.lbLookorGiveupWait.anchor.set(0, 0.5);
         this.lbLookorGiveupWait.scale.setTo(this.scale, this.scale);
-        this.imgLookorGiveupWait = game.add.image(buttonPosRate1.x * imageBK.width + xOffset + 0.2 * this.waitbutton1.width, buttonPosRate1.y * imageBK.height + yOffset + 0.45 * this.waitbutton1.height, "checkOff");
+        this.imgLookorGiveupWait = game.add.image(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton1.height, "checkOff");
         this.imgLookorGiveupWait.anchor.set(0.5);
         this.imgLookorGiveupWait.scale.setTo(this.scale, this.scale);
         this.waitButtonGroup1.add(this.waitbutton1);
         this.waitButtonGroup1.add(this.lbLookorGiveupWait);
         this.waitButtonGroup1.add(this.imgLookorGiveupWait);
         style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
-        this.lbCallWait = game.add.text(buttonPosRate2.x * imageBK.width + xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.waitbutton2.height, "跟注", style);
+        this.lbCallWait = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton2.height, "跟注", style);
         this.lbCallWait.anchor.set(0, 0.5);
         this.lbCallWait.scale.setTo(this.scale, this.scale);
-        this.imgCallWait = game.add.image(buttonPosRate2.x * imageBK.width + xOffset + 0.2 * this.waitbutton2.width, buttonPosRate2.y * imageBK.height + yOffset + 0.45 * this.waitbutton2.height, "checkOff");
+        this.imgCallWait = game.add.image(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton2.height, "checkOff");
         this.imgCallWait.anchor.set(0.5);
         this.imgCallWait.scale.setTo(this.scale, this.scale);
         this.waitButtonGroup2.add(this.waitbutton2);
         this.waitButtonGroup2.add(this.lbCallWait);
         this.waitButtonGroup2.add(this.imgCallWait);
         style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
-        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * imageBK.width + xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
+        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
         this.lbCallEveryWait.anchor.set(0, 0.5);
         this.lbCallEveryWait.scale.setTo(this.scale, this.scale);
-        this.imgCallEveryWait = game.add.image(buttonPosRate3.x * imageBK.width + xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * imageBK.height + yOffset + 0.45 * this.waitbutton3.height, "checkOff");
+        this.imgCallEveryWait = game.add.image(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "checkOff");
         this.imgCallEveryWait.anchor.set(0.5);
         this.imgCallEveryWait.scale.setTo(this.scale, this.scale);
         this.waitButtonGroup3.add(this.waitbutton3);
@@ -855,11 +857,11 @@ MainState.prototype = {
         //this.chipboxSliderHandle.events.onDragStop.add(onDragStop, this);
 
         style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
-        this.blinds = game.add.text(this.background.width / 2 + xOffset, 0.25 * this.background.height + yOffset, "$" + this.sb + " / $" + this.bb, style);
+        this.blinds = game.add.text(this.background.width / 2 + this.xOffset, 0.25 * this.background.height + this.yOffset, "$" + this.sb + " / $" + this.bb, style);
         this.blinds.anchor.set(0.5);
         this.blinds.scale.setTo(this.scale);
 
-        this.chipPoolBK = game.add.image(0.451 * imageBK.width + xOffset, 0.306 * imageBK.height + yOffset, "chipPool");
+        this.chipPoolBK = game.add.image(0.451 * this.imageBK.width + this.xOffset, 0.306 * this.imageBK.height + this.yOffset, "chipPool");
         this.chipPoolBK.scale.setTo(this.scale, this.scale);
 
         style = { font: "16px Arial", fill: "#FFFFFF", wordWrap: true, wordWrapWidth: this.chipPoolBK.width, align: "center" };
@@ -873,7 +875,7 @@ MainState.prototype = {
         var coinCount = 9;
         for (var i = 0; i < coinCount; i++)
         {
-            var star = this.starGroup.create((i + 0.5) * imageBK.width / coinCount + xOffset, 0, 'animeCoins');
+            var star = this.starGroup.create((i + 0.5) * this.imageBK.width / coinCount + this.xOffset, 0, 'animeCoins');
             star.visible = false;
             star.body.velocity.y = 0;
             star.anchor.setTo(0.5, 0.5);
@@ -1135,28 +1137,39 @@ MainState.prototype = {
         var user = this._userByUserID(goneUserID);
         user.clean();
         user.setVisable(false)
+
+        var seatNum = user.param["seatNum"]
+        if(this.gameStateObj.bankerPos == seatNum) {
+            if(this.dealer != null) {
+                this.dealer.destroy();
+                this.dealer = null;
+            }
+        }
     },
 
     handleButton:function(data)
     {
         this.gameStateObj.bankerPos = data.class;
-        /*
+        var seatIndex = this._userIndexBySeatNum(parseInt(data.class))
+
+        
         if(this.dealer == null) {
-            this.dealer = game.add.sprite(0, 0, "dealer");
+            this.dealer = game.add.sprite(this.dealerPosRate[seatIndex].x * this.imageBK.width + this.xOffset, this.dealerPosRate[seatIndex].y * this.imageBK.height + this.yOffset, "dealer");
+            this.dealer.anchor.setTo(0.5);
             this.dealer.scale.setTo(this.scale, this.scale);
+        } else {
+            
+            var user = this._userBySeatNum(this.gameStateObj.bankerPos)
+            if(user) {
+                this.tween = game.add.tween(this.dealer);
+                this.tween.to({ x:this.dealerPosRate[seatIndex].x * this.imageBK.width+ this.xOffset,
+                           y: this.dealerPosRate[seatIndex].y * this.imageBK.height + this.yOffset }, 
+                           800, 
+                           Phaser.Easing.Linear.None, true);
+            }
+        
         }
-        */
-
-
-        var user = this._userBySeatNum(this.gameStateObj.bankerPos)
-        if(user) {
-            // TODO:
-            /*
-            var tween = game.add.tween(this.dealer);
-            tween.to({ x:user.textCoin.x+10, y: user.textCoin.y+10 }, 1.5, Phaser.Easing.Linear.None, true);
-            */
-        }
-
+        
         this._initNewRound()
     },
 
@@ -1353,7 +1366,20 @@ MainState.prototype = {
                 if (winOccupantItem.action != "fold") {
                     if(winOccupantItem.cards != null && winOccupantItem.cards != undefined) {
                         winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+                        var hand = winOccupantItem.hand;
+                        if(hand != undefined && hand != null) {
+                            var type = (hand >>> 16)
+                            if(type > 10) {
+                                type = 0
+                            }
+
+                            if(winOccupantItem.id != this.userID) {
+                                winUser.setUserTitle(this.CONST.CardTypeNames[type])
+                            }
+
+                        }
                     }
+
             }
         }
     },
@@ -1487,19 +1513,36 @@ MainState.prototype = {
         for (var i =0;  i < this.userList.length;  i++) {
             var obj = this.userList[i];
             if (obj.param[key] == value) {
-                return obj;
+                return [obj, i];
             }
         }
         return null
     },
 
     _userByUserID:function(userid) {
-        return this._userByUserParam("userID", userid)
+        var ret = this._userByUserParam("userID", userid)
+        if(ret) {
+            return ret[0]
+        }
+        return null
     },
 
     _userBySeatNum:function(seatnum) {
-        return this._userByUserParam("seatNum", seatnum)
+        var ret = this._userByUserParam("seatNum", seatnum)
+        if(ret) {
+            return ret[0]
+        }
     },
+
+    _userIndexBySeatNum:function(seatnum) {
+        var ret = this._userByUserParam("seatNum", seatnum)
+        if(ret) {
+            return ret[1]
+        }
+        return -1;
+    },
+
+
     _currentPlayButtonUpdate:function(isCurrentPlayer) {
         this._setWaitButtonsVisible(!isCurrentPlayer)
         this._setBetButtonsVisible(isCurrentPlayer);
