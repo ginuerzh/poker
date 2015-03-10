@@ -1103,12 +1103,16 @@ MainState.prototype = {
                     if(winOccupantItem.cards != null && winOccupantItem.cards != undefined) {
                         winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
                         var hand = winOccupantItem.hand;
-                        if(hand != undefined && hand = null) {
+                        if(hand != undefined && hand != null) {
                             var type = (hand >>> 16)
                             if(type > 10) {
                                 type = 0
                             }
-                            winUser.setUserTitle(this.CONST.CardTypeNames[type])
+
+                            if(winOccupantItem.id != this.userID) {
+                                winUser.setUserTitle(this.CONST.CardTypeNames[type])
+                            }
+
                         }
                     }
 
