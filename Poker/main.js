@@ -1,7 +1,7 @@
 'use strict';
 
 var game = null
-var gParam = {ws_server:"172.24.222.54:8989", user_name:"TestUser"}
+var gParam = {ws_server:"172.24.222.54:8989", user_name:"", platform:"PC"}
 
 function startGame(gameParam) {
    
@@ -300,7 +300,14 @@ LoginState.prototype = {
 
     initUserName:function()
     {
-        var name = getCookie("name");
+        var name = ""
+        
+        if (gParam.user_name != null && gParam.user_name != "") {
+            name = gParam.user_name;
+        } else {
+            name = getCookie("name");
+        }
+        
         if(!name || name.length == 0)
         {
             name = prompt("请输入您的名字","");
@@ -552,6 +559,8 @@ var MainState = function() {
     this.xOffset;
     this.yOffset;
 
+    this.groupUser // game user layer
+
 
     // game current data
     this.gameStateObj = {}
@@ -613,8 +622,15 @@ MainState.prototype = {
 
         this.animation = new Animations();
         this.imageBK = game.add.image(0, 0, "gamecenterbackground");
+        
         var xScale = game.width / this.imageBK.width;
         var yScale = game.height / this.imageBK.height;
+        
+        //if(gParam.platform == "IOS") {
+        //    xScale = 1;
+        //    yScale = 1;
+        //}
+
         this.scale = xScale < yScale ? xScale : yScale;
         this.xOffset = (game.width - this.imageBK.width * this.scale) / 2;
         this.yOffset = (game.height - this.imageBK.height * this.scale) / 2;
@@ -648,7 +664,7 @@ MainState.prototype = {
         game.load.onFileComplete.add(this._fileComplete, this);
 
         this.animation.setPosParam(this.background.width, this.background.height, this.xOffset, this.yOffset);
-        var groupUser = game.add.group();
+        this.groupUser = game.add.group();
 
         for (var i = 0; i < this.userPosRate.length; i++)
         {
@@ -669,7 +685,7 @@ MainState.prototype = {
                 //user.create("", "defaultUserImage", "", false);
                 user.create("", null, "", false);
             }
-            user.addUserToGroup(groupUser)
+            user.addUserToGroup(this.groupUser)
             user.setVisable(false);
             this.userList.push(user);
         }
@@ -916,7 +932,7 @@ MainState.prototype = {
             star.rotation = 100*Math.random();
         }
 
-        this.drawRectAnime = new rectdrawer(groupUser);
+        this.drawRectAnime = new rectdrawer(this.groupUser);
 
         this._currentPlayButtonUpdate(false);
         game.betApi.enterRoom(function(isOK){
@@ -1099,8 +1115,7 @@ MainState.prototype = {
 
     chipOnClick1:function()
     {
-        //this.chipboxGroup.visible = false;
-        this._setSliderValue(this.chips)
+        this._raseAction(this.chips)
     },
 
     chipOnClick2:function()
@@ -1321,6 +1336,9 @@ MainState.prototype = {
             this.dealer = game.add.sprite(this.dealerPosRate[seatIndex].x * this.imageBK.width + this.xOffset, this.dealerPosRate[seatIndex].y * this.imageBK.height + this.yOffset, "dealer");
             this.dealer.anchor.setTo(0.5);
             this.dealer.scale.setTo(this.scale, this.scale);
+
+            this.groupUser.add(this.dealer);
+
         } else {
             
             var user = this._userBySeatNum(this.gameStateObj.bankerPos)

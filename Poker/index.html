@@ -33,14 +33,41 @@
             */
         
              // Debug
-             var PLAT = "__PLAT__";
-             
-             //var PLAT = "IOS";
+             var PLAT = "__PLAT__";  
              
              if(PLAT == "IOS") {
                  enableNativeLog();
+                 
+                 try {
+                     
+                     connectWebViewJavascriptBridge(function(bridge) {
+                                                    bridge.init(function(message, responseCallback) {
+                                                                console.log("WebViewJavascriptBridge init OK");
+                                                                });
+                                                    
+                                                    bridge.registerHandler("reload", function(){
+                                                                           console.log("reload");
+                                                                           //location.reload();
+                                                                           history.go(0);
+                                                                           });
+                                                    
+                                                    bridge.send("echo", function(response){
+                                                                console.log("echo get response ===");
+                                                                
+                                                                });
+                                                    bridge.callHandler("getNativeConfig",null,function(data){
+                                                                       console.log(data.ws_server);
+                                                                       data.platform = PLAT
+                                                                       startGame(data);
+                                                                       });
+                                                    });
+                 }catch(e) {
+                     console.log(e);
+                 }
+                 
+                 
              } else {
-                 startGame({});
+                 startGame({platform:PLAT});
              }
         
         
@@ -53,7 +80,7 @@
                  otherstring = other;
              }
              
-             iframe.setAttribute("src", "ios-log:#iOS#" + log + ":", otherstring);
+             iframe.setAttribute("src", "ios-log:#iOS#" + log + " "+ otherstring);
              document.documentElement.appendChild(iframe);
              iframe.parentNode.removeChild(iframe);
              iframe = null;
@@ -76,25 +103,7 @@
                                               }, false)
                 }
             }
-        try {
-        
-        connectWebViewJavascriptBridge(function(bridge) {
-                bridge.init(function(message, responseCallback) {
-                               console.log("WebViewJavascriptBridge init OK");
-                            });
-                
-                bridge.send("echo", function(response){
-                                                   console.log("echo get response ===");
 
-                                                   });
-                bridge.callHandler("getNativeConfig",null,function(data){
-                                            console.log(data.ws_server);
-                                            startGame(data);
-                                   });
-            });
-        }catch(e) {
-            console.log(e);
-        }
 
         </script>
     </head>

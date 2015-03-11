@@ -385,7 +385,7 @@ User.prototype = {
 	clean:function() 
 	{
 		this.winGroup.visible = false;
-		this.imagebody.visible = true;
+		this.imagebody.visible = false;
 		this.param["userName"] = "";
 		this.param["userCoin"] = "";
 		this.setParam("", "defaultUserImage", "");
