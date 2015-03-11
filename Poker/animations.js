@@ -144,6 +144,10 @@ Animations.prototype = {
 		{
 			angleFinal += 360;
 		}
+		if(angleFinal - this.light.angle > 180)
+		{
+			angleFinal -= 360;
+		}
 		if(!this.light.visible)
 		{
 			this.light.visible = true;

@@ -719,6 +719,7 @@ MainState.prototype = {
 
         this.light = game.add.sprite(this.imageBK.width / 2 + this.xOffset, this.imageBK.height / 2 + this.yOffset, 'light');
         this.light.anchor.setTo(0, 0.5);
+        this.light.scale.setTo(this.scale);
         this.light.visible = false;
         this.animation.setLight(this.light);
 
