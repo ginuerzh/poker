@@ -138,18 +138,22 @@ Animations.prototype = {
 		var xOffset = this.offsetX;
 		var yOffset = this.offsetY;
 		var length = Math.sqrt((this.light.x - targetX) * (this.light.x - targetX) + (this.light.y - targetY) * (this.light.y - targetY));
-		var angleFinal = Math.atan2((this.heightBK / 2 - targetY - yOffset), (targetX - this.widthBK / 2 - xOffset)) * 180 / 3.1415926;
+		var angleFinal = Math.atan2((targetY - this.light.y), (targetX - this.light.x)) * 180 / 3.1415926;
 
+		while(angleFinal < this.light.angle)
+		{
+			angleFinal += 360;
+		}
 		if(!this.light.visible)
 		{
 			this.light.visible = true;
 			this.light.width = length;
-			this.light.angle = -angleFinal;
+			this.light.angle = angleFinal;
 		}
 		else
 		{
 			var tween = game.add.tween(this.light);
-			tween.to({ width:length, angle: -angleFinal }, animationTime, Phaser.Easing.Linear.None, true);
+			tween.to({ width:length, angle: angleFinal }, animationTime, Phaser.Easing.Linear.None, true);
 		}
 	},
 
