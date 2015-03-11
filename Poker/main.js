@@ -1,6 +1,33 @@
 'use strict';
 
-var game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
+var game = null
+var gParam = {ws_server:"172.24.222.54:8989", user_name:"TestUser"}
+
+function startGame(gameParam) {
+   
+    try {
+    // merge property
+    for(var p in gParam) {
+       var value = gameParam[p];
+        if(value != undefined && value != null) {
+            gParam[p] = gameParam[p];
+        }
+    }
+    
+    game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
+    
+    game.betApi = new BetApi();
+    
+    game.betApi = new BetApi();
+
+    game.state.add("LoginState", LoginState);
+    game.state.add("MainState", MainState);
+    game.state.start("LoginState");
+        
+    } catch(e) {
+        console.log("error ! ", e);
+    }
+}
 
 var strVersion = "1.0";
 var userName = "cmdTest";
@@ -389,8 +416,6 @@ LoginState.prototype = {
         game.betApi.createRoom("", 5, 10, 30, 9);
     }
 };
-
-
 
 // game main state
 var MainState = function() {
@@ -1103,6 +1128,130 @@ MainState.prototype = {
             child.visible = true;
             child.body.velocity.y = 500 + 150 * Math.random();
         }, this);
+    },
+
+    callbackOpen:function(data)
+    {
+        console.log("callbackOpen " + data);
+
+        game.betApi.checkVersion(this.strVersion, function(isOK){
+            console.log("checkVersion " + isOK);
+        });
+    },
+
+    callbackClose:function(data)
+    {
+        console.log("callbackClose " + data);
+        this.loginCertification = false;
+
+        this._disconnectReset();
+    },
+
+    callbackMessage:function(data)
+    {
+        console.log("callbackMessage " + data);
+        if(data.version && data.version == this.strVersion) // checkVersion result
+        {
+            game.betApi.loginCertification(gParam.user_name, function(isOK){
+                console.log("loginCertification is " +  isOK);
+                //alert("loginCertification is" +  isOK);
+            });
+        }
+        else if(!this.loginCertification) // loginCertification result
+        {
+            if(data.id)
+            {
+                this.userID = data.id;
+                game.betApi.setUserID(this.userID);
+                this.loginCertification = true;
+
+                this._currentPlayButtonUpdate(false)
+
+                game.betApi.setRoomID(this.roomID);
+                game.betApi.enterRoom(function(isOK){
+                    console.log("enterRoom is " +  isOK);
+                });
+            }
+        }
+        else if(data.type == "iq")
+        {
+            if(data.class == "room.list")       //查询游戏房间列表
+            {
+
+            }
+            else if(data.class == "room.info")  //查询游戏房间信息
+            {
+
+            }
+            else if(data.class == "user.info")  //查询玩家信息
+            {
+
+            }
+        }
+        else if(data.type == "message")
+        {
+        }
+        else if(data.type == "presence")
+        {
+            if(data.action == "active")         //服务器广播进入房间的玩家
+            {
+            }
+            else if(data.action == "gone")      //服务器广播离开房间的玩家
+            {
+                this.handleGone(data)
+            }
+            else if(data.action == "join")      //服务器通报加入游戏的玩家
+            {
+                this.handleJoin(data);
+            }
+            else if(data.action == "button")    //服务器通报本局庄家
+            {
+                this.handleButton(data);
+            }
+            else if(data.action == "preflop")   //服务器通报发牌
+            {
+                this.handlePreflop(data);
+            }
+            else if(data.action == "flop")   //发牌
+            {
+                this.handleFlop(data);
+            }
+            else if(data.action == "turn")   //发牌
+            {
+                this.handleTurn(data);
+            }
+            else if(data.action == "river")   //发牌
+            {
+                this.handleRiver(data);
+            }
+            else if(data.action == "pot")       //服务器通报奖池
+            {
+                this.handlePot(data)
+            }
+            else if(data.action == "action")    //服务器通报当前下注玩家
+            {
+                this.handleAction(data);
+
+            }
+            else if(data.action == "bet")       //服务器通报玩家下注结果
+            {
+                this.handleBet(data);
+
+            }
+            else if(data.action == "showdown")  //服务器通报摊牌和比牌
+            {
+                this.handleShowDown(data);
+            }
+            else if(data.action == "state")  //服务器通报房间信息
+            {
+                this.handleState(data);
+            }
+        }
+    },
+
+    callbackError:function(data)
+    {
+        console.log("callbackError" + data);
     },
 
     handleJoin:function(data)
@@ -1825,8 +1974,10 @@ MainState.prototype = {
     }
 };
 
+/*
 game.betApi = new BetApi();
 
 game.state.add("LoginState", LoginState);
 game.state.add("MainState", MainState);
 game.state.start("LoginState");
+*/
