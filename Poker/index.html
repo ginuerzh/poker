@@ -14,6 +14,7 @@
         <style type="text/css">
         body {
         	background-color: black;
+            margin:0px;
         }
 
         #gamediv {
@@ -24,6 +25,78 @@
             z-index:-1;
         }
         </style>
+        
+        <script>
+            // startGame({ws_server:"172.24.222.54:8989"});
+           
+           /*
+            */
+        
+             // Debug
+             //var PLAT = "__PLAT__";
+             
+             var PLAT = "IOS";
+             
+             if(PLAT == "IOS") {
+                 enableNativeLog();
+             } else {
+                 startGame({});
+             }
+        
+        
+        function enableNativeLog() {
+             console = new Object();
+             console.log = function(log, other) {
+             var iframe = document.createElement("IFRAME");
+             var otherstring = ""
+             if(other != undefined) {
+                 otherstring = other;
+             }
+             
+             iframe.setAttribute("src", "ios-log:#iOS#" + log + ":", otherstring);
+             document.documentElement.appendChild(iframe);
+             iframe.parentNode.removeChild(iframe);
+             iframe = null;
+             };
+             console.debug = console.log;
+             console.info = console.log;
+             console.warn = console.log;
+             console.error = console.log;
+             console.log("test log ===");
+        }
+
+
+        
+        function connectWebViewJavascriptBridge(callback) {
+                if (window.WebViewJavascriptBridge) {
+                    callback(WebViewJavascriptBridge)
+                } else {
+                    document.addEventListener('WebViewJavascriptBridgeReady', function() {
+                                              callback(WebViewJavascriptBridge)
+                                              }, false)
+                }
+            }
+        try {
+        
+        connectWebViewJavascriptBridge(function(bridge) {
+                bridge.init(function(message, responseCallback) {
+                               console.log("WebViewJavascriptBridge init OK");
+                            });
+                
+                bridge.send("echo", function(response){
+                                                   console.log("echo get response ===");
+
+                                                   });
+                bridge.callHandler("getNativeConfig",null,function(data){
+                                            console.log(data.ws_server);
+                                            startGame(data);
+                                   });
+            });
+        }catch(e) {
+            console.log(e);
+        }
+
+        </script>
     </head>
     <body>
     <div id="gamediv"></div>

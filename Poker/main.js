@@ -1,9 +1,31 @@
 'use strict';
 
-var game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
 
+var game = null
+var gParam = {ws_server:"172.24.222.54:8989", user_name:"TestUser"}
 
-
+function startGame(gameParam) {
+   
+    try {
+    // merge property
+    for(var p in gParam) {
+       var value = gameParam[p];
+        if(value != undefined && value != null) {
+            gParam[p] = gameParam[p];
+        }
+    }
+    
+    game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
+    
+    game.betApi = new BetApi();
+    
+    game.state.add("MainState", MainState);
+    game.state.start("MainState");
+        
+    } catch(e) {
+        console.log("error ! ", e);
+    }
+}
 
 // game main state
 var MainState = function() {
@@ -725,7 +747,7 @@ MainState.prototype = {
         console.log("callbackMessage " + data);
         if(data.version && data.version == this.strVersion) // checkVersion result
         {
-            game.betApi.loginCertification(this.userName, function(isOK){
+            game.betApi.loginCertification(gParam.user_name, function(isOK){
                 console.log("loginCertification is " +  isOK);
                 //alert("loginCertification is" +  isOK);
             });
@@ -1544,7 +1566,3 @@ MainState.prototype = {
     }
 };
 
-game.betApi = new BetApi();
-
-game.state.add("MainState", MainState);
-game.state.start("MainState");
