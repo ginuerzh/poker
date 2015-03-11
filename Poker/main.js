@@ -566,7 +566,7 @@ var MainState = function() {
     this.gameStateObj = {}
     this.gameStateObj.mybet;                         //当前玩家需要下注额下
     this.gameStateObj.bankerPos;                     //庄家座位号
-    this.gameStateObj.dealerPos;                     //庄家标记位置
+    this.gameStateObj.playerSeatNum;                     //庄家标记位置
     this.gameStateObj.mybetOnDesk;                   //当前玩家本局下注额
     this.gameStateObj.chipboxValue1 = 10;
     this.gameStateObj.chipboxValue2 = 20;
@@ -1406,6 +1406,8 @@ MainState.prototype = {
         var seatNum = arrayInfo[0]; //座位号
         var bet = arrayInfo[1]; //单注额
 
+        this.gameStateObj.playerSeatNum = seatNum
+
         var user = this._userBySeatNum(seatNum)
         this.gameStateObj.currentBettinglines = bet        
 
@@ -1463,6 +1465,7 @@ MainState.prototype = {
                 if (user) {
                     user.setUseCoin(betvalue);
                     if (user.param.userID == userID) {
+                        this.chips = chips;
                         this.gameStateObj.mybetOnDesk = betvalue
                     };
                 } else {
@@ -1737,7 +1740,16 @@ MainState.prototype = {
         this.drawRectAnime.clean();
         this.drawRectAnime.setpara(left, top, width, height, 8 * this.scale, this.timeoutMaxCount);
         this.drawRectAnime.setLineWidth(5 * this.scale);
-        this.drawRectAnime.draw();
+
+        var that = this; 
+        this.drawRectAnime.draw(function(){
+            var user = that._userBySeatNum(that.gameStateObj.playerSeatNum)
+            if(user.param["userid"] == that.userID) {
+                that.animation.showShake(that.selfCards[0]);
+                that.animation.showShake(that.selfCards[1]);
+            }
+
+        });
     },
 
     _stopDrawUserProgress:function() {
@@ -1990,6 +2002,11 @@ MainState.prototype = {
 
     _resetPool:function() {
         _updatePoolChipValue(this.bb)
+    },
+    _isCurrentUser:function() {
+
+        var user =   this.userID
+        return 
     }
 };
 

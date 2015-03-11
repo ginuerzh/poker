@@ -95,6 +95,7 @@ Animations.prototype = {
 		}
 
 		this.stopShake = false;
+		var that = this;
 		var targetX = target.x;
 		var targetY = target.y;
 		var pt = [{x:targetX - shakeOffset, y:targetY - shakeOffset}
@@ -113,7 +114,7 @@ Animations.prototype = {
 			tween.to({ x:nextPt.x, y: nextPt.y }, shakeFrequency, Phaser.Easing.Linear.None, true);
 			nCount++;
 			tween.onComplete.add(function() {
-				if(nCount * shakeFrequency <= shakeTime && !this.stopShake)
+				if(nCount * shakeFrequency <= shakeTime && !that.stopShake)
 				{
 					showAnimation();
 				}
@@ -192,6 +193,8 @@ Animations.prototype = {
 			if (totalCoins.length <= index) {
 				return
 			};
+
+			totalCoins[index].bringToTop();
 
 			var tween = game.add.tween(totalCoins[index]);
 			tween.to({ x:targetX, y: targetY - (index + existCoin.length) * totalCoins[index].height * coinSpace }, animationTime, Phaser.Easing.Linear.None, true);

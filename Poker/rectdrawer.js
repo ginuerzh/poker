@@ -37,6 +37,7 @@ var rectdrawer = function(group)
     this.num;
     this.t;
     this.lineWidth = 5;
+    this.callbackWillComplete;
 }
 
 rectdrawer.prototype = {
@@ -109,8 +110,10 @@ rectdrawer.prototype = {
         return [xx, yy]
     },
 
-    draw: function()
+    draw: function(willCompleteCallBack)
     {
+        this.callbackWillComplete = willCompleteCallBack;
+
         this.num = 0;
         this.t = this.c / (this.m1 * 1000 / this.refreshFrequency);
         //console.log("pusht: ", this.t)
@@ -143,6 +146,12 @@ rectdrawer.prototype = {
         {
             if(this.num < this.c)
             {
+
+                if(this.callbackWillComplete && this.num > this.c * 0.5) {
+                    this.callbackWillComplete();
+                    this.callbackWillComplete = null;
+                }
+
                 graphic.moveTo(this.drawpoint[this.num].x, this.drawpoint[this.num].y);
                 graphic.lineTo(this.drawpoint[this.num + 1].x, this.drawpoint[this.num + 1].y);
                 this.num++;
