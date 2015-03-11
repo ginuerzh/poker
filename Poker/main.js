@@ -48,9 +48,6 @@ var callbackMessage = function(data)
     console.log("callbackMessage " + data);
     if(data.version && data.version == strVersion) // checkVersion result
     {
-        /*game.betApi.loginCertification(userName, function(isOK){
-            console.log("loginCertification is " +  isOK);
-        });*/
         game.state.states["LoginState"].initUserName();
     }
     else if(!loginCertification) // loginCertification result
@@ -195,6 +192,7 @@ LoginState.prototype = {
         var xScale = game.width / imageBK.width;
         var yScale = game.height / imageBK.height;
         this.scale = xScale < yScale ? xScale : yScale;
+        loginCertification = false;
 
         this.roomInfoList = [];
         this.roomList = [];
@@ -315,6 +313,11 @@ LoginState.prototype = {
     handleGetRoomList:function(data)
     {
         this.roomInfoList = data.rooms;
+        if(!this.roomInfoList)
+        {
+            this.roomInfoList = [];
+        }
+
         while(this.CountPerPage * this.currentPage > this.roomInfoList.length)
         {
             this.currentPage--;
@@ -520,6 +523,7 @@ var MainState = function() {
     this.currentBet;                    //最近bet值
     this.currentBetType;                //最近bet类型
     this.autoCall=0;                    // 纪录当前跟注值
+    this.btnExitRoom;
     this.xOffset;
     this.yOffset;
 
@@ -576,7 +580,7 @@ MainState.prototype = {
         game.load.image("chipbox", "assets/add-chips-box.png");
         game.load.image("winLight", "assets/light_dot.png");
         game.load.image("groove", "assets/sliderGroove.png");
-
+        game.load.image("exitdoor", "assets/btn-grey.png");
         game.load.image("dealer", "assets/dealer.png");
     },
 
@@ -869,6 +873,10 @@ MainState.prototype = {
         this.chipPool.anchor.set(0.5);
         this.chipPool.scale.setTo(this.scale);
 
+        this.btnExitRoom = game.add.button(0.92 * this.imageBK.width + this.xOffset, 0.02 * this.imageBK.height + this.yOffset, 'exitdoor', this.actionOnExit, this);
+        this.btnExitRoom.width = this.chipboxButton1.width;
+        this.btnExitRoom.height = this.chipboxButton1.height;
+
         this.starGroup = game.add.group();
         this.starGroup.enableBody = true;
 
@@ -926,6 +934,12 @@ MainState.prototype = {
             var user = this.userList[index];
             user.setParam(null, "userImage" + index, null);
         }
+    },
+
+    actionOnExit:function()
+    {
+        game.betApi.leaveRoom();
+        game.state.start("LoginState");
     },
 
     // 看或弃牌
@@ -1473,7 +1487,7 @@ MainState.prototype = {
             user.setParam(userInfo.name, userInfo.profile, userInfo.chips, (userInfo.id == userID));
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
-            user.setVisable(true)
+            user.setVisable(true);
         }
     },
 

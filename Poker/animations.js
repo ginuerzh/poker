@@ -9,6 +9,7 @@ var Animations = function() {
 
 	this.publicCards = [];
 	this.light;
+	this.stopShake = true;
 }
 
 Animations.prototype = {
@@ -70,6 +71,61 @@ Animations.prototype = {
 		};
 
 		showAnimation(lstIndex[nIndex], lstKey[nIndex], showBK);
+	},
+
+	//this.animation.showShake(this.selfCards[0]);
+	//this.animation.showShake(this.selfCards[1]);
+	//this.animation.stopShake = true;
+
+	showShake:function(target, time, frequency, offset) {
+		var shakeTime = 1000;
+		if(time)
+		{
+			shakeTime = time;
+		}
+		var shakeFrequency = 10;
+		if(frequency)
+		{
+			shakeFrequency = frequency;
+		}
+		var shakeOffset = Math.min(target.width, target.height) / 50;
+		if(offset)
+		{
+			shakeOffset = offset;
+		}
+
+		this.stopShake = false;
+		var targetX = target.x;
+		var targetY = target.y;
+		var pt = [{x:targetX - shakeOffset, y:targetY - shakeOffset}
+				, {x:targetX, y:targetY - shakeOffset}
+				, {x:targetX + shakeOffset, y:targetY - shakeOffset}
+				, {x:targetX - shakeOffset, y:targetY}
+				, {x:targetX + shakeOffset, y:targetY}
+				, {x:targetX - shakeOffset, y:targetY + shakeOffset}
+				, {x:targetX, y:targetY + shakeOffset}
+				, {x:targetX + shakeOffset, y:targetY + shakeOffset}];
+
+		var nCount = 0;
+		var showAnimation = function () {
+			var tween = game.add.tween(target);
+			var nextPt = pt[Math.floor(Math.random() * pt.length)];
+			tween.to({ x:nextPt.x, y: nextPt.y }, shakeFrequency, Phaser.Easing.Linear.None, true);
+			nCount++;
+			tween.onComplete.add(function() {
+				if(nCount * shakeFrequency <= shakeTime && !this.stopShake)
+				{
+					showAnimation();
+				}
+				else
+				{
+					target.x = targetX;
+					target.y = targetY;
+				}
+			}, this);
+		};
+
+		showAnimation(nCount);
 	},
 
 	setLight:function(light) {
