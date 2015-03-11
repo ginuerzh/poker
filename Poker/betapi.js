@@ -41,21 +41,28 @@ BetApi.prototype = {
 		this.betServer.sendCommand(data, callback);
 	},
 
+
+	createRoom:function(strRoomID, nSB, nBB, nTimeout, nMaxPlayer, callback) {
+
+		var data = {type:"iq", id:"createRoom", from:this.userID, to:strRoomID, action:"set", class: "room", room: {sb:nSB, bb:nBB, timeout:nTimeout, max:nMaxPlayer}};
+		this.betServer.sendCommand(data, callback);
+	},
+
 	getRoomList:function(callback) {
 
-		var data = {type:"iq", id:"getRoomList", from:this.userID, to:"", action:"get", class: "room.list"};
+		var data = {type:"iq", id:"getRoomList", from:this.userID, to:"", action:"get", class: "roomlist"};
 		this.betServer.sendCommand(data, callback);
 	},
 
 	getRoomInfo:function(callback) {
 
-		var data = {type:"iq", id:"getRoomInfo", from:this.userID, to:this.roomID, action:"get", class: "room.info"};
+		var data = {type:"iq", id:"getRoomInfo", from:this.userID, to:this.roomID, action:"get", class: "room"};
 		this.betServer.sendCommand(data, callback);
 	},
 
 	getUserInfo:function(playerID, callback) {
 
-		var data = {type:"iq", id:"getUserInfo", from:this.userID, to:playerID, action:"get", class: "user.info"};
+		var data = {type:"iq", id:"getUserInfo", from:this.userID, to:playerID, action:"get", class: "occupant"};
 		this.betServer.sendCommand(data, callback);
 	},
 
@@ -67,7 +74,7 @@ BetApi.prototype = {
 
 	leaveRoom:function(callback) {
 
-		var data = {type:"presence", id:"leaveRoom", from:this.userID, to:this.roomID, action:"gone", class:""};
+		var data = {type:"presence", id:"leaveRoom", from:this.userID, to:this.roomID, action:"gone"};
 		this.betServer.sendCommand(data, callback);
 	},
 
