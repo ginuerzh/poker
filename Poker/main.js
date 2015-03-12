@@ -82,6 +82,7 @@ var callbackMessage = function(data)
         if(data.id)
         {
             userID = data.id;
+            game.state.states["MainState"].userID = userID
             game.betApi.setUserID(userID);
             loginCertification = true;
 
@@ -485,6 +486,7 @@ var MainState = function() {
     //user info
     this.chips                          //玩家手上剩余筹码
     this.userName;                      //用户名
+    this.userID
 
     //this.currentBettinglines;           //当前注额
     //this.bankerPos;                     //庄家座位号
@@ -1744,15 +1746,20 @@ MainState.prototype = {
         var that = this; 
         this.drawRectAnime.draw(function(){
             var user = that._userBySeatNum(that.gameStateObj.playerSeatNum)
-            if(user.param["userid"] == that.userID) {
+            if(user.param["userID"] == that.userID) {
                 that.animation.showShake(that.selfCards[0]);
                 that.animation.showShake(that.selfCards[1]);
             }
 
+        }, 
+        function() {
+            //that.animation.stopShake = true;
         });
     },
 
     _stopDrawUserProgress:function() {
+
+        this.animation.stopShake = true;
         // draw time progress
         if(this.drawRectAnime.isPainting)
         {
@@ -2003,11 +2010,7 @@ MainState.prototype = {
     _resetPool:function() {
         _updatePoolChipValue(this.bb)
     },
-    _isCurrentUser:function() {
 
-        var user =   this.userID
-        return 
-    }
 };
 
 /*

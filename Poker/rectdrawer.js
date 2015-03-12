@@ -38,6 +38,7 @@ var rectdrawer = function(group)
     this.t;
     this.lineWidth = 5;
     this.callbackWillComplete;
+    this.onCallbackCompletet;
 }
 
 rectdrawer.prototype = {
@@ -110,9 +111,10 @@ rectdrawer.prototype = {
         return [xx, yy]
     },
 
-    draw: function(willCompleteCallBack)
+    draw: function(willCompleteCallBack, didCompleteCallBack)
     {
         this.callbackWillComplete = willCompleteCallBack;
+        this.onCallbackCompletet = didCompleteCallBack;
 
         this.num = 0;
         this.t = this.c / (this.m1 * 1000 / this.refreshFrequency);
@@ -162,6 +164,10 @@ rectdrawer.prototype = {
                 {
                     this.timer.stop();
                     this.isPainting = false;
+                    if(this.callbackWillComplete) {
+                        this.onCallbackCompletet();
+                    }
+                    
                 }
                 break;
             }

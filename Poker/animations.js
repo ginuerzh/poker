@@ -78,7 +78,7 @@ Animations.prototype = {
 	//this.animation.stopShake = true;
 
 	showShake:function(target, time, frequency, offset) {
-		var shakeTime = 1000;
+		var shakeTime = 20000;
 		if(time)
 		{
 			shakeTime = time;
@@ -114,6 +114,9 @@ Animations.prototype = {
 			tween.to({ x:nextPt.x, y: nextPt.y }, shakeFrequency, Phaser.Easing.Linear.None, true);
 			nCount++;
 			tween.onComplete.add(function() {
+
+
+
 				if(nCount * shakeFrequency <= shakeTime && !that.stopShake)
 				{
 					showAnimation();
