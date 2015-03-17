@@ -25,7 +25,11 @@ var User = function() {
 	this.winCards = [];
 	this.winLightDot = [];
 	this.winGroup;
-	this.dcard
+	this.dcard;
+	this.waitingLine;
+	this.waitingAngel = 0;
+	this.tweenDrawWaiting;
+	this.mask;
 
 	this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
 }
@@ -112,6 +116,11 @@ User.prototype = {
 		}
 		this.textCoin.visible = false;
 
+		this.waitingLine = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "waitingRound");
+		this.waitingLine.anchor.set(0.5);
+		this.waitingLine.scale.setTo(this.scale, this.scale);
+		this.waitingLine.visible = false;
+		this.mask = game.add.graphics(0, 0);
 
 		this.groupUser = game.add.group();
 		this.groupUser.add(this.containerplayer);
@@ -121,6 +130,7 @@ User.prototype = {
 		this.groupUser.add(this.lbname);
 		this.groupUser.add(this.imagebody);
 		this.groupUser.add(this.lbcoin);
+		this.groupUser.add(this.waitingLine);
 		for(var i = 0; i < this.imageCoin.length; i++)
 		{
 			this.groupUser.add(this.imageCoin[i]);
@@ -382,6 +392,11 @@ User.prototype = {
 	    this.setUserTitle(this.param["userName"]);
 	},
 
+	update:function()
+	{
+
+	},
+
 	clean:function() 
 	{
 		this.winGroup.visible = false;
@@ -391,5 +406,60 @@ User.prototype = {
 		this.setParam("", "defaultUserImage", "");
 		this.setGiveUp(false);
 		this.setUseCoin("");
+	},
+
+	cleanWaitingImage:function()
+	{
+		this.waitingLine.visible = false;
+	},
+
+	//for(var i = 0; i < this.userList.length; i++)
+	//{
+		//this.userList[i].drawWaitingImage(15);
+	//}
+	drawWaitingImage:function(timeout, willCompleteCallBack, didCompleteCallBack)
+	{
+		this.groupUser.visible = true;
+		this.waitingLine.visible = true;
+		this.waitingAngel = 5;
+		this.waitingLine.mask = this.mask;
+
+		var maskWidth = Math.sqrt(this.waitingLine.width * this.waitingLine.width + this.waitingLine.height * this.waitingLine.height);
+		this.mask.x = this.waitingLine.x - maskWidth;
+		this.mask.y = this.waitingLine.y - maskWidth;
+
+		this.tweenDrawWaiting = game.add.tween(this);
+		this.tweenDrawWaiting.to({ waitingAngel:360 }, timeout * 1000, Phaser.Easing.Linear.None, true);
+		var offsetAngel = 30;
+		this.tweenDrawWaiting.onUpdateCallback(function() {
+
+			if(this.waitingAngel == 180 && willCompleteCallBack)
+			{
+				willCompleteCallBack();
+			}
+
+			this.mask.clear();
+			this.mask.moveTo(maskWidth, maskWidth);
+			this.mask.lineTo(maskWidth - Math.tan(offsetAngel * Math.PI / 180) * maskWidth, 0);
+			this.mask.arc(maskWidth, maskWidth, maskWidth, - Math.PI / 2 - offsetAngel * Math.PI / 180, (this.waitingAngel * Math.PI) / 180 - Math.PI / 2 - offsetAngel * Math.PI / 180);
+			this.mask.lineTo(maskWidth, maskWidth);
+
+		}, this);
+		this.tweenDrawWaiting.onComplete.add(function() {
+			this.mask.clear();
+			this.waitingLine.mask = null;
+			if(didCompleteCallBack)
+			{
+				didCompleteCallBack();
+			}
+		}, this);
+	},
+
+	stopDrawWaitingImage:function()
+	{
+		if(this.tweenDrawWaiting)
+		{
+			this.tweenDrawWaiting.stop();
+		}
 	}
 }

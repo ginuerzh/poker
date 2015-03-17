@@ -618,6 +618,7 @@ MainState.prototype = {
         game.load.image("groove", "assets/sliderGroove.png");
         game.load.image("exitdoor", "assets/btn-grey.png");
         game.load.image("dealer", "assets/dealer.png");
+        game.load.image("waitingRound", "assets/win-frameWaiting.png");
     },
 
     create: function() {
@@ -952,6 +953,14 @@ MainState.prototype = {
 
     update:function()
     {
+        for(var i = 0; i < this.userList.length; i++)
+        {
+            if(this.userList[i])
+            {
+                this.userList[i].update();
+            }
+        }
+
         if(this.chipbox.visible) {
             var nMaxPos = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
             var nMinPos = this.chipboxSliderGroove.y - this.chipboxSliderGroove.height * 0.5 + this.chipboxSliderHandle.height * 0.5;
