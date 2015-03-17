@@ -165,9 +165,13 @@ Animations.prototype = {
 		}
 	},
 
-	showChipMove:function(target, targetX, targetY)
+	showChipMove:function(target, targetX, targetY, time)
 	{
 		var animationTime = 100;
+		if(time != undefined && time != null) {
+			animationTime = time
+		}
+		
 		var tween = game.add.tween(target);
 		tween.to({ x:targetX, y: targetY }, animationTime, Phaser.Easing.Linear.None, true);
 	},

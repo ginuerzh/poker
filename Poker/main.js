@@ -1620,6 +1620,14 @@ MainState.prototype = {
                     }
 
             }
+
+            var seatNum = winUser.param["seatNum"];
+            var point = this._userPositionBySeatNum(seatNum)
+
+            for(i = 0; i < this.chipPoolCoins.length; i++) {
+                this.animation.showChipMove(this.chipPoolCoins[i], point.x, point.y, 500)
+            }
+            
         }
     },
 
@@ -2063,9 +2071,27 @@ MainState.prototype = {
 
     },
 
-    _resetPool:function() {
+    _resetPool: function() {
         _updatePoolChipValue(this.bb)
     },
+
+    _userPositionBySeatNum: function(seatNum) {
+        var userindex = -1;
+        for (var i = this.userList.length - 1; i >= 0; i--) {
+            if (this.userList[i].param["seatNum"] == seatNum) {
+                userindex = i;
+                break;
+            }
+        }
+
+        if (userindex == -1) {
+            console.log("user not find");
+            return;
+        }
+
+        return {x:this.userPosRate[userindex].x * this.imageBK.width + this.xOffset, y:this.userPosRate[userindex].y * this.imageBK.height + this.yOffset}
+    },
+    
 
 };
 
