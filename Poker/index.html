@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Hello</title>
         <script src="phaser.js"></script>
         <script src="user.js"></script>
@@ -33,7 +33,9 @@
             */
         
              // Debug
-             var PLAT = "__PLAT__";  
+             var PLAT = "__PLAT__";
+             
+             var quitToApp = null;
              
              if(PLAT == "IOS") {
                  enableNativeLog();
@@ -45,22 +47,26 @@
                                                                 console.log("WebViewJavascriptBridge init OK");
                                                                 });
                                                     
-                                                    bridge.registerHandler("reload", function(){
-                                                                           console.log("reload");
-                                                                           //location.reload();
-                                                                           history.go(0);
-                                                                           });
-                                                    
                                                     bridge.send("echo", function(response){
                                                                 console.log("echo get response ===");
                                                                 
                                                                 });
+                                                    
+
                                                     bridge.callHandler("getNativeConfig",null,function(data){
+                                                                       
                                                                        console.log(data.ws_server);
                                                                        data.platform = PLAT
                                                                        startGame(data);
                                                                        });
-                                                    });
+                                                    
+                                                    quitToApp = function() {
+                                                        bridge.callHandler("quitToApp");
+                                                        console.log("quitToApp")
+                                                    }
+                                                });
+                                                    
+    
                  }catch(e) {
                      console.log(e);
                  }

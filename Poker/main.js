@@ -3,8 +3,19 @@
 var game = null
 var gParam = {ws_server:"172.24.222.54:8989", user_name:"", platform:"PC"}
 
+var gImageDir = "assets/2x/"
+var gFontScale = 1.0;
+
+function _fontString(size, fontname) {
+    if (fontname == undefined) {
+        fontname = "Arial"
+    };
+
+    return (size * gFontScale)+"px " + fontname
+}
+
 function startGame(gameParam) {
-   
+    
     try {
     // merge property
     for(var p in gParam) {
@@ -13,10 +24,14 @@ function startGame(gameParam) {
             gParam[p] = gameParam[p];
         }
     }
-    
+
+    if (gParam["platform"] == "IOS") {
+        document.body.setAttribute("orient", "landscape");
+        gImageDir = "assets/1x/"
+        gFontScale = 0.5;
+    }
+
     game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
-    
-    game.betApi = new BetApi();
     
     game.betApi = new BetApi();
 
@@ -26,6 +41,15 @@ function startGame(gameParam) {
         
     } catch(e) {
         console.log("error ! ", e);
+    }
+}
+
+function  gameQuit(cause) {
+    if(gParam["platform"] == "IOS") {
+        console.log("iOS quitToApp");
+        quitToApp(cause);
+    } else {
+        actionOnExit();
     }
 }
 
@@ -39,7 +63,7 @@ function getCookie(name)
     var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
 
     if(arr = document.cookie.match(reg))
-        return (arr[2]);
+        return (decodeURI(arr[2]));
     else
         return null;
 }
@@ -49,7 +73,7 @@ function setCookie(name, value)
     var Days = 30;
     var exp = new Date();
     exp.setTime(exp.getTime() + Days*24*60*60*1000);
-    var str = name + "="+ escape (value) + "; expires=" + exp.toGMTString();
+    var str = name + "="+ encodeURI(value) + "; expires=" + exp.toGMTString();
     document.cookie = str;
 }
 
@@ -204,10 +228,10 @@ var LoginState = function() {
 LoginState.prototype = {
 
     preload: function () {
-        game.load.image("gamecenterbackground", "assets/background.png");
-        game.load.image('buttonblue', 'assets/btn-blue.png');
-        game.load.image('buttongrey', 'assets/btn-grey.png');
-        game.load.image('buttonyellow', 'assets/btn-yellow.png');
+        game.load.image("gamecenterbackground", gImageDir+'background.png');
+        game.load.image('buttonblue', gImageDir+'btn-blue.png');
+        game.load.image('buttongrey', gImageDir+'btn-grey.png');
+        game.load.image('buttonyellow', gImageDir+'btn-yellow.png');
     },
 
     create: function () {
@@ -228,7 +252,7 @@ LoginState.prototype = {
         this.group = game.add.group();
         var listWidth = game.width / 2;
         var listItemHeight = game.height / 12;
-        var style = { font: "16px Arial", fill: "#0069B2", wordWrapWidth: listWidth * 0.9, align: "left"};
+        var style = { font: _fontString(16), fill: "#0069B2", wordWrapWidth: listWidth * 0.9, align: "left"};
         for(var i = 0; i < 10; i++)
         {
             var listItem = game.add.button(0, i * listItemHeight, 'buttonblue', this.selectRoom);
@@ -252,7 +276,7 @@ LoginState.prototype = {
         this.btnNext = game.add.button(listWidth / 2, 10 * listItemHeight, 'buttonyellow', this.clickNext, this);
         this.btnNext.width = listWidth / 2;
         this.btnNext.height = listItemHeight;
-        style = { font: "28px Arial", fill: "#CE8D00"};
+        style = { font: _fontString(28), fill: "#CE8D00"};
         this.textPrev = game.add.text(this.btnPrev.x + 0.5 * this.btnPrev.width, this.btnPrev.y + 0.5 * this.btnPrev.height, "上一页", style);
         this.textPrev.anchor.set(0.5);
         this.textPrev.scale.setTo(this.scale);
@@ -580,18 +604,18 @@ var MainState = function() {
 MainState.prototype = {
 
     preload:function() {
-        game.load.image("gamecenterbackground", "assets/background.png");
-        game.load.image('playerBK', 'assets/player-me.png');
-        game.load.image('userBK', 'assets/player-guest.png');
-        game.load.image('blankBK', 'assets/player-blank.png');
-        game.load.image("winBK", "assets/win-frame-bg.png");
-        game.load.image("winBKFrame", "assets/win-frame.png");
-        game.load.image('defaultUserImage', 'assets/coin.png');
-        game.load.image('buttonblue', 'assets/btn-blue.png');
-        game.load.image('buttongrey', 'assets/btn-grey.png');
-        game.load.image('buttonyellow', 'assets/btn-yellow.png');
-        game.load.image('animeCoins', 'assets/coin.png');
-        game.load.image("light", "assets/roomLight.png");
+        game.load.image('gamecenterbackground', gImageDir+'background.png');
+        game.load.image('playerBK', gImageDir+'player-me.png');
+        game.load.image('userBK', gImageDir+'player-guest.png');
+        game.load.image('blankBK', gImageDir+'player-blank.png');
+        game.load.image('winBK', gImageDir+'win-frame-bg.png');
+        game.load.image('winBKFrame', gImageDir+'win-frame.png');
+        game.load.image('defaultUserImage', gImageDir+'coin.png');
+        game.load.image('buttonblue', gImageDir+'btn-blue.png');
+        game.load.image('buttongrey', gImageDir+'btn-grey.png');
+        game.load.image('buttonyellow', gImageDir+'btn-yellow.png');
+        game.load.image('animeCoins', gImageDir+'coin.png');
+        game.load.image('light', gImageDir+'roomLight.png');
         var cardImageName = ["spades", "hearts", "clubs", "diamonds"];
         var cardName = ["S", "H", "C", "D"];
         var cardNumber = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"];
@@ -599,25 +623,25 @@ MainState.prototype = {
         {
             for(var j = 0; j < cardNumber.length; j++)
             {
-                game.load.image(cardName[i] + cardNumber[j], "assets/cards/card_" + cardImageName[i] + "_" + (j + 1) + ".png");
+                game.load.image(cardName[i] + cardNumber[j], gImageDir+'cards/card_' + cardImageName[i] + "_" + (j + 1) + ".png");
             }
         }
-        game.load.image("cardBK", "assets/cards/card_back.png");
-        game.load.image("chipPool", "assets/chip-pool.png");
-        game.load.image("chip01", "assets/texas_chip01.png");
-        game.load.image("chip05", "assets/texas_chip05.png");
-        game.load.image("chip1k", "assets/texas_chip1k.png");
-        game.load.image("chip5k", "assets/texas_chip5k.png");
-        game.load.image("chip10w", "assets/texas_chip10w.png");
-        game.load.image("chip50w", "assets/texas_chip50w.png");
-        game.load.image("dcardBK", "assets/card_backs_rotate.png");
-        game.load.image("checkOn", "assets/check-on.png");
-        game.load.image("checkOff", "assets/check-off.png");
-        game.load.image("chipbox", "assets/add-chips-box.png");
-        game.load.image("winLight", "assets/light_dot.png");
-        game.load.image("groove", "assets/sliderGroove.png");
-        game.load.image("exitdoor", "assets/btn-grey.png");
-        game.load.image("dealer", "assets/dealer.png");
+        game.load.image("cardBK", gImageDir+'cards/card_back.png');
+        game.load.image("chipPool", gImageDir+'chip-pool.png');
+        game.load.image("chip01", gImageDir+'texas_chip01.png');
+        game.load.image("chip05", gImageDir+'texas_chip05.png');
+        game.load.image("chip1k", gImageDir+'texas_chip1k.png');
+        game.load.image("chip5k", gImageDir+'texas_chip5k.png');
+        game.load.image("chip10w", gImageDir+'texas_chip10w.png');
+        game.load.image("chip50w", gImageDir+'texas_chip50w.png');
+        game.load.image("dcardBK", gImageDir+'card_backs_rotate.png');
+        game.load.image("checkOn", gImageDir+'check-on.png');
+        game.load.image("checkOff", gImageDir+'check-off.png');
+        game.load.image("chipbox", gImageDir+'add-chips-box.png');
+        game.load.image("winLight", gImageDir+'light_dot.png');
+        game.load.image("groove", gImageDir+'sliderGroove.png');
+        game.load.image("exitdoor", gImageDir+'btn-grey.png');
+        game.load.image("dealer", gImageDir+'dealer.png');
     },
 
     create: function() {
@@ -660,7 +684,12 @@ MainState.prototype = {
         this.userPosRate = [{x:0.692, y:0.152}, {x:0.856, y:0.187}, {x:0.914, y:0.54}, {x:0.754, y:0.734}, {x: 0.5, y:0.734}, {x:0.246, y:0.734}, {x:0.086, y:0.54}, {x:0.144, y:0.187}, {x:0.308, y:0.152}];
         this.userSizeRate = {width:0.096, height:0.262};
         var userCoinRate = [{x:0.656, y:0.292}, {x:0.82, y:0.329}, {x:0.831, y:0.484}, {x:0.673, y:0.613}, {x:0.464, y:0.557}, {x:0.305, y:0.613}, {x:0.139, y:0.484}, {x:0.108, y:0.329}, {x:0.27, y:0.292}];
-        var userCoinWidth = 27 * this.scale;
+       
+        var coinsize = 27
+        if(gImageDir == "assets/1x/") {
+           coinsize = coinsize / 2
+        }
+        var userCoinWidth = coinsize * this.scale;
         var userTextRate = [{x:0.69, y:0.292}, {x:0.856, y:0.329}, {x:0.768, y:0.484}, {x:0.61, y:0.613}, {x:0.5, y:0.557}, {x:0.339, y:0.613}, {x:0.173, y:0.484}, {x:0.142, y:0.329}, {x:0.306, y:0.292}];
 
         game.load.onFileComplete.add(this._fileComplete, this);
@@ -747,9 +776,9 @@ MainState.prototype = {
         this.chipboxButton2 = game.add.button(0, 0, 'buttonblue', this.chipOnClick2, this);
         this.chipboxButton3 = game.add.button(0, 0, 'buttonblue', this.chipOnClick3, this);
         this.chipboxButton4 = game.add.button(0, 0, 'buttonblue', this.chipOnClick4, this);
-        var style = { font: "28px Arial", fill: "#CE8D00"};
+        var style = { font: _fontString(28), fill: "#CE8D00"};
         this.chipboxText1 = game.add.text(0, 0, "全部", style);
-        style = { font: "28px Arial", fill: "#0069B2"};
+        style = { font: _fontString(28), fill: "#0069B2"};
         this.chipboxText2 = game.add.text(0, 0, "120", style);
         this.chipboxText3 = game.add.text(0, 0, "80", style);
         this.chipboxText4 = game.add.text(0, 0, "50", style);
@@ -765,7 +794,7 @@ MainState.prototype = {
         this.chipboxSliderHandle = game.add.sprite(0, 0, "buttonblue");
         this.chipboxSliderGroove.anchor.set(0.5);
         this.chipboxSliderHandle.anchor.set(0.5);
-        style = { font: "32px Arial", fill: "#CE8D00"};
+        style = { font: _fontString(32), fill: "#CE8D00"};
         this.chipboxTextSlider = game.add.text(0, 0, "0", style);
         this.chipboxTextSlider.anchor.set(0.5);
         this.chipboxTextSlider.scale.setTo(this.scale, this.scale);
@@ -810,26 +839,26 @@ MainState.prototype = {
         this.waitButtonGroup3 = game.add.group();
         this._setWaitButtonsVisible(false)
 
-        style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
+        style = { font: _fontString(28), fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
         this.lbLookorGiveup = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.5 * this.button1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.button1.height, "弃牌", style);
         this.lbLookorGiveup.anchor.set(0.5);
         this.lbLookorGiveup.scale.setTo(this.scale, this.scale);
         this.buttonGroup1.add(this.button1);
         this.buttonGroup1.add(this.lbLookorGiveup);
-        style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
+        style = { font: _fontString(28), fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
         this.lbCall = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.button2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.button2.height, "跟注", style);
         this.lbCall.anchor.set(0, 0.5);
         this.lbCall.scale.setTo(this.scale, this.scale);
         this.buttonGroup2.add(this.button2);
         this.buttonGroup2.add(this.lbCall);
-        style = { font: "28px Arial", fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button3.width, align: "center" };
+        style = { font: _fontString(28), fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button3.width, align: "center" };
         this.lbCallEvery = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.5 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "加注", style);
         this.lbCallEvery.anchor.set(0.5);
         this.lbCallEvery.scale.setTo(this.scale, this.scale);
         this.buttonGroup3.add(this.button3);
         this.buttonGroup3.add(this.lbCallEvery);
 
-        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
+        style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
         this.lbLookorGiveupWait = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton1.height, "看牌或弃牌", style);
         this.lbLookorGiveupWait.anchor.set(0, 0.5);
         this.lbLookorGiveupWait.scale.setTo(this.scale, this.scale);
@@ -839,7 +868,7 @@ MainState.prototype = {
         this.waitButtonGroup1.add(this.waitbutton1);
         this.waitButtonGroup1.add(this.lbLookorGiveupWait);
         this.waitButtonGroup1.add(this.imgLookorGiveupWait);
-        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
+        style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
         this.lbCallWait = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton2.height, "跟注", style);
         this.lbCallWait.anchor.set(0, 0.5);
         this.lbCallWait.scale.setTo(this.scale, this.scale);
@@ -849,7 +878,7 @@ MainState.prototype = {
         this.waitButtonGroup2.add(this.waitbutton2);
         this.waitButtonGroup2.add(this.lbCallWait);
         this.waitButtonGroup2.add(this.imgCallWait);
-        style = { font: "24px Arial", fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
+        style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
         this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
         this.lbCallEveryWait.anchor.set(0, 0.5);
         this.lbCallEveryWait.scale.setTo(this.scale, this.scale);
@@ -904,7 +933,7 @@ MainState.prototype = {
         //this.chipboxSliderHandle.events.onDragStart.add(onDragStart, this);
         //this.chipboxSliderHandle.events.onDragStop.add(onDragStop, this);
 
-        style = { font: "16px Arial", fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
+        style = { font: _fontString(16), fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
         this.blinds = game.add.text(this.background.width / 2 + this.xOffset, 0.25 * this.background.height + this.yOffset, "$" + this.sb + " / $" + this.bb, style);
         this.blinds.anchor.set(0.5);
         this.blinds.scale.setTo(this.scale);
@@ -912,7 +941,7 @@ MainState.prototype = {
         this.chipPoolBK = game.add.image(0.451 * this.imageBK.width + this.xOffset, 0.306 * this.imageBK.height + this.yOffset, "chipPool");
         this.chipPoolBK.scale.setTo(this.scale, this.scale);
 
-        style = { font: "16px Arial", fill: "#FFFFFF", wordWrap: true, wordWrapWidth: this.chipPoolBK.width, align: "center" };
+        style = { font: _fontString(16), fill: "#FFFFFF", wordWrap: true, wordWrapWidth: this.chipPoolBK.width, align: "center" };
         this.chipPool = game.add.text(this.chipPoolBK.x + this.chipPoolBK.width / 2, this.chipPoolBK.y + this.chipPoolBK.height / 2, "0", style);
         this.chipPool.anchor.set(0.5);
         this.chipPool.scale.setTo(this.scale);
@@ -1061,6 +1090,9 @@ MainState.prototype = {
             // send OK or NOK
             that._setBetButtonsVisible(false)
         });
+        
+        console.log("game quit ============");
+        
     },
 
     // 跟注
@@ -1076,6 +1108,9 @@ MainState.prototype = {
                 that._setBetButtonsVisible(false)
             })
         //};
+        
+       // test native interface
+        // gameQuit("test");
     },
 
 
@@ -1316,6 +1351,11 @@ MainState.prototype = {
     handleGone:function(data) {
         var goneUserID = data.occupant.id;
         var user = this._userByUserID(goneUserID);
+        if(user.userID == this.userID) {
+            gameQuit();
+            return;
+        }
+        
         user.clean();
         user.setVisable(false)
 
@@ -1326,6 +1366,8 @@ MainState.prototype = {
                 this.dealer = null;
             }
         }
+        
+        
     },
 
     handleButton:function(data)
@@ -1741,7 +1783,11 @@ MainState.prototype = {
         this.animation.showLight(left + width / 2, top + height / 2);
         this.drawRectAnime.clean();
         this.drawRectAnime.setpara(left, top, width, height, 8 * this.scale, this.timeoutMaxCount);
-        this.drawRectAnime.setLineWidth(5 * this.scale);
+        if(gImageDir == "assets/1x/") {
+            this.drawRectAnime.setLineWidth(2 * this.scale);
+        } else {
+            this.drawRectAnime.setLineWidth(5 * this.scale);
+        }
 
         var that = this; 
         this.drawRectAnime.draw(function(){

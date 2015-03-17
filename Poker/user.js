@@ -27,7 +27,7 @@ var User = function() {
 	this.winGroup;
 	this.dcard
 
-	this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
+	this.userTitleStyle = { font: _fontString(20), fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
 }
 
 User.prototype = {
@@ -85,14 +85,14 @@ User.prototype = {
 			this.containerblank.visible = false;
 			this.winGroup.visible = false;
 		}
-		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+		var style = { font: _fontString(20), fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		if(isPlayer)
 		{
 			this.containerplayer.visible = true;
 			this.containeruser.visible = false;
 			this.containerblank.visible = false;
 			this.winGroup.visible = false;
-			style = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+			style = { font: _fontString(20), fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		}
 		this.lbname = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.1, this.param["userName"], style);
 		this.lbname.anchor.set(0.5);
@@ -103,7 +103,7 @@ User.prototype = {
 		this.lbcoin.anchor.set(0.5);
 		this.lbcoin.scale.setTo(this.scale, this.scale);
 
-		style = { font: "20px Arial", fill: "#FFFF00"};
+		style = { font: _fontString(20), fill: "#FFFF00"};
 		this.textCoin = game.add.text(this.coinTextRect.left, this.coinTextRect.top, "", style);
 		this.textCoin.scale.setTo(this.scale, this.scale);
 		if(this.coinTextRect.left < this.coinRect.left)
@@ -218,6 +218,7 @@ User.prototype = {
 			this.textCoin.visible = true;
 			var coin = game.add.image(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height / 2, "chip01");
 			coin.anchor.set(0.5);
+			coin.scale.setTo(this.scale, this.scale)
 			coin.width = this.coinRect.width;
 			coin.height = this.coinRect.height;
 			this.imageCoin.push(coin);
@@ -240,6 +241,7 @@ User.prototype = {
 	{
 		var coin = game.add.image(srcX, srcY, "chip01");
 		coin.anchor.set(0.5);
+		coin.scale.setTo(this.scale,this.scale)
 		coin.width = this.coinRect.width;
 		coin.height = this.coinRect.height;
 
@@ -291,9 +293,9 @@ User.prototype = {
 
 		this.param.isPlayer = isPlayer
 		if(isPlayer) {
-	        this.userTitleStyle = { font: "20px Arial", fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+	        this.userTitleStyle = { font: _fontString(20), fill: "#000000", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		} else {
-			this.userTitleStyle = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+			this.userTitleStyle = { font: _fontString(20), fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		}
 	},
 
@@ -363,7 +365,7 @@ User.prototype = {
 		var tween4 = game.add.tween(this.containerwinEffect);
 		tween4.to({ alpha: 0 }, animationTime, Phaser.Easing.Linear.None, true);
 
-		var style = { font: "20px Arial", fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
+		var style = { font: _fontString(20), fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" };
 		this.lbname.setStyle(style);
 		this.lbcoin.setStyle(style);
 
