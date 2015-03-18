@@ -456,7 +456,7 @@ User.prototype = {
 			that.mask.clear();
 			that.mask.moveTo(maskWidth, maskWidth);
 			that.mask.lineTo(maskWidth - Math.tan(offsetAngel * Math.PI / 180) * maskWidth, 0);
-			that.mask.arc(maskWidth, maskWidth, maskWidth, - Math.PI / 2 - offsetAngel * Math.PI / 180, (angel * Math.PI) / 180 - Math.PI / 2 - offsetAngel * Math.PI / 180);
+			that.mask.arc(maskWidth, maskWidth, maskWidth, - Math.PI / 2 - offsetAngel * Math.PI / 180, (angel * Math.PI) / 180 - Math.PI / 2 - offsetAngel * Math.PI / 180,true);
 			that.mask.lineTo(maskWidth, maskWidth);
                                                         
             if(angel >= 360) {

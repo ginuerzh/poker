@@ -27,8 +27,9 @@ function startGame(gameParam) {
 
     if (gParam["platform"] == "IOS") {
         document.body.setAttribute("orient", "landscape");
-        gImageDir = "assets/1x/"
-        gFontScale = 0.5;
+        //gImageDir = "assets/1x/"
+        gImageDir = "assets/2x/"
+        gFontScale = 1;
     }
 
     game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
