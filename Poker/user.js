@@ -440,7 +440,7 @@ User.prototype = {
 
 		var totalTime = timeout * 1000;
 
-        this.timerEventProgress = game.time.events.loop(100, function() {
+        this.timerEventProgress = game.time.events.loop(50, function() {
 
         	var elapsed = game.time.totalElapsedSeconds() - that.start;
 
@@ -461,6 +461,7 @@ User.prototype = {
                                                         
             if(angel >= 360) {
                 didCompleteCallBack();
+                game.time.events.remove(that.timerEventProgress)
             }
 		}, this);
         
@@ -469,9 +470,9 @@ User.prototype = {
 
 	stopDrawWaitingImage:function()
 	{
-		if(this.tweenDrawWaiting)
+		if(this.timerEventProgress != null && this.timerEventProgress != undefined)
 		{
-			this.tweenDrawWaiting.stop();
+			game.time.events.remove(this.timerEventProgress)
 		}
 	},
 
