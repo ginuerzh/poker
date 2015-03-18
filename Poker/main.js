@@ -593,6 +593,7 @@ var MainState = function() {
     this.gameStateObj.mybet;                         //当前玩家需要下注额下
     this.gameStateObj.bankerPos;                     //庄家座位号
     this.gameStateObj.playerSeatNum;                     //庄家标记位置
+    this.gameStateObj.currentDrawUser;
     this.gameStateObj.mybetOnDesk;                   //当前玩家本局下注额
     this.gameStateObj.chipboxValue1 = 10;
     this.gameStateObj.chipboxValue2 = 20;
@@ -965,7 +966,9 @@ MainState.prototype = {
             star.rotation = 100*Math.random();
         }
 
-        this.drawRectAnime = new rectdrawer(this.groupUser);
+
+
+        //this.drawRectAnime = new rectdrawer(this.groupUser);
 
         this._currentPlayButtonUpdate(false);
         game.betApi.enterRoom(function(isOK){
@@ -1558,7 +1561,12 @@ MainState.prototype = {
     handleShowDown:function(data)
     {
         console.log("showdown:",data);
-        this._stopDrawUserProgress();
+
+        if(this.userProgressObj != undefined) {
+            this.userProgressObj.stop();
+            this.userProgressObj.clean();
+            //this.animation.stopShake = true; 
+        }
 
         var roomInfo = data.room;
         var playerList = roomInfo.occupants;
@@ -1796,42 +1804,44 @@ MainState.prototype = {
     },
 
     _drawUserProgress:function(left, width, top, height) {
-        this._stopDrawUserProgress()
 
-        this.animation.showLight(left + width / 2, top + height / 2);
-        this.drawRectAnime.clean();
-        this.drawRectAnime.setpara(left, top, width, height, 8 * this.scale, this.timeoutMaxCount);
-        if(gImageDir == "assets/1x/") {
-            this.drawRectAnime.setLineWidth(2 * this.scale);
-        } else {
-            this.drawRectAnime.setLineWidth(5 * this.scale);
-        }
+            if(this.userProgressObj != undefined) {
+                this.userProgressObj.stop()
+                this.userProgressObj.clean();
+                //this.animation.stopShake = true;
+            }
 
-        var that = this; 
-        this.drawRectAnime.draw(function(){
+            var user = this._userBySeatNum(this.gameStateObj.playerSeatNum)
+            var that = this; 
+            this.userProgressObj = user.createProgressObject(this.timeoutMaxCount,function(){
             var user = that._userBySeatNum(that.gameStateObj.playerSeatNum)
             if(user.param["userID"] == that.userID) {
                 that.animation.showShake(that.selfCards[0]);
                 that.animation.showShake(that.selfCards[1]);
             }
 
-        }, 
-        function() {
-            //that.animation.stopShake = true;
-        });
+            }, 
+            function() {
+                that.animation.stopShake = true;
+            })
+
+            this.userProgressObj.draw()
+
+        this.animation.showLight(left + width / 2, top + height / 2);
     },
+
+    /*
 
     _stopDrawUserProgress:function() {
 
         this.animation.stopShake = true;
-        // draw time progress
-        if(this.drawRectAnime.isPainting)
-        {
-            this.drawRectAnime.stop();
-        }
 
-        this.drawRectAnime.clean();
+        var user = this._userBySeatNum(this.gameStateObj.playerSeatNum)
+        user.stopDrawWaitingImage()
+
+        user.cleanWaitingImage()
     },
+    */
 
     _initNewRound:function() {
         for (var i =0;  i < this.userList.length;  i++) {

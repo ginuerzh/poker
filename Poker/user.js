@@ -30,8 +30,10 @@ var User = function() {
 	this.waitingAngel = 0;
 	this.tweenDrawWaiting;
 	this.mask;
+	this.startTrigerWillCompleteEvent;
 
 	this.userTitleStyle = { font: _fontString(20), fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
+	this.timerEventProgress
 }
 
 User.prototype = {
@@ -136,8 +138,8 @@ User.prototype = {
 			this.groupUser.add(this.imageCoin[i]);
 		}
 		this.groupUser.add(this.textCoin);
-
 	},
+
 
 	setUserTitle:function(title) {
 
@@ -423,38 +425,46 @@ User.prototype = {
 	{
 		this.groupUser.visible = true;
 		this.waitingLine.visible = true;
-		this.waitingAngel = 5;
+		this.waitingAngel = 0;
 		this.waitingLine.mask = this.mask;
 
 		var maskWidth = Math.sqrt(this.waitingLine.width * this.waitingLine.width + this.waitingLine.height * this.waitingLine.height);
 		this.mask.x = this.waitingLine.x - maskWidth;
 		this.mask.y = this.waitingLine.y - maskWidth;
 
-		this.tweenDrawWaiting = game.add.tween(this);
-		this.tweenDrawWaiting.to({ waitingAngel:360 }, timeout * 1000, Phaser.Easing.Linear.None, true);
 		var offsetAngel = 30;
-		this.tweenDrawWaiting.onUpdateCallback(function() {
 
-			if(this.waitingAngel == 180 && willCompleteCallBack)
+		var that = this;
+
+		this.start = game.time.totalElapsedSeconds();
+
+		var totalTime = timeout * 1000;
+
+        this.timerEventProgress = game.time.events.loop(100, function() {
+
+        	var elapsed = game.time.totalElapsedSeconds() - that.start;
+
+        	var angel =   (elapsed * 1000) * 360 / totalTime
+
+       
+			if(angel >= 180 && willCompleteCallBack && that.startTrigerWillCompleteEvent == false)
 			{
 				willCompleteCallBack();
+				this.startTrigerWillCompleteEvent = true
 			}
 
-			this.mask.clear();
-			this.mask.moveTo(maskWidth, maskWidth);
-			this.mask.lineTo(maskWidth - Math.tan(offsetAngel * Math.PI / 180) * maskWidth, 0);
-			this.mask.arc(maskWidth, maskWidth, maskWidth, - Math.PI / 2 - offsetAngel * Math.PI / 180, (this.waitingAngel * Math.PI) / 180 - Math.PI / 2 - offsetAngel * Math.PI / 180);
-			this.mask.lineTo(maskWidth, maskWidth);
-
+			that.mask.clear();
+			that.mask.moveTo(maskWidth, maskWidth);
+			that.mask.lineTo(maskWidth - Math.tan(offsetAngel * Math.PI / 180) * maskWidth, 0);
+			that.mask.arc(maskWidth, maskWidth, maskWidth, - Math.PI / 2 - offsetAngel * Math.PI / 180, (angel * Math.PI) / 180 - Math.PI / 2 - offsetAngel * Math.PI / 180);
+			that.mask.lineTo(maskWidth, maskWidth);
+                                                        
+            if(angel >= 360) {
+                didCompleteCallBack();
+            }
 		}, this);
-		this.tweenDrawWaiting.onComplete.add(function() {
-			this.mask.clear();
-			this.waitingLine.mask = null;
-			if(didCompleteCallBack)
-			{
-				didCompleteCallBack();
-			}
-		}, this);
+        
+		
 	},
 
 	stopDrawWaitingImage:function()
@@ -463,5 +473,22 @@ User.prototype = {
 		{
 			this.tweenDrawWaiting.stop();
 		}
-	}
+	},
+
+	createProgressObject:function(timeout, willCompleteCallBack, didCompleteCallBack) {
+		var that = this;
+		this.startTrigerWillCompleteEvent = false;
+		return {
+			draw:function() {
+				that.drawWaitingImage(timeout, willCompleteCallBack, didCompleteCallBack);
+			},
+			stop:function() {
+				didCompleteCallBack();
+				that.stopDrawWaitingImage();
+			},
+			clean:function() {
+				that.cleanWaitingImage();
+			}
+		}
+	},
 }
