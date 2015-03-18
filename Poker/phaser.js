@@ -16876,7 +16876,7 @@ PIXI.Graphics.prototype.arc = function(cx, cy, radius, startAngle, endAngle, ant
     }
 
     var sweep = anticlockwise ? (startAngle - endAngle) *-1 : (endAngle - startAngle);
-    var segs =  ( Math.abs(sweep)/ (Math.PI * 2) ) * 40;
+    var segs =  ( Math.abs(sweep)/ (Math.PI * 2) ) * 160;
 
     if( sweep === 0 ) return this;
 
