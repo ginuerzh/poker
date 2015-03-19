@@ -1,7 +1,7 @@
 'use strict';
 
 var game = null
-var gParam = {ws_server:"172.24.222.54:8989", user_name:"", platform:"PC"}
+var gParam = {ws_server:"172.24.222.54:8989/ws", user_name:"", platform:"PC"}
 
 var gImageDir = "assets/2x/"
 var gFontScale = 1.0;
