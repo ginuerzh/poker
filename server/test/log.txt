@@ -1,0 +1,75 @@
+<<< {"version":"1.0"}
+>>> {"version":"1.0"}
+<<< {"mechanism":"plain","text":"Vzrrq"}
+>>> {"id":"1423648292","name":"Vzrrq","level":0,"chips":1000}
+1423648292(Vzrrq) 1000
+poker> j
+poker> <<< {"type":"presence","to":"0","action":"join"}
+>>> {"type":"presence","from":"0","action":"state","room":{"id":"0","sb":5,"bb":10,"cards":null,"mainpot":0,"sidepot":null,"button":0,"occupants":[{"id":"1423648292","name":"Vzrrq","level":0,"chips":1000,"index":1},null,null,null,null,null,null,null,null,null],"bet":0,"n":1}}
+Enter room, 1 Occupants
+>>> {"type":"presence","from":"0","action":"join","occupant":{"id":"1423648293","name":"Ginit","level":0,"chips":1000,"index":2}}
+1423648293(Ginit) Join.
+>>> {"type":"presence","from":"0","action":"button","class":"2"}
+>>> {"id":"0","type":"presence","from":"1423648293","action":"bet","class":"5"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"10"}
+>>> {"type":"presence","from":"0","action":"preflop","class":"SA,HK"}
+>>> {"type":"presence","from":"0","action":"action","class":"2"}
+Button: 1423648293(Ginit).
+1423648293(Ginit) raise: 5
+You raise: 10
+Preflop: SA,HK
+>>> {"id":"0","type":"presence","from":"1423648293","action":"bet","class":"5"}
+>>> {"type":"presence","from":"0","action":"action","class":"1"}
+1423648293(Ginit) call: 10
+2015/02/11 17:53:46 Your bet turn (10/10):
+0
+poker> <<< {"type":"presence","action":"bet","class":"0"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"0"}
+>>> {"type":"presence","from":"0","action":"flop","class":"C8,D8,S9"}
+>>> {"type":"presence","from":"0","action":"action","class":"1"}
+You check: 10
+Flop: C8,D8,S9
+2015/02/11 17:53:49 Your bet turn (0/0):
+0
+poker> <<< {"type":"presence","action":"bet","class":"0"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"0"}
+>>> {"type":"presence","from":"0","action":"action","class":"2"}
+You check: 0
+>>> {"id":"0","type":"presence","from":"1423648293","action":"bet","class":"0"}
+>>> {"type":"presence","from":"0","action":"turn","class":"H9"}
+>>> {"type":"presence","from":"0","action":"action","class":"1"}
+1423648293(Ginit) check: 0
+Turn: H9
+2015/02/11 17:53:59 Your bet turn (0/0):
+10
+poker> <<< {"type":"presence","action":"bet","class":"10"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"10"}
+>>> {"type":"presence","from":"0","action":"action","class":"2"}
+You raise: 10
+>>> {"id":"0","type":"presence","from":"1423648293","action":"bet","class":"20"}
+>>> {"type":"presence","from":"0","action":"action","class":"1"}
+1423648293(Ginit) raise: 20
+2015/02/11 17:54:05 Your bet turn (10/20):
+10
+poker> <<< {"type":"presence","action":"bet","class":"10"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"10"}
+>>> {"type":"presence","from":"0","action":"river","class":"CT"}
+>>> {"type":"presence","from":"0","action":"action","class":"1"}
+You call: 20
+River: CT
+2015/02/11 17:54:09 Your bet turn (0/0):
+0
+poker> <<< {"type":"presence","action":"bet","class":"0"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"0"}
+>>> {"type":"presence","from":"0","action":"action","class":"2"}
+You check: 0
+>>> {"id":"0","type":"presence","from":"1423648293","action":"bet","class":"10"}
+>>> {"type":"presence","from":"0","action":"action","class":"1"}
+1423648293(Ginit) raise: 10
+2015/02/11 17:54:15 Your bet turn (0/10):
+10
+poker> <<< {"type":"presence","action":"bet","class":"10"}
+>>> {"id":"0","type":"presence","from":"1423648292","action":"bet","class":"10"}
+>>> {"type":"presence","from":"0","action":"showdown","occupants":[{"id":"1423648292","name":"Vzrrq","level":0,"chips":960,"index":1,"cards":["SA","HK"]},{"id":"1423648293","name":"Ginit","level":0,"chips":960,"index":2,"cards":["SA","HK"]},null,null,null,null,null,null,null,null]}
+You call: 10
+mainport: 80

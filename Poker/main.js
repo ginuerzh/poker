@@ -3,6 +3,7 @@
 var game = null
 var gParam = {ws_server:"172.24.222.54:8989/ws", user_name:"", platform:"PC", app_token:null}
 
+
 var gImageDir = "assets/2x/"
 var gFontScale = 1.0;
 var Native = {}
