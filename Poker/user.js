@@ -34,6 +34,7 @@ var User = function() {
 
 	this.userTitleStyle = { font: _fontString(20), fill: "#ffffff", wordWrap: false, wordWrapWidth: this.rect.width, align: "center" }
 	this.timerEventProgress
+    this.userClickedLisenger
 }
 
 User.prototype = {
@@ -103,7 +104,15 @@ User.prototype = {
 		this.lbname = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.1, this.param["userName"], style);
 		this.lbname.anchor.set(0.5);
 		this.lbname.scale.setTo(this.scale, this.scale);
-		this.imagebody = game.add.image(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.2, this.param["userImage"]);
+		this.imagebody = game.add.sprite(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.2, this.param["userImage"]);
+        this.imagebody.inputEnabled = true;
+        var that = this
+        this.imagebody.events.onInputDown.add(function(){
+                if(that.userClickedLisenger != undefined && that.userClickedLisenger != null) {
+                        that.userClickedLisenger(that);
+                }
+        }, this);
+        
 		this.imagebody.scale.setTo(this.rect.width * 0.9 / this.imagebody.width, this.rect.height * 0.595 / this.imagebody.height);
 		this.lbcoin = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.9, this.param["userCoin"], style);
 		this.lbcoin.anchor.set(0.5);
@@ -162,6 +171,10 @@ User.prototype = {
 		this.param.userName = name;
 		this.setUserTitle(name);
 	},
+    
+    setOnClickListener:function(listener) {
+        this.userClickedLisenger = listener;
+    },
 
 	setRect:function(x, y, width, height) {
 

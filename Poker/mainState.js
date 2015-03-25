@@ -277,9 +277,21 @@ MainState.prototype = {
                 //user.create("", "defaultUserImage", "", false);
                 user.create("", null, "", false);
             }
+            user.setOnClickListener(function(thisuser){
+                var userid = thisuser.param["userID"]
+                if(userid != null && userid != undefined) {
+                    game.Native.yesOrNoPopupWindow("你将跳出游戏","你要跳转到用户信息界面吗？", "放弃", "确认",function(data){
+                                                   if(data.sender == "popButton2") {
+                                                        game.Native.showProfile(userid);
+                                                   }
+                                                });
+                    
+                }
+            })
             user.addUserToGroup(this.groupUser)
             user.setVisable(false);
             this.userList.push(user);
+            
         }
 
         this.cardPosRate = [{x:0.344, y:0.456}, {x:0.422, y:0.456}, {x:0.5, y:0.456}, {x:0.578, y:0.456}, {x:0.656, y:0.456}];
@@ -527,7 +539,6 @@ MainState.prototype = {
         //this.drawRectAnime = new rectdrawer(this.groupUser);
 
         this._currentPlayButtonUpdate(false);
-
         if(gParam["app_token"] == undefined || gParam["app_token"] == null) {
             game.betApi.enterRoom(function(isOK){
                 console.log("enterRoom is " +  isOK);
@@ -626,17 +637,12 @@ MainState.prototype = {
             this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
 
             var bet = this.currentBet - this.gameStateObj.mybetOnDesk;
-            // TODO:
-            if (bet > 0) {
+            if (bet > 0 && bet < this.chips) {
                 this.lbCallWait.setText("跟注 "+ bet);
-            } else if (bet == 0) {
+            } else {
                 this.lbCallWait.setText("看牌");
             }
-
         }
-        
-        // test native interface
-        gameQuit("test");
     },
 
     // 跟任何注
@@ -715,8 +721,12 @@ MainState.prototype = {
         {
             var bet = this.gameStateObj.mybet - this.gameStateObj.mybetOnDesk;
 
-            if(bet > 0) {
+            if(bet > 0 && bet < this.chips) {
                 bet=bet*2
+            }
+            
+            if(bet > this.chips) {
+                bet = 0;
             }
 
             this._updatePoolChipValue(bet*2?bet*2:10*2);
@@ -940,9 +950,26 @@ MainState.prototype = {
     handleGone:function(data) {
         var goneUserID = data.occupant.id;
         var user = this._userByUserID(goneUserID);
-        if(user.userID == this.userID) {
+        console.log("Handle Gone ........UserID:",goneUserID);
+        
+        if(user.param.userID == this.userID) {
             //gameQuit();
-            return;
+            
+            console.log("Handle Gone ........");
+            this.selfCards[0].visible = false;
+            this.selfCards[1].visible = false;
+            console.log("chips", this.chips)
+            
+            if(this.chips <= 0) {
+                
+                if(game.Native != undefined) {
+                    game.Native.confrimPopupWindow("你的钱输光了！！","你的积分为0， 即将被踢出游戏", "确认", function(data){
+                                                   game.Native.quitToApp();
+                                               });
+                    return;
+                }
+            }
+            
         }
         
         user.clean();
@@ -1054,12 +1081,10 @@ MainState.prototype = {
             var diffbet = this.gameStateObj.mybet - this.gameStateObj.mybetOnDesk
 
 
-            if(diffbet==0) {
+            if(diffbet == 0 || diffbet > this.chips) {
                 this.lbCall.setText("看牌");
-            } else if(diffbet > 0) {
-                this.lbCall.setText("跟注 "+ diffbet);
             } else {
-                alert("error ＝跟负值＝");
+                this.lbCall.setText("跟注 "+ diffbet);
             }
 
             if(this._betWaitButtonChecked()) {
@@ -1153,6 +1178,7 @@ MainState.prototype = {
         // 如果都没有hand说明只有一个人下注，没有翻牌的情况
         var lastHasCardsIndex = -1; //保存最后一个出牌的人index
         var hashand = false;
+        
 
         for (var i = playerList.length - 1; i >= 0; i--) {
             var occupantInfo = playerList[i]
@@ -1167,6 +1193,12 @@ MainState.prototype = {
 
             if (occupantInfo.hand) {
                 hashand = true
+            }
+            
+            if(occupantInfo.id != this.userID) {
+                if(occupantInfo.chip != undefined && occupantInfo.chip != null) {
+                    this.chips = occupantInfo.chip;
+                }
             }
 
 
@@ -1211,6 +1243,8 @@ MainState.prototype = {
             for(i = 0; i < this.chipPoolCoins.length; i++) {
                 this.animation.showChipMove(this.chipPoolCoins[i], point.x, point.y, 500)
             }
+            
+
             
         }
     },
@@ -1625,11 +1659,12 @@ MainState.prototype = {
         this.gameStateObj.chipboxValue3 = chip3;
 
 
-        this.chipboxText4.setText(chip1);
-
-        this.chipboxText3.setText(chip2);
-
-        this.chipboxText2.setText(chip3);
+        
+         this.chipboxText4.setText(chip1);
+         
+         this.chipboxText3.setText(chip2);
+         
+         this.chipboxText2.setText(chip3);
 
         if(chip3 >= this.chips) {
             this.chipboxButton2.visible = false;
@@ -1646,13 +1681,14 @@ MainState.prototype = {
             this.chipboxButton3.visible = true;
             this.chipboxText3.visible = true;
         }
+        
 
         if(chip1 >= this.chips) {
-            this.chipboxButton1.visible = false;
-            this.chipboxText1.visible = false;
+            this.chipboxButton4.visible = false;
+            this.chipboxText4.visible = false;
         } else {
-            this.chipboxButton1.visible = true;
-            this.chipboxText1.visible = true;
+            this.chipboxButton4.visible = true;
+            this.chipboxText4.visible = true;
         }
 
     },
