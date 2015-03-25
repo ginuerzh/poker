@@ -1,0 +1,512 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		530C591E1ABABF6600103D93 /* DQAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 530C591D1ABABF6600103D93 /* DQAlertView.m */; };
+		531A284F1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt in Resources */ = {isa = PBXBuildFile; fileRef = 531A284D1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt */; };
+		531A28501AC2662E00EBD80F /* WebViewJavascriptBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 531A284E1AC2662E00EBD80F /* WebViewJavascriptBridge.m */; };
+		531A28521AC269A800EBD80F /* Poker in Resources */ = {isa = PBXBuildFile; fileRef = 531A28511AC269A800EBD80F /* Poker */; };
+		53B0234B1AAD3AD0004BAA2D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B0234A1AAD3AD0004BAA2D /* main.m */; };
+		53B0234E1AAD3AD1004BAA2D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B0234D1AAD3AD0004BAA2D /* AppDelegate.m */; };
+		53B023511AAD3AD1004BAA2D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B023501AAD3AD1004BAA2D /* ViewController.m */; };
+		53B023541AAD3AD1004BAA2D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53B023521AAD3AD1004BAA2D /* Main.storyboard */; };
+		53B023561AAD3AD1004BAA2D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53B023551AAD3AD1004BAA2D /* Images.xcassets */; };
+		53B023591AAD3AD1004BAA2D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53B023571AAD3AD1004BAA2D /* LaunchScreen.xib */; };
+		53B023651AAD3AD1004BAA2D /* PockerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B023641AAD3AD1004BAA2D /* PockerTests.m */; };
+		53B024A71AAD8516004BAA2D /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B024A61AAD8516004BAA2D /* SettingViewController.m */; };
+		53EB47651AB2DC4100F9E916 /* PokerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53EB47641AB2DC4100F9E916 /* PokerViewController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		53B0235F1AAD3AD1004BAA2D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53B0233D1AAD3AD0004BAA2D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53B023441AAD3AD0004BAA2D;
+			remoteInfo = Pocker;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		53B024461AAD4266004BAA2D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = WebPoker;
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		530C591C1ABABF6600103D93 /* DQAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DQAlertView.h; sourceTree = "<group>"; };
+		530C591D1ABABF6600103D93 /* DQAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DQAlertView.m; sourceTree = "<group>"; };
+		531A284C1AC2662E00EBD80F /* WebViewJavascriptBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewJavascriptBridge.h; sourceTree = "<group>"; };
+		531A284D1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WebViewJavascriptBridge.js.txt; sourceTree = "<group>"; };
+		531A284E1AC2662E00EBD80F /* WebViewJavascriptBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewJavascriptBridge.m; sourceTree = "<group>"; };
+		531A28511AC269A800EBD80F /* Poker */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Poker; path = ../../../Poker; sourceTree = "<group>"; };
+		53B023451AAD3AD0004BAA2D /* Pocker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pocker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		53B023491AAD3AD0004BAA2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		53B0234A1AAD3AD0004BAA2D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		53B0234C1AAD3AD0004BAA2D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		53B0234D1AAD3AD0004BAA2D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		53B0234F1AAD3AD1004BAA2D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		53B023501AAD3AD1004BAA2D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		53B023531AAD3AD1004BAA2D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		53B023551AAD3AD1004BAA2D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		53B023581AAD3AD1004BAA2D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		53B0235E1AAD3AD1004BAA2D /* PockerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PockerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		53B023631AAD3AD1004BAA2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		53B023641AAD3AD1004BAA2D /* PockerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PockerTests.m; sourceTree = "<group>"; };
+		53B024A51AAD8516004BAA2D /* SettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
+		53B024A61AAD8516004BAA2D /* SettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
+		53EB47631AB2DC4100F9E916 /* PokerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PokerViewController.h; sourceTree = "<group>"; };
+		53EB47641AB2DC4100F9E916 /* PokerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PokerViewController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		53B023421AAD3AD0004BAA2D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53B0235B1AAD3AD1004BAA2D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		530C591B1ABABF6600103D93 /* DQAlertView */ = {
+			isa = PBXGroup;
+			children = (
+				530C591C1ABABF6600103D93 /* DQAlertView.h */,
+				530C591D1ABABF6600103D93 /* DQAlertView.m */,
+			);
+			name = DQAlertView;
+			path = Pocker/DQAlertView;
+			sourceTree = "<group>";
+		};
+		531A284B1AC2662E00EBD80F /* WebViewJavascriptBridge */ = {
+			isa = PBXGroup;
+			children = (
+				531A284C1AC2662E00EBD80F /* WebViewJavascriptBridge.h */,
+				531A284D1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt */,
+				531A284E1AC2662E00EBD80F /* WebViewJavascriptBridge.m */,
+			);
+			path = WebViewJavascriptBridge;
+			sourceTree = "<group>";
+		};
+		53B0233C1AAD3AD0004BAA2D = {
+			isa = PBXGroup;
+			children = (
+				531A284B1AC2662E00EBD80F /* WebViewJavascriptBridge */,
+				530C591B1ABABF6600103D93 /* DQAlertView */,
+				53B023471AAD3AD0004BAA2D /* Pocker */,
+				53B023611AAD3AD1004BAA2D /* PockerTests */,
+				53B023461AAD3AD0004BAA2D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		53B023461AAD3AD0004BAA2D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				53B023451AAD3AD0004BAA2D /* Pocker.app */,
+				53B0235E1AAD3AD1004BAA2D /* PockerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		53B023471AAD3AD0004BAA2D /* Pocker */ = {
+			isa = PBXGroup;
+			children = (
+				53B024A51AAD8516004BAA2D /* SettingViewController.h */,
+				53B024A61AAD8516004BAA2D /* SettingViewController.m */,
+				53B0234C1AAD3AD0004BAA2D /* AppDelegate.h */,
+				53B0234D1AAD3AD0004BAA2D /* AppDelegate.m */,
+				53B0234F1AAD3AD1004BAA2D /* ViewController.h */,
+				53B023501AAD3AD1004BAA2D /* ViewController.m */,
+				53EB47631AB2DC4100F9E916 /* PokerViewController.h */,
+				53EB47641AB2DC4100F9E916 /* PokerViewController.m */,
+				53B023521AAD3AD1004BAA2D /* Main.storyboard */,
+				53B023551AAD3AD1004BAA2D /* Images.xcassets */,
+				53B023571AAD3AD1004BAA2D /* LaunchScreen.xib */,
+				53B023481AAD3AD0004BAA2D /* Supporting Files */,
+			);
+			path = Pocker;
+			sourceTree = "<group>";
+		};
+		53B023481AAD3AD0004BAA2D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				53B024A21AAD4529004BAA2D /* Resource */,
+				53B023491AAD3AD0004BAA2D /* Info.plist */,
+				53B0234A1AAD3AD0004BAA2D /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		53B023611AAD3AD1004BAA2D /* PockerTests */ = {
+			isa = PBXGroup;
+			children = (
+				53B023641AAD3AD1004BAA2D /* PockerTests.m */,
+				53B023621AAD3AD1004BAA2D /* Supporting Files */,
+			);
+			path = PockerTests;
+			sourceTree = "<group>";
+		};
+		53B023621AAD3AD1004BAA2D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				53B023631AAD3AD1004BAA2D /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		53B024A21AAD4529004BAA2D /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				531A28511AC269A800EBD80F /* Poker */,
+			);
+			name = Resource;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		53B023441AAD3AD0004BAA2D /* Pocker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53B023681AAD3AD1004BAA2D /* Build configuration list for PBXNativeTarget "Pocker" */;
+			buildPhases = (
+				53B023411AAD3AD0004BAA2D /* Sources */,
+				53B023421AAD3AD0004BAA2D /* Frameworks */,
+				53B023431AAD3AD0004BAA2D /* Resources */,
+				53B024461AAD4266004BAA2D /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Pocker;
+			productName = Pocker;
+			productReference = 53B023451AAD3AD0004BAA2D /* Pocker.app */;
+			productType = "com.apple.product-type.application";
+		};
+		53B0235D1AAD3AD1004BAA2D /* PockerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 53B0236B1AAD3AD1004BAA2D /* Build configuration list for PBXNativeTarget "PockerTests" */;
+			buildPhases = (
+				53B0235A1AAD3AD1004BAA2D /* Sources */,
+				53B0235B1AAD3AD1004BAA2D /* Frameworks */,
+				53B0235C1AAD3AD1004BAA2D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				53B023601AAD3AD1004BAA2D /* PBXTargetDependency */,
+			);
+			name = PockerTests;
+			productName = PockerTests;
+			productReference = 53B0235E1AAD3AD1004BAA2D /* PockerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		53B0233D1AAD3AD0004BAA2D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = zhengying;
+				TargetAttributes = {
+					53B023441AAD3AD0004BAA2D = {
+						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 2ST4YVT4VA;
+					};
+					53B0235D1AAD3AD1004BAA2D = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = 53B023441AAD3AD0004BAA2D;
+					};
+				};
+			};
+			buildConfigurationList = 53B023401AAD3AD0004BAA2D /* Build configuration list for PBXProject "Pocker" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 53B0233C1AAD3AD0004BAA2D;
+			productRefGroup = 53B023461AAD3AD0004BAA2D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				53B023441AAD3AD0004BAA2D /* Pocker */,
+				53B0235D1AAD3AD1004BAA2D /* PockerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		53B023431AAD3AD0004BAA2D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				531A284F1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt in Resources */,
+				531A28521AC269A800EBD80F /* Poker in Resources */,
+				53B023541AAD3AD1004BAA2D /* Main.storyboard in Resources */,
+				53B023591AAD3AD1004BAA2D /* LaunchScreen.xib in Resources */,
+				53B023561AAD3AD1004BAA2D /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53B0235C1AAD3AD1004BAA2D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		53B023411AAD3AD0004BAA2D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53EB47651AB2DC4100F9E916 /* PokerViewController.m in Sources */,
+				53B023511AAD3AD1004BAA2D /* ViewController.m in Sources */,
+				53B0234E1AAD3AD1004BAA2D /* AppDelegate.m in Sources */,
+				530C591E1ABABF6600103D93 /* DQAlertView.m in Sources */,
+				53B0234B1AAD3AD0004BAA2D /* main.m in Sources */,
+				531A28501AC2662E00EBD80F /* WebViewJavascriptBridge.m in Sources */,
+				53B024A71AAD8516004BAA2D /* SettingViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53B0235A1AAD3AD1004BAA2D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53B023651AAD3AD1004BAA2D /* PockerTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		53B023601AAD3AD1004BAA2D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53B023441AAD3AD0004BAA2D /* Pocker */;
+			targetProxy = 53B0235F1AAD3AD1004BAA2D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		53B023521AAD3AD1004BAA2D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				53B023531AAD3AD1004BAA2D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		53B023571AAD3AD1004BAA2D /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				53B023581AAD3AD1004BAA2D /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		53B023661AAD3AD1004BAA2D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		53B023671AAD3AD1004BAA2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		53B023691AAD3AD1004BAA2D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = Pocker/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Debug;
+		};
+		53B0236A1AAD3AD1004BAA2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = Pocker/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Release;
+		};
+		53B0236C1AAD3AD1004BAA2D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = PockerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pocker.app/Pocker";
+			};
+			name = Debug;
+		};
+		53B0236D1AAD3AD1004BAA2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = PockerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pocker.app/Pocker";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		53B023401AAD3AD0004BAA2D /* Build configuration list for PBXProject "Pocker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53B023661AAD3AD1004BAA2D /* Debug */,
+				53B023671AAD3AD1004BAA2D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53B023681AAD3AD1004BAA2D /* Build configuration list for PBXNativeTarget "Pocker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53B023691AAD3AD1004BAA2D /* Debug */,
+				53B0236A1AAD3AD1004BAA2D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		53B0236B1AAD3AD1004BAA2D /* Build configuration list for PBXNativeTarget "PockerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53B0236C1AAD3AD1004BAA2D /* Debug */,
+				53B0236D1AAD3AD1004BAA2D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 53B0233D1AAD3AD0004BAA2D /* Project object */;
+}
