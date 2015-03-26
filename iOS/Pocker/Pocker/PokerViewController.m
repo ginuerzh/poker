@@ -60,12 +60,15 @@ static const NSString* kJoinRoom = @"joinroom";
     BOOL linodeEnable = [[NSUserDefaults standardUserDefaults]boolForKey:@"linode_enable"];
     NSString* userName = [[NSUserDefaults standardUserDefaults]stringForKey:@"user_name"];
     
-    if ([userName isEqualToString:@""]) {
+    if (!userName || [userName isEqualToString:@""]) {
         userName = @"TestUSER";
         [[NSUserDefaults standardUserDefaults]setObject:userName forKey:@"user_name"];
     }
     
-    _token = userName;
+    if(!_token) {
+        _token = userName;
+    }
+    
     
     NSString* server = @"172.24.222.54:8989/ws";
     
