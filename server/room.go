@@ -535,6 +535,10 @@ func SetRoom(room *Room) {
 	rooms.lock.Lock()
 	defer rooms.lock.Unlock()
 
+	setRoom(room)
+}
+
+func setRoom(room *Room) {
 	id, _ := strconv.Atoi(room.Id)
 	if id == 0 {
 		rooms.counter++
@@ -549,7 +553,18 @@ func GetRoom(id string) *Room {
 	defer rooms.lock.Unlock()
 
 	nid, _ := strconv.Atoi(id)
-	return rooms.M[nid]
+	room := rooms.M[nid]
+	if room == nil {
+		for _, v := range rooms.M {
+			if v.N < v.Max {
+				return v
+			}
+		}
+		room = NewRoom("", 9, 5, 10)
+		setRoom(room)
+	}
+
+	return room
 }
 
 func DelRoom(room *Room) {
