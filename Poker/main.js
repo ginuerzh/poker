@@ -122,7 +122,7 @@ function connectWebViewJavascriptBridge(callback) {
 
 function _fontString(size, fontname) {
     if (fontname == undefined) {
-        fontname = "Arial"
+        fontname = "Impact"
     };
 
     return (size * gFontScale)+"px " + fontname
@@ -139,12 +139,12 @@ function startGame(gameParam) {
         }
         if (gParam["platform"] == "IOS") {
             document.body.setAttribute("orient", "landscape");
-            //gImageDir = "assets/1x/"
-            //gFontScale = 0.5;
+            gImageDir = "assets/1x/"
+            gFontScale = 0.6;
             // 使用 1x的图片效果更差，算了，直接用2x的
             
             gImageDir = "assets/2x/"
-            gFontScale = 1;
+            gFontScale = 1.2;
         }
         
         game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
