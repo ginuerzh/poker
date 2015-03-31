@@ -104,7 +104,11 @@ User.prototype = {
 		this.lbname = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.1, this.param["userName"], style);
 		this.lbname.anchor.set(0.5);
 		this.lbname.scale.setTo(this.scale, this.scale);
-		this.imagebody = game.add.sprite(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.2, this.param["userImage"]);
+        var userProfile = this.param["userImage"]
+        if(userProfile == undefined || userProfile == "" || userProfile == null) {
+            userProfile = "defaultProfile"
+        }
+        this.imagebody = game.add.sprite(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.2, userProfile);
         this.imagebody.inputEnabled = true;
         var that = this
         this.imagebody.events.onInputDown.add(function(){
@@ -291,7 +295,9 @@ User.prototype = {
 	setVisable:function(blVisable) {
 		this.groupUser.visible = blVisable
 		if (this.dcard != null && this.dcard != undefined) {
-			this.dcard.visible = blVisable
+            if(blVisable == false) {
+                this.dcard.visible = blVisable
+            }
 		};
 	},
 
@@ -308,7 +314,8 @@ User.prototype = {
 
 	setDcard:function(dcard) {
 		this.dcard = dcard;
-		dcard.visible = this.groupUser.visible
+        dcard.visible = false
+		//dcard.visible = this.groupUser.visible
 	},
 
 	setIsPlayer:function(isPlayer) {
@@ -403,6 +410,10 @@ User.prototype = {
 	    this.imagebody.visible = true;
 	    this.setUseCoin("");
 
+	    if(this.dcard != undefined && this.dcard != null) {
+		    this.dcard.visible = false;
+	    }
+
 	    if (this.param["userName"] == "") {
 	    	console.log("error:error here!")
 	    }
@@ -418,7 +429,8 @@ User.prototype = {
 	{
 		this.winGroup.visible = false;
 		this.imagebody.visible = false;
-		this.param["userName"] = "";
+		this.param["userID"] = "";
+        this.param["userName"] = "";
 		this.param["userCoin"] = "";
 		this.setParam("", "defaultUserImage", "");
 		this.setGiveUp(false);
@@ -473,7 +485,7 @@ User.prototype = {
 			that.mask.lineTo(maskWidth, maskWidth);
                                                         
             if(angel >= 360) {
-                didCompleteCallBack();
+                didCompleteCallBack(true);
                 game.time.events.remove(that.timerEventProgress)
             }
 		}, this);
@@ -497,7 +509,7 @@ User.prototype = {
 				that.drawWaitingImage(timeout, willCompleteCallBack, didCompleteCallBack);
 			},
 			stop:function() {
-				didCompleteCallBack();
+				didCompleteCallBack(false);
 				that.stopDrawWaitingImage();
 			},
 			clean:function() {

@@ -139,6 +139,23 @@ var MainState = function() {
 
     this.groupUser // game user layer
 
+    this.soundSendCard;
+    this.soundReorderCard;
+    this.soundClick;
+    this.soundDing;
+    this.soundLost;
+    this.soundWin;
+    
+    
+    this.imageDefaultProfile;
+
+    this.chipsmoving;
+
+
+    // 牌提示
+    this.card_typebg;
+
+
 
     // game current data
     this.gameStateObj = {}
@@ -197,9 +214,31 @@ MainState.prototype = {
         game.load.image("exitdoor", gImageDir+'btn-grey.png');
         game.load.image("dealer", gImageDir+'dealer.png');
         game.load.image("waitingRound", gImageDir+'win-frameWaiting.png');
+        game.load.image("card_typebg", gImageDir+'card_typebg.png');
+        game.load.image("defaultProfile", gImageDir+'defaultProfile.png');
+
+
+        game.load.audio('sendcard', 'assets/sound/sendcard.mp3');
+        game.load.audio('click', 'assets/sound/click.mp3');
+        game.load.audio('chipsmoving', 'assets/sound/chipsmoving.mp3');
+        game.load.audio('reordercard', 'assets/sound/reordercard.mp3');
+        game.load.audio('ding', 'assets/sound/ding.mp3');
+        game.load.audio('win', 'assets/sound/win.mp3');
+        game.load.audio('lost', 'assets/sound/lose.mp3');
+
     },
 
     create: function() {
+
+        this.soundSendCard = game.add.audio("sendcard");
+        this.soundReorderCard = game.add.audio("reordercard");
+        this.soundClick = game.add.audio("click");
+        this.soundDing = game.add.audio("ding");
+        this.soundWin = game.add.audio("win");
+        this.soundLost = game.add.audio("lost");
+        this.chipsmoving = game.add.audio("chipsmoving");
+
+
         this.appToken = gParam["app_token"]
 
         if( this.appToken != undefined && this.appToken != null) {
@@ -254,6 +293,9 @@ MainState.prototype = {
         var userTextRate = [{x:0.69, y:0.292}, {x:0.856, y:0.329}, {x:0.768, y:0.484}, {x:0.61, y:0.613}, {x:0.5, y:0.557}, {x:0.339, y:0.613}, {x:0.173, y:0.484}, {x:0.142, y:0.329}, {x:0.306, y:0.292}];
 
         game.load.onFileComplete.add(this._fileComplete, this);
+
+
+        game.load.onFileError.add(this._fileError, this);
 
         this.animation.setPosParam(this.background.width, this.background.height, this.xOffset, this.yOffset);
         this.groupUser = game.add.group();
@@ -452,7 +494,7 @@ MainState.prototype = {
         this.waitButtonGroup2.add(this.lbCallWait);
         this.waitButtonGroup2.add(this.imgCallWait);
         style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
-        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
+        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
         this.lbCallEveryWait.anchor.set(0, 0.5);
         this.lbCallEveryWait.scale.setTo(this.scale, this.scale);
         this.imgCallEveryWait = game.add.image(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "checkOff");
@@ -519,9 +561,9 @@ MainState.prototype = {
         this.chipPool.anchor.set(0.5);
         this.chipPool.scale.setTo(this.scale);
 
-        this.btnExitRoom = game.add.button(0.92 * this.imageBK.width + this.xOffset, 0.02 * this.imageBK.height + this.yOffset, 'exitdoor', this.actionOnExit, this);
-        this.btnExitRoom.width = this.chipboxButton1.width;
-        this.btnExitRoom.height = this.chipboxButton1.height;
+        //this.btnExitRoom = game.add.button(0.92 * this.imageBK.width + this.xOffset, 0.02 * this.imageBK.height + this.yOffset, 'exitdoor', this.actionOnExit, this);
+        //this.btnExitRoom.width = this.chipboxButton1.width;
+        //this.btnExitRoom.height = this.chipboxButton1.height;
 
         this.starGroup = game.add.group();
         this.starGroup.enableBody = true;
@@ -552,7 +594,22 @@ MainState.prototype = {
                 }
             });
         }
+        
+        this.card_typebg=game.add.sprite(0, 0, "card_typebg");
+        this.card_typebg.anchor.setTo(0);
+        this.card_typebg.scale.setTo(this.scale, this.scale);
+        this.card_typebg.x = - this.card_typebg.width 
 
+    },
+
+    actionCardTypeToggle:function() {
+        var to_x = 0;
+        if (this.card_typebg.x == 0 ) {
+            to_x = -this.card_typebg.width
+        }
+
+        var tweens = game.add.tween(this.card_typebg);
+        tweens.to({x:to_x}, 200, Phaser.Easing.Quadratic.In, true);
     },
 
     update:function()
@@ -593,6 +650,14 @@ MainState.prototype = {
         }
     },
 
+    _fileError:function(key) {
+        if(key.indexOf("userImage") != -1) {
+            var index = parseInt(cacheKey.substr(9));
+            var user = this.userList[index];
+            user.setParam(null, "defaultProfile", null);
+        }
+    },
+
     actionOnExit:function()
     {
         game.betApi.leaveRoom();
@@ -616,6 +681,8 @@ MainState.prototype = {
             this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
             this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
         }
+
+        this.actionCardTypeToggle();
     },
 
     // 自动看牌／自动跟注
@@ -671,9 +738,12 @@ MainState.prototype = {
         game.betApi.betFold(function(isok) {
             // send OK or NOK
             that._setBetButtonsVisible(false)
+            that._playSound(that.soundClick);
         });
         
         console.log("game quit ============");
+
+
         
     },
 
@@ -687,6 +757,7 @@ MainState.prototype = {
         //if (betdiff > 0 ) {
             game.betApi.bet(betdiff,function(isok) {
                 // send OK or NOK
+                that._playSound(that.soundClick);
                 that._setBetButtonsVisible(false)
             })
         //};
@@ -700,6 +771,7 @@ MainState.prototype = {
         var that = this
         game.betApi.bet(value,function(isok) {
                 // send OK or NOK
+                that._playSound(that.soundClick);
                 that._setBetButtonsVisible(false)
             })
 
@@ -812,14 +884,17 @@ MainState.prototype = {
                 this.loginCertification = true;
 
                 this._currentPlayButtonUpdate(false)
+                console.log("gParam:", JSON.stringify(gParam))
 
                 if(gParam.joinroom != undefined && gParam.joinroom != null) {
                     this.roomID = gParam.joinroom
+                    console.log("enter room:", this.rootID);
                     game.betApi.enterRoom(function(isOK){
                         console.log("enterRoom is " +  isOK);
                     }, this.roomID);
 
                 } else {
+                    console.log("enter random room:");
                     game.betApi.enterRoom(function(isOK){
                                 console.log("enterRoom is " +  isOK);
                     }, null);
@@ -1011,19 +1086,21 @@ MainState.prototype = {
             }
         
         }
-        
+
         this._initNewRound()
+
+        var that = this
+
+        //this._playSound(this.soundReorderCard, function(){
+            that._sendCardAnimation();
+        //}, true);
     },
 
     handlePreflop:function(data)
     {
         var arrayCards = data.class.split(",");
-        for(var i = 0; i < this.selfCards.length; i++)
-        {
-            var card = this.selfCards[i];
-            card.visible = true;
-            card.loadTexture(arrayCards[i], card.frame);
-        }
+        
+        this._loadSelfCard(arrayCards)
         /*
         for(var i = 0; i < this.praviteCards.length; i++)
         {
@@ -1080,8 +1157,10 @@ MainState.prototype = {
 
             var diffbet = this.gameStateObj.mybet - this.gameStateObj.mybetOnDesk
 
-
-            if(diffbet == 0 || diffbet > this.chips) {
+            if(diffbet > this.chips) {
+                diffbet = this.chips;
+                this.lbCall.setText("全压");
+            } else if(diffbet == 0 ) {
                 this.lbCall.setText("看牌");
             } else {
                 this.lbCall.setText("跟注 "+ diffbet);
@@ -1112,6 +1191,10 @@ MainState.prototype = {
         var user = this._userByUserID(data.from)
         user.setParam(null, null, chips, null)
         var betType = this._betTypeByBetTypeNames(betTypeName)
+
+        if (user.param.userID != this.userID) {
+            this._playSound(this.soundClick);
+        }
 
         this.currentBet = betvalue
         this.currentBetType = betType
@@ -1195,9 +1278,11 @@ MainState.prototype = {
                 hashand = true
             }
             
-            if(occupantInfo.id != this.userID) {
+            if(occupantInfo.id == this.userID) {
                 if(occupantInfo.chip != undefined && occupantInfo.chip != null) {
                     this.chips = occupantInfo.chip;
+                    var userMe = this._userByUserID(winOccupantItem.id)
+                    userMe.setChips(this.chips);
                 }
             }
 
@@ -1221,17 +1306,22 @@ MainState.prototype = {
                 if (winOccupantItem.action != "fold") {
                     if(winOccupantItem.cards != null && winOccupantItem.cards != undefined) {
                         winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+
+                        if(winOccupantItem.id != this.userID) {
+                            this._playSound(this.soundLost);
+                        } else {
+                            this._playSound(this.soundWin);
+                        }
+
                         var hand = winOccupantItem.hand;
                         if(hand != undefined && hand != null) {
                             var type = (hand >>> 16)
                             if(type > 10) {
                                 type = 0
                             }
-
                             if(winOccupantItem.id != this.userID) {
                                 winUser.setUserTitle(this.CONST.CardTypeNames[type])
                             }
-
                         }
                     }
 
@@ -1241,6 +1331,7 @@ MainState.prototype = {
             var point = this._userPositionBySeatNum(seatNum)
 
             for(i = 0; i < this.chipPoolCoins.length; i++) {
+                this._playSound(this.chipsmoving)
                 this.animation.showChipMove(this.chipPoolCoins[i], point.x, point.y, 500)
             }
             
@@ -1302,12 +1393,19 @@ MainState.prototype = {
             user.setParam(null, null, "");
         }
         //计算座位偏移量，以自己为5号桌计算
+        var isSendCard = true;
         var playerOffset = 0;
         for(var i = 0; i < occupants.length; i++)
         {
             var userInfo = occupants[i];
             if(userInfo && userInfo.id == this.userID)
             {
+                var arrayCards = userInfo.cards;
+                if(arrayCards != undefined && arrayCards != null ) {
+                    this._loadSelfCard(arrayCards);
+                } else {
+                    isSendCard = false;
+                }
                 playerOffset = (this.userList.length - 1) / 2 - userInfo.index;
                 this.chips = userInfo.chips
                 break;
@@ -1335,10 +1433,15 @@ MainState.prototype = {
                 game.load.image("userImage" + index, userInfo.profile, true);
                 game.load.start();
             }
-            user.setParam(userInfo.name, userInfo.profile, userInfo.chips, (userInfo.id == this.userID));
+            user.setParam(userInfo.name, null, userInfo.chips, (userInfo.id == this.userID));
             user.param.seatNum = userInfo.index;
             user.param.userID = userInfo.id;
             user.setVisable(true);
+
+            if(user.dcard != undefined  && user.dcard != null) {
+                 user.dcard.visible = true;
+            }
+
         }
     },
 
@@ -1363,6 +1466,16 @@ MainState.prototype = {
         return betType
     },
     */
+
+
+    _loadSelfCard:function(arrayCards) {
+        for(var i = 0; i < this.selfCards.length; i++)
+        {
+            var card = this.selfCards[i];
+            card.visible = false;
+            card.loadTexture(arrayCards[i], card.frame);
+        }
+    },
 
 
     _betTypeByBetTypeNames:function(name) {
@@ -1431,8 +1544,11 @@ MainState.prototype = {
             }
 
             }, 
-            function() {
+            function(blComplete) {
                 that.animation.stopShake = true;
+                if(blComplete == true) {
+                    that._playSound(that.soundDing)
+                } 
             })
 
             this.userProgressObj.draw()
@@ -1463,6 +1579,10 @@ MainState.prototype = {
                     console.log("initNewRound null username");
                 }
             };
+
+            this.selfCards[0].visible = false;
+            this.selfCards[1].visible = false;
+
             user.reset()
         }
 
@@ -1565,7 +1685,10 @@ MainState.prototype = {
             deskCardIDs.push(i);
             lstCardImage.push(publicCards[i]);
         }
-        this.animation.showPublicCard(deskCardIDs, lstCardImage, true);
+        var that = this;
+        this.animation.showPublicCard(deskCardIDs, lstCardImage, true, function(){
+            that._playSound(that.soundSendCard);
+        });
     },
 
     _turnAnimation:function(card) {
@@ -1575,6 +1698,7 @@ MainState.prototype = {
         var lstCardImage = [card]
         this.animation.publicCards[deskCardIDs].visible = true;
         this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
+        this._playSound(this.soundSendCard);
     },
 
     _riverAnimation:function(card) {
@@ -1584,6 +1708,7 @@ MainState.prototype = {
         var lstCardImage = [card]
         this.animation.publicCards[deskCardIDs].visible = true;
         this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
+        this._playSound(this.soundSendCard);
     },
 
     _resetPublicCard:function() 
@@ -1658,13 +1783,11 @@ MainState.prototype = {
         this.gameStateObj.chipboxValue2 = chip2;
         this.gameStateObj.chipboxValue3 = chip3;
 
-
-        
-         this.chipboxText4.setText(chip1);
+        this.chipboxText4.setText(chip1);
          
-         this.chipboxText3.setText(chip2);
+        this.chipboxText3.setText(chip2);
          
-         this.chipboxText2.setText(chip3);
+        this.chipboxText2.setText(chip3);
 
         if(chip3 >= this.chips) {
             this.chipboxButton2.visible = false;
@@ -1713,5 +1836,97 @@ MainState.prototype = {
 
         return {x:this.userPosRate[userindex].x * this.imageBK.width + this.xOffset, y:this.userPosRate[userindex].y * this.imageBK.height + this.yOffset}
     },
+    
+    _sendCardAnimation:function() {
+        var sendPoint ={x:this.chipPoolBK.x + this.chipPoolBK.width * 0.14, y:this.chipPoolBK.y + this.chipPoolBK.height * 0.5}
+        var userList = []
+        for(var i = 0; i < this.userList.length; i++) {
+            if (this.userList[i].param.userID != undefined &&
+                this.userList[i].param.userID != null &&
+                this.userList[i].param.userID != "") {
+                userList.push(this.userList[i]);
+            }
+        }
+
+        var currentIndex = 0;
+        var that = this
+        var sendCard = function(){
+            that._playSound(that.soundSendCard)
+            var usr = userList[currentIndex++]
+            if (usr == undefined || usr == null) {
+                console.log("user not find!!index:", currentIndex);
+                return
+            }
+            var dcard = game.add.sprite(sendPoint.x, sendPoint.y, "dcardBK");
+            dcard.scale.setTo(that.scale, that.scale);
+            var tweens = game.add.tween(dcard)
+            //tweens.to({x:usr.dcard.x, y:usr.dcard.y},500,Phaser.Easing.Linear.None, true);
+            if(that.userID == usr.param.userID) {
+                tweens.to({x:that.selfCards[0].x, y:that.selfCards[0].y},500,Phaser.Easing.Quadratic.In, true);
+            } else {
+                tweens.to({x:usr.dcard.x, y:usr.dcard.y},500,Phaser.Easing.Quadratic.In, true);
+            }
+            tweens.onComplete.add(function() {
+                                  if(that.userID == usr.param.userID) {
+                                      that.selfCards[0].visible = true;
+                                      that.selfCards[1].visible = true;
+                                  } else {
+                                      usr.dcard.visible = true;
+                                  }
+                                  //user.dcard.visible = true;
+                                  dcard.destroy();
+                                  if(currentIndex < userList.length ) {
+                                        sendCard();
+                                  }
+                                }, that);
+        }
+        
+        sendCard();
+    },
+
+    _playSound: function(sound, onStopCallback, allowMultPlay) {
+        if(onStopCallback != undefined && onStopCallback != null) {
+            sound.onStop.addOnce(onStopCallback, this);
+        }
+        /*
+        if(allowMultPlay == undefined) {
+            sound.allowMultiple = true
+        } else {
+            sound.allowMultiple = allowMultPlay;
+        }
+        */
+
+        if(sound != undefined || sound != null) {
+            sound.play()
+        } else {
+            console.log("sound is undefined");
+        }
+    },
+    /*
+    _sendCardAnimation:function() {
+        var sendPoint ={x:this.chipPoolBK.x + this.chipPoolBK.width * 0.14, y:this.chipPoolBK.y + this.chipPoolBK.height * 0.5}
+        
+        for (var i = this.userList.length - 1; i >= 0; i--) {
+            var user = this.userList[i]
+            if(user.param.userID == this.userID) {
+                continue;
+            }
+            
+            var dcardSprite = game.add.sprite(sendPoint.x, sendPoint.y, "dcardBK");
+            (function(usr,dcard) {
+             var tweens = game.add.tween(dcard)
+             tweens.to({x:usr.dcard.x, y:usr.dcard.y},500,
+                       Phaser.Easing.Linear.None, true);
+             tweens.onComplete.add(function() {
+                                   //user.dcard.visible = true;
+                                   dcard.visible = false;
+                                   dcard.destroy();
+                                   }, this);
+            })(user, dcardSprite)
+            
+
+        }
+        
+    }*/
 
 };

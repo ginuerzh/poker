@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 zhengying. All rights reserved.
 //
 
-#import "PokerViewController.h"
+#import "PokerViewControllerEx.h"
 #import "WebViewJavascriptBridge.h"
 #import "SettingViewController.h"
 #import "DQAlertView.h"
@@ -20,20 +20,60 @@ static const NSString* kServer = @"ws_server";
 static const NSString* kToken = @"app_token";
 static const NSString* kJoinRoom = @"joinroom";
 
-@interface PokerViewController () <UIWebViewDelegate>
+@interface PokerViewControllerEx () <UIWebViewDelegate>
 
 @end
 
-@implementation PokerViewController {
+@implementation PokerViewControllerEx {
     WebViewJavascriptBridge* _bridge;
     NSMutableDictionary* _dictConfig;
+    UIButton* _buttonQuit;
     
 }
 
--(void)awakeFromNib {
-    //[self.view  setTranslatesAutoresizingMaskIntoConstraints:NO];
-    //[self.webView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    //[self.view updateConstraintsIfNeeded];
+-(void)loadView {
+    self.view = [[UIView alloc]init];
+    
+    _webView  = [[UIWebView alloc]init];
+    [_webView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    _webView.backgroundColor = [UIColor blackColor];
+    
+    _buttonQuit = [[UIButton alloc]init];
+    [_buttonQuit setTitle:@"退出" forState:UIControlStateNormal];
+    [_buttonQuit addTarget:self action:@selector(actionQuit:) forControlEvents:UIControlEventTouchUpInside];
+    [_buttonQuit setTranslatesAutoresizingMaskIntoConstraints:NO];
+    
+    [self.view addSubview:_webView];
+    [self.view addSubview:_buttonQuit];
+    
+    NSDictionary *views = @{@"selfView":self.view, @"webView":_webView, @"quitButton":_buttonQuit};
+   
+    
+    [self.view addConstraints:[NSLayoutConstraint
+                               constraintsWithVisualFormat:@"H:|[webView(selfView)]"
+                               options:0
+                               metrics:nil
+                               views:views]];
+    
+    
+    [self.view addConstraints:[NSLayoutConstraint
+                               constraintsWithVisualFormat:@"V:|[webView(selfView)]"
+                               options:0
+                               metrics:nil
+                               views:views]];
+    
+    [self.view addConstraints:[NSLayoutConstraint
+                               constraintsWithVisualFormat:@"V:|-10-[quitButton]"
+                               options:0
+                               metrics:nil
+                               views:views]];
+    
+    [self.view addConstraints:[NSLayoutConstraint
+                               constraintsWithVisualFormat:@"H:|-10-[quitButton]"
+                               options:0
+                               metrics:nil
+                               views:views]];
+    
 }
 
 
@@ -43,17 +83,17 @@ static const NSString* kJoinRoom = @"joinroom";
 }
 
 /*
--(void)startWithCreateByToken:(NSString*)token FinishedBlock:(void(^)(NSString* rootID))finishBlock {
-    NSAssert(STRING_IS_EMPTY(token) == false, @"token is empty");
-    _token = token;
-}
-
--(void)startWithJoinRoot:(NSString*)roomID ByToken:(NSString*)token FinishedBlock:(void(^)())finishBlock {
-    NSAssert(STRING_IS_EMPTY(token) == false, @"token is empty");
-    NSAssert(STRING_IS_EMPTY(roomID), @"token is empty");
-    _token = token;
-    _joinroom = roomID;
-}
+ -(void)startWithCreateByToken:(NSString*)token FinishedBlock:(void(^)(NSString* rootID))finishBlock {
+ NSAssert(STRING_IS_EMPTY(token) == false, @"token is empty");
+ _token = token;
+ }
+ 
+ -(void)startWithJoinRoot:(NSString*)roomID ByToken:(NSString*)token FinishedBlock:(void(^)())finishBlock {
+ NSAssert(STRING_IS_EMPTY(token) == false, @"token is empty");
+ NSAssert(STRING_IS_EMPTY(roomID), @"token is empty");
+ _token = token;
+ _joinroom = roomID;
+ }
  */
 
 -(void)loadNativeSetting {
@@ -81,15 +121,15 @@ static const NSString* kJoinRoom = @"joinroom";
     }
     
     if (server) {
-       _dictConfig[kServer] = server;
+        _dictConfig[kServer] = server;
     }
     
     if (_token) {
-       _dictConfig[kToken] = _token;
+        _dictConfig[kToken] = _token;
     }
     
     if (_joinroom) {
-       _dictConfig[kJoinRoom] = _joinroom;
+        _dictConfig[kJoinRoom] = _joinroom;
     }
 }
 
@@ -127,7 +167,7 @@ static const NSString* kJoinRoom = @"joinroom";
     
     
     __weak __typeof(self) weakSelf = self;
-   
+    
     // getNativeConfig
     [_bridge registerHandler:@"getNativeConfig" handler:^(id data, WVJBResponseCallback responseCallback) {
         __typeof(self)  strongSelf = weakSelf;
@@ -145,11 +185,18 @@ static const NSString* kJoinRoom = @"joinroom";
         // NSString* userID = data[@"userid"];
         // TODO: pop user profile window;
         //try pop a window
+        /*
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         SettingViewController *settings = (SettingViewController*)[storyboard instantiateViewControllerWithIdentifier:@"Settings"];
         
         
         [weakSelf presentViewController:settings animated:YES completion:nil];
+         */
+        
+        if (_profileShowBlock) {
+            NSString* userID = data[@"userid"];
+            _profileShowBlock(userID);
+        }
     }];
     
     
@@ -162,7 +209,7 @@ static const NSString* kJoinRoom = @"joinroom";
         DQAlertView* alertView = [[DQAlertView alloc]initWithTitle:popTitle message:popText delegate:self cancelButtonTitle:popButton1Text otherButtonTitles:nil];
         
         UIView* maskView = [self addMaskLayerToSelfView];
-       
+        
         __weak DQAlertView* alertViewSelf = alertView;
         
         alertView.cancelButtonAction = ^{
@@ -206,7 +253,7 @@ static const NSString* kJoinRoom = @"joinroom";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     
     _dictConfig = [[NSMutableDictionary alloc]init];
     [self registerWebHandle];
@@ -228,8 +275,8 @@ static const NSString* kJoinRoom = @"joinroom";
                                                           encoding:NSUTF8StringEncoding error:nil];
     
     indexPageContent = [indexPageContent stringByReplacingOccurrencesOfString:@"__PLAT__" withString:@"IOS"];
-
-    [_webView loadHTMLString:indexPageContent baseURL:[NSURL fileURLWithPath:PokerPath]];    
+    
+    [_webView loadHTMLString:indexPageContent baseURL:[NSURL fileURLWithPath:PokerPath]];
 }
 
 
@@ -296,13 +343,13 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

@@ -25,7 +25,7 @@ Animations.prototype = {
 		this.publicCards = lstPublicCard;
 	},
 
-	showPublicCard:function(lstIndex, lstKey, showBK) {
+	showPublicCard:function(lstIndex, lstKey, showBK, callback) {
 		if(lstIndex.length > this.publicCards.length)
 		{
 			return;
@@ -69,6 +69,10 @@ Animations.prototype = {
 				}
 			}
 		};
+
+		if(callback != undefined) {
+			callback();
+		}
 
 		showAnimation(lstIndex[nIndex], lstKey[nIndex], showBK);
 	},

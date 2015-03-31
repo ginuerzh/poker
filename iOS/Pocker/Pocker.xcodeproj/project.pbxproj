@@ -11,6 +11,7 @@
 		531A284F1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt in Resources */ = {isa = PBXBuildFile; fileRef = 531A284D1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt */; };
 		531A28501AC2662E00EBD80F /* WebViewJavascriptBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 531A284E1AC2662E00EBD80F /* WebViewJavascriptBridge.m */; };
 		531A28521AC269A800EBD80F /* Poker in Resources */ = {isa = PBXBuildFile; fileRef = 531A28511AC269A800EBD80F /* Poker */; };
+		53AFC3A41AC9545800422F30 /* PokerViewControllerEx.m in Sources */ = {isa = PBXBuildFile; fileRef = 53AFC3A31AC9545800422F30 /* PokerViewControllerEx.m */; };
 		53B0234B1AAD3AD0004BAA2D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B0234A1AAD3AD0004BAA2D /* main.m */; };
 		53B0234E1AAD3AD1004BAA2D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B0234D1AAD3AD0004BAA2D /* AppDelegate.m */; };
 		53B023511AAD3AD1004BAA2D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B023501AAD3AD1004BAA2D /* ViewController.m */; };
@@ -51,6 +52,8 @@
 		531A284D1AC2662E00EBD80F /* WebViewJavascriptBridge.js.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WebViewJavascriptBridge.js.txt; sourceTree = "<group>"; };
 		531A284E1AC2662E00EBD80F /* WebViewJavascriptBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewJavascriptBridge.m; sourceTree = "<group>"; };
 		531A28511AC269A800EBD80F /* Poker */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Poker; path = ../../../Poker; sourceTree = "<group>"; };
+		53AFC3A21AC9545800422F30 /* PokerViewControllerEx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PokerViewControllerEx.h; sourceTree = "<group>"; };
+		53AFC3A31AC9545800422F30 /* PokerViewControllerEx.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PokerViewControllerEx.m; sourceTree = "<group>"; };
 		53B023451AAD3AD0004BAA2D /* Pocker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pocker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		53B023491AAD3AD0004BAA2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		53B0234A1AAD3AD0004BAA2D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -133,6 +136,8 @@
 			children = (
 				53B024A51AAD8516004BAA2D /* SettingViewController.h */,
 				53B024A61AAD8516004BAA2D /* SettingViewController.m */,
+				53AFC3A21AC9545800422F30 /* PokerViewControllerEx.h */,
+				53AFC3A31AC9545800422F30 /* PokerViewControllerEx.m */,
 				53B0234C1AAD3AD0004BAA2D /* AppDelegate.h */,
 				53B0234D1AAD3AD0004BAA2D /* AppDelegate.m */,
 				53B0234F1AAD3AD1004BAA2D /* ViewController.h */,
@@ -289,6 +294,7 @@
 				53EB47651AB2DC4100F9E916 /* PokerViewController.m in Sources */,
 				53B023511AAD3AD1004BAA2D /* ViewController.m in Sources */,
 				53B0234E1AAD3AD1004BAA2D /* AppDelegate.m in Sources */,
+				53AFC3A41AC9545800422F30 /* PokerViewControllerEx.m in Sources */,
 				530C591E1ABABF6600103D93 /* DQAlertView.m in Sources */,
 				53B0234B1AAD3AD0004BAA2D /* main.m in Sources */,
 				531A28501AC2662E00EBD80F /* WebViewJavascriptBridge.m in Sources */,
