@@ -143,7 +143,17 @@ var MainState = function() {
     this.soundReorderCard;
     this.soundClick;
     this.soundDing;
+    this.soundLost;
+    this.soundWin;
+    
+    
+    this.imageDefaultProfile;
+
     this.chipsmoving;
+
+
+    // 牌提示
+    this.card_typebg;
 
 
 
@@ -204,12 +214,18 @@ MainState.prototype = {
         game.load.image("exitdoor", gImageDir+'btn-grey.png');
         game.load.image("dealer", gImageDir+'dealer.png');
         game.load.image("waitingRound", gImageDir+'win-frameWaiting.png');
+        game.load.image("card_typebg", gImageDir+'card_typebg.png');
+        game.load.image("defaultProfile", gImageDir+'defaultProfile.png');
+
 
         game.load.audio('sendcard', 'assets/sound/sendcard.mp3');
         game.load.audio('click', 'assets/sound/click.mp3');
         game.load.audio('chipsmoving', 'assets/sound/chipsmoving.mp3');
         game.load.audio('reordercard', 'assets/sound/reordercard.mp3');
         game.load.audio('ding', 'assets/sound/ding.mp3');
+        game.load.audio('win', 'assets/sound/win.mp3');
+        game.load.audio('lost', 'assets/sound/lose.mp3');
+
     },
 
     create: function() {
@@ -218,6 +234,8 @@ MainState.prototype = {
         this.soundReorderCard = game.add.audio("reordercard");
         this.soundClick = game.add.audio("click");
         this.soundDing = game.add.audio("ding");
+        this.soundWin = game.add.audio("win");
+        this.soundLost = game.add.audio("lost");
         this.chipsmoving = game.add.audio("chipsmoving");
 
 
@@ -275,6 +293,9 @@ MainState.prototype = {
         var userTextRate = [{x:0.69, y:0.292}, {x:0.856, y:0.329}, {x:0.768, y:0.484}, {x:0.61, y:0.613}, {x:0.5, y:0.557}, {x:0.339, y:0.613}, {x:0.173, y:0.484}, {x:0.142, y:0.329}, {x:0.306, y:0.292}];
 
         game.load.onFileComplete.add(this._fileComplete, this);
+
+
+        game.load.onFileError.add(this._fileError, this);
 
         this.animation.setPosParam(this.background.width, this.background.height, this.xOffset, this.yOffset);
         this.groupUser = game.add.group();
@@ -473,7 +494,7 @@ MainState.prototype = {
         this.waitButtonGroup2.add(this.lbCallWait);
         this.waitButtonGroup2.add(this.imgCallWait);
         style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
-        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.45 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
+        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
         this.lbCallEveryWait.anchor.set(0, 0.5);
         this.lbCallEveryWait.scale.setTo(this.scale, this.scale);
         this.imgCallEveryWait = game.add.image(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "checkOff");
@@ -540,9 +561,9 @@ MainState.prototype = {
         this.chipPool.anchor.set(0.5);
         this.chipPool.scale.setTo(this.scale);
 
-        this.btnExitRoom = game.add.button(0.92 * this.imageBK.width + this.xOffset, 0.02 * this.imageBK.height + this.yOffset, 'exitdoor', this.actionOnExit, this);
-        this.btnExitRoom.width = this.chipboxButton1.width;
-        this.btnExitRoom.height = this.chipboxButton1.height;
+        //this.btnExitRoom = game.add.button(0.92 * this.imageBK.width + this.xOffset, 0.02 * this.imageBK.height + this.yOffset, 'exitdoor', this.actionOnExit, this);
+        //this.btnExitRoom.width = this.chipboxButton1.width;
+        //this.btnExitRoom.height = this.chipboxButton1.height;
 
         this.starGroup = game.add.group();
         this.starGroup.enableBody = true;
@@ -573,7 +594,22 @@ MainState.prototype = {
                 }
             });
         }
+        
+        this.card_typebg=game.add.sprite(0, 0, "card_typebg");
+        this.card_typebg.anchor.setTo(0);
+        this.card_typebg.scale.setTo(this.scale, this.scale);
+        this.card_typebg.x = - this.card_typebg.width 
 
+    },
+
+    actionCardTypeToggle:function() {
+        var to_x = 0;
+        if (this.card_typebg.x == 0 ) {
+            to_x = -this.card_typebg.width
+        }
+
+        var tweens = game.add.tween(this.card_typebg);
+        tweens.to({x:to_x}, 200, Phaser.Easing.Quadratic.In, true);
     },
 
     update:function()
@@ -614,6 +650,14 @@ MainState.prototype = {
         }
     },
 
+    _fileError:function(key) {
+        if(key.indexOf("userImage") != -1) {
+            var index = parseInt(cacheKey.substr(9));
+            var user = this.userList[index];
+            user.setParam(null, "defaultProfile", null);
+        }
+    },
+
     actionOnExit:function()
     {
         game.betApi.leaveRoom();
@@ -637,6 +681,8 @@ MainState.prototype = {
             this.imgCallWait.loadTexture("checkOff", this.imgCallWait.frame);
             this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
         }
+
+        this.actionCardTypeToggle();
     },
 
     // 自动看牌／自动跟注
@@ -696,6 +742,8 @@ MainState.prototype = {
         });
         
         console.log("game quit ============");
+
+
         
     },
 
@@ -836,14 +884,17 @@ MainState.prototype = {
                 this.loginCertification = true;
 
                 this._currentPlayButtonUpdate(false)
+                console.log("gParam:", JSON.stringify(gParam))
 
                 if(gParam.joinroom != undefined && gParam.joinroom != null) {
                     this.roomID = gParam.joinroom
+                    console.log("enter room:", this.rootID);
                     game.betApi.enterRoom(function(isOK){
                         console.log("enterRoom is " +  isOK);
                     }, this.roomID);
 
                 } else {
+                    console.log("enter random room:");
                     game.betApi.enterRoom(function(isOK){
                                 console.log("enterRoom is " +  isOK);
                     }, null);
@@ -1106,8 +1157,10 @@ MainState.prototype = {
 
             var diffbet = this.gameStateObj.mybet - this.gameStateObj.mybetOnDesk
 
-
-            if(diffbet == 0 || diffbet > this.chips) {
+            if(diffbet > this.chips) {
+                diffbet = this.chips;
+                this.lbCall.setText("全压");
+            } else if(diffbet == 0 ) {
                 this.lbCall.setText("看牌");
             } else {
                 this.lbCall.setText("跟注 "+ diffbet);
@@ -1225,9 +1278,11 @@ MainState.prototype = {
                 hashand = true
             }
             
-            if(occupantInfo.id != this.userID) {
+            if(occupantInfo.id == this.userID) {
                 if(occupantInfo.chip != undefined && occupantInfo.chip != null) {
                     this.chips = occupantInfo.chip;
+                    var userMe = this._userByUserID(winOccupantItem.id)
+                    userMe.setChips(this.chips);
                 }
             }
 
@@ -1251,17 +1306,22 @@ MainState.prototype = {
                 if (winOccupantItem.action != "fold") {
                     if(winOccupantItem.cards != null && winOccupantItem.cards != undefined) {
                         winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+
+                        if(winOccupantItem.id != this.userID) {
+                            this._playSound(this.soundLost);
+                        } else {
+                            this._playSound(this.soundWin);
+                        }
+
                         var hand = winOccupantItem.hand;
                         if(hand != undefined && hand != null) {
                             var type = (hand >>> 16)
                             if(type > 10) {
                                 type = 0
                             }
-
                             if(winOccupantItem.id != this.userID) {
                                 winUser.setUserTitle(this.CONST.CardTypeNames[type])
                             }
-
                         }
                     }
 
@@ -1625,7 +1685,10 @@ MainState.prototype = {
             deskCardIDs.push(i);
             lstCardImage.push(publicCards[i]);
         }
-        this.animation.showPublicCard(deskCardIDs, lstCardImage, true);
+        var that = this;
+        this.animation.showPublicCard(deskCardIDs, lstCardImage, true, function(){
+            that._playSound(that.soundSendCard);
+        });
     },
 
     _turnAnimation:function(card) {
@@ -1635,6 +1698,7 @@ MainState.prototype = {
         var lstCardImage = [card]
         this.animation.publicCards[deskCardIDs].visible = true;
         this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
+        this._playSound(this.soundSendCard);
     },
 
     _riverAnimation:function(card) {
@@ -1644,6 +1708,7 @@ MainState.prototype = {
         var lstCardImage = [card]
         this.animation.publicCards[deskCardIDs].visible = true;
         this.animation.showPublicCard(deskCardIDs, lstCardImage, false);
+        this._playSound(this.soundSendCard);
     },
 
     _resetPublicCard:function() 
@@ -1831,7 +1896,11 @@ MainState.prototype = {
         }
         */
 
-        sound.play()
+        if(sound != undefined || sound != null) {
+            sound.play()
+        } else {
+            console.log("sound is undefined");
+        }
     },
     /*
     _sendCardAnimation:function() {

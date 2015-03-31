@@ -9,7 +9,7 @@
         <!--View Controller-->
         <scene sceneID="8oA-pa-8mK">
             <objects>
-                <viewController id="P5c-Vs-Kwf" sceneMemberID="viewController">
+                <viewController id="P5c-Vs-Kwf" customClass="ViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="O86-Ec-giy"/>
                         <viewControllerLayoutGuide type="bottom" id="V84-DT-aax"/>
@@ -18,20 +18,32 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uwl-UW-c6n">
-                                <rect key="frame" x="137" y="269" width="46" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uwl-UW-c6n">
+                                <rect key="frame" x="115" y="269" width="90" height="30"/>
                                 <state key="normal" title="进入德州扑克">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <segue destination="BYZ-38-t0r" kind="modal" id="5Dy-OB-VaN"/>
+                                    <action selector="actionLoadGameEx:" destination="GGx-JC-yxQ" eventType="touchUpInside" id="8KC-iD-qHf"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JXR-8J-yNC">
+                                <rect key="frame" x="115" y="307" width="90" height="30"/>
+                                <state key="normal" title="Nib 版本">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <segue destination="BYZ-38-t0r" kind="modal" id="0au-2U-Pe0"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Uwl-UW-c6n" firstAttribute="centerX" secondItem="nMb-N6-Ar5" secondAttribute="centerX" id="8CZ-eV-y1E"/>
+                            <constraint firstItem="JXR-8J-yNC" firstAttribute="leading" secondItem="Uwl-UW-c6n" secondAttribute="leading" id="E1z-xk-Vm9"/>
+                            <constraint firstAttribute="centerX" secondItem="JXR-8J-yNC" secondAttribute="centerX" id="X1q-uU-sey"/>
                             <constraint firstItem="Uwl-UW-c6n" firstAttribute="centerY" secondItem="nMb-N6-Ar5" secondAttribute="centerY" id="kfp-qB-N1r"/>
+                            <constraint firstItem="JXR-8J-yNC" firstAttribute="top" secondItem="Uwl-UW-c6n" secondAttribute="bottom" constant="8" symbolic="YES" id="vqM-bt-ugz"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="h9l-I3-uS4"/>

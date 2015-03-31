@@ -104,7 +104,11 @@ User.prototype = {
 		this.lbname = game.add.text(this.rect.left + this.rect.width / 2, this.rect.top + this.rect.height * 0.1, this.param["userName"], style);
 		this.lbname.anchor.set(0.5);
 		this.lbname.scale.setTo(this.scale, this.scale);
-		this.imagebody = game.add.sprite(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.2, this.param["userImage"]);
+        var userProfile = this.param["userImage"]
+        if(userProfile == undefined || userProfile == "" || userProfile == null) {
+            userProfile = "defaultProfile"
+        }
+        this.imagebody = game.add.sprite(this.rect.left + this.rect.width * 0.05, this.rect.top + this.rect.height * 0.2, userProfile);
         this.imagebody.inputEnabled = true;
         var that = this
         this.imagebody.events.onInputDown.add(function(){

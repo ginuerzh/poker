@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "WebViewJavascriptBridge/WebViewJavascriptBridge.h"
+#import "PokerViewControllerEx.h"
 
 @interface ViewController () <UIWebViewDelegate>
 
@@ -17,6 +18,19 @@
    
 }
 
+
+-(IBAction)actionLoadGameEx:(id)sender {
+    PokerViewControllerEx* pocker  = [[PokerViewControllerEx alloc]init];
+    pocker.joinroom = @"1001";
+    
+    /*
+    __weak __typeof(self) weakSelf = self;
+    pocker.profileShowBlock = ^(NSString* userID) {
+        // TODO: show profile window
+    };
+    */
+    [self.navigationController presentViewController:pocker animated:YES completion:nil];
+}
 
 
 
