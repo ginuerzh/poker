@@ -2,6 +2,7 @@ package poker
 
 import (
 	"fmt"
+	"github.com/facebookgo/grace/gracehttp"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +20,8 @@ type Poker struct {
 func (p *Poker) ListenAndServe() error {
 	http.HandleFunc("/ws", p.pokerHandler)
 	http.Handle("/", http.FileServer(http.Dir(p.WebRoot)))
-	return http.ListenAndServe(p.Addr, nil)
+	//return http.ListenAndServe(p.Addr, nil)
+	return gracehttp.Serve(&http.Server{Addr: p.Addr})
 }
 
 func (p *Poker) pokerHandler(w http.ResponseWriter, r *http.Request) {
