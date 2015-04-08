@@ -3,11 +3,7 @@ package poker
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
-	"log"
 	"net/http"
-	"os"
-	"strconv"
-	"time"
 )
 
 const (
@@ -91,61 +87,8 @@ func NewError(code int, err string) *Error {
 	}
 }
 
-func PokerHandler(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
-	}
-	defer ws.Close()
-
-	ws.SetReadLimit(maxMessageSize)
-	ws.SetPongHandler(
-		func(string) error {
-			ws.SetReadDeadline(time.Now().Add(pongWait))
-			return nil
-		})
-	conn := NewConn(ws, 128)
-	defer conn.Close()
-
-	ver := &Version{}
-	if err := conn.ReadJSONTimeout(ver, readWait); err != nil {
-		return
-	}
-	if err := conn.WriteJSON(ver); err != nil {
-		return
-	}
-
-	auth := &Auth{}
-	if err := conn.ReadJSONTimeout(auth, readWait); err != nil {
-		return
-	}
-
-	o := NewOccupant(strconv.FormatInt(time.Now().Unix(), 10), conn)
-	o.Name = auth.Text
-	o.Chips = 10000
-
-	if err := conn.WriteJSON(o); err != nil {
-		return
-	}
-
-	for {
-		message, _ := o.GetMessage(0)
-		if message == nil {
-			break
-		}
-
-		switch message.Type {
-		case MsgIQ:
-			go handleIQ(o, message)
-		case MsgPresence:
-			go handlePresence(o, message)
-		case MsgMessage:
-		}
-	}
-
-	o.Leave()
-	log.Println(o.Name, "disconnected.")
+func (e *Error) Error() string {
+	return fmt.Sprintf("%d: %s", e.Code, e.Err)
 }
 
 func handlePresence(o *Occupant, message *Message) {
@@ -170,10 +113,8 @@ func handleIQ(o *Occupant, message *Message) {
 	case ActSet:
 		switch message.Class {
 		case "room":
-			room := GetRoom(message.To)
-			if room == nil {
-				room = NewRoom("", 9, 5, 10)
-			}
+			room := NewRoom("", 9, 5, 10)
+
 			if message.Room != nil {
 				if message.Room.SB > 0 {
 					room.SB = message.Room.SB

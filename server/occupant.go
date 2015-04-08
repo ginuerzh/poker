@@ -34,7 +34,7 @@ func NewOccupant(id string, conn *Conn) *Occupant {
 		conn:    conn,
 		recv:    make(chan *Message, 128),
 		Actions: make(chan *Message),
-		Profile: "http://172.24.222.42:8082/4,0aaaffedfc7b",
+		//Profile: "http://172.24.222.42:8082/4,0aaaffedfc7b",
 	}
 
 	go func() {

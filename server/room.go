@@ -27,6 +27,8 @@ type Room struct {
 	Bet       int         `json:"bet,omitempty"`
 	N         int         `json:"n"`
 	Max       int         `json:"max"`
+	MaxChips  int         `json:"maxchips"`
+	MinChips  int         `json:"minchips"`
 	remain    int
 	allin     int
 	EndChan   chan int `json:"-"`
