@@ -155,6 +155,8 @@ var MainState = function() {
     // 牌提示
     this.card_typebg;
 
+    this.currentSliderValue;
+
 
 
     // game current data
@@ -181,9 +183,9 @@ MainState.prototype = {
         game.load.image('winBK', gImageDir+'win-frame-bg.png');
         game.load.image('winBKFrame', gImageDir+'win-frame.png');
         game.load.image('defaultUserImage', gImageDir+'coin.png');
-        game.load.image('buttonblue', gImageDir+'btn-blue.png');
-        game.load.image('buttongrey', gImageDir+'btn-grey.png');
-        game.load.image('buttonyellow', gImageDir+'btn-yellow.png');
+        game.load.image('buttonblue', gImageDir+'btn-big-green.png');
+        game.load.image('buttongrey', gImageDir+'btn-big-green.png');
+        game.load.image('buttonyellow', gImageDir+'btn-big-blue.png');
         game.load.image('animeCoins', gImageDir+'coin.png');
         game.load.image('light', gImageDir+'roomLight.png');
         var cardImageName = ["spades", "hearts", "clubs", "diamonds"];
@@ -211,11 +213,17 @@ MainState.prototype = {
         game.load.image("chipbox", gImageDir+'add-chips-box.png');
         game.load.image("winLight", gImageDir+'light_dot.png');
         game.load.image("groove", gImageDir+'sliderGroove.png');
+        game.load.image("slidebar", gImageDir+'slidebar.png');
+        game.load.image("btnslider", gImageDir+'btn-slider.png');
+        game.load.image("fillbox", gImageDir+'fill-box.png');
         game.load.image("exitdoor", gImageDir+'btn-grey.png');
         game.load.image("dealer", gImageDir+'dealer.png');
         game.load.image("waitingRound", gImageDir+'win-frameWaiting.png');
         game.load.image("card_typebg", gImageDir+'card_typebg.png');
         game.load.image("defaultProfile", gImageDir+'defaultProfile.png');
+        game.load.image("buttonrules", gImageDir+'btn-rules.png');
+       
+        
 
 
         game.load.audio('sendcard', 'assets/sound/sendcard.mp3');
@@ -385,15 +393,21 @@ MainState.prototype = {
         this.light.visible = false;
         this.animation.setLight(this.light);
 
-        this.chipbox = game.add.sprite(0, 0, "chipbox");
+        this.chipbox = game.add.sprite(0, 0, "fillbox");
         this.chipbox.scale.setTo(this.scale, this.scale);
-        this.chipboxButton1 = game.add.button(0, 0, 'buttonyellow', this.chipOnClick1, this);
-        this.chipboxButton2 = game.add.button(0, 0, 'buttonblue', this.chipOnClick2, this);
-        this.chipboxButton3 = game.add.button(0, 0, 'buttonblue', this.chipOnClick3, this);
-        this.chipboxButton4 = game.add.button(0, 0, 'buttonblue', this.chipOnClick4, this);
-        var style = { font: _fontString(28), fill: "#CE8D00"};
+        this.chipboxButton1 = game.add.button(0, 0, 'buttonblue', this.chipOnClick1, this);
+        this.chipboxButton2 = game.add.button(0, 0, 'buttonyellow', this.chipOnClick2, this);
+        this.chipboxButton3 = game.add.button(0, 0, 'buttonyellow', this.chipOnClick3, this);
+        this.chipboxButton4 = game.add.button(0, 0, 'buttonyellow', this.chipOnClick4, this);
+
+        this.chipboxButton1.scale.setTo(this.scale, this.scale);
+        this.chipboxButton2.scale.setTo(this.scale, this.scale);
+        this.chipboxButton3.scale.setTo(this.scale, this.scale);
+        this.chipboxButton4.scale.setTo(this.scale, this.scale);
+
+        var style = { font: _fontString(28), fill: "#FFFFFF"};
         this.chipboxText1 = game.add.text(0, 0, "全部", style);
-        style = { font: _fontString(28), fill: "#0069B2"};
+        style = { font: _fontString(28), fill: "#FFFFFF"};
         this.chipboxText2 = game.add.text(0, 0, "120", style);
         this.chipboxText3 = game.add.text(0, 0, "80", style);
         this.chipboxText4 = game.add.text(0, 0, "50", style);
@@ -405,8 +419,12 @@ MainState.prototype = {
         this.chipboxText2.scale.setTo(this.scale, this.scale);
         this.chipboxText3.scale.setTo(this.scale, this.scale);
         this.chipboxText4.scale.setTo(this.scale, this.scale);
-        this.chipboxSliderGroove = game.add.sprite(0, 0, "groove");
-        this.chipboxSliderHandle = game.add.sprite(0, 0, "buttonblue");
+        //this.chipboxSliderGroove = game.add.sprite(0, 0, "groove");
+        //this.chipboxSliderHandle = game.add.sprite(0, 0, "buttonblu;
+        this.chipboxSliderGroove = game.add.sprite(0, 0, "slidebar");
+        this.chipboxSliderHandle = game.add.sprite(0, 0, "btnslider");
+        this.chipboxSliderGroove.scale.setTo(this.scale, this.scale);
+        this.chipboxSliderHandle.scale.setTo(this.scale, this.scale);
         this.chipboxSliderGroove.anchor.set(0.5);
         this.chipboxSliderHandle.anchor.set(0.5);
         style = { font: _fontString(32), fill: "#CE8D00"};
@@ -432,6 +450,12 @@ MainState.prototype = {
         var buttonPosRate2 = {x:0.394, y:0.881};
         var buttonPosRate3 = {x:0.62, y:0.881};
         var buttonSizeRate = {width:0.213, height:0.119};
+
+        this.buttonrules = game.add.button(buttonPosRate1.x * this.imageBK.width * 0.3 + this.xOffset, buttonPosRate1.y * this.imageBK.height + this.yOffset, 'buttonrules', this.actionOnRuleShow, this);
+        this.buttonrules.scale.setTo(this.scale, this.scale);
+
+
+
         this.button1 = game.add.button(buttonPosRate1.x * this.imageBK.width + this.xOffset, buttonPosRate1.y * this.imageBK.height + this.yOffset, 'buttonyellow', this.actionOnClick1, this);
         this.button2 = game.add.button(buttonPosRate2.x * this.imageBK.width + this.xOffset, buttonPosRate2.y * this.imageBK.height + this.yOffset, 'buttonyellow', this.actionOnClick2, this);
         this.button3 = game.add.button(buttonPosRate3.x * this.imageBK.width + this.xOffset, buttonPosRate3.y * this.imageBK.height + this.yOffset, 'buttonyellow', this.actionOnClick3, this);
@@ -454,75 +478,78 @@ MainState.prototype = {
         this.waitButtonGroup3 = game.add.group();
         this._setWaitButtonsVisible(false)
 
-        style = { font: _fontString(28), fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
-        this.lbLookorGiveup = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.5 * this.button1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.button1.height, "弃牌", style);
+        style = { font: _fontString(28), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: this.button1.width, align: "center" };
+        this.lbLookorGiveup = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.5 * this.button1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.51 * this.button1.height, "弃牌", style);
         this.lbLookorGiveup.anchor.set(0.5);
         this.lbLookorGiveup.scale.setTo(this.scale, this.scale);
         this.buttonGroup1.add(this.button1);
         this.buttonGroup1.add(this.lbLookorGiveup);
-        style = { font: _fontString(28), fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
-        this.lbCall = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.button2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.button2.height, "跟注", style);
+        style = { font: _fontString(28), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
+        this.lbCall = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.button2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.51 * this.button2.height, "跟注", style);
         this.lbCall.anchor.set(0, 0.5);
         this.lbCall.scale.setTo(this.scale, this.scale);
         this.buttonGroup2.add(this.button2);
         this.buttonGroup2.add(this.lbCall);
-        style = { font: _fontString(28), fill: "#CE8D00", wordWrap: false, wordWrapWidth: this.button3.width, align: "center" };
-        this.lbCallEvery = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.5 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "加注", style);
+        style = { font: _fontString(28), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: this.button3.width, align: "center" };
+        this.lbCallEvery = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.5 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton3.height, "加注", style);
         this.lbCallEvery.anchor.set(0.5);
         this.lbCallEvery.scale.setTo(this.scale, this.scale);
         this.buttonGroup3.add(this.button3);
         this.buttonGroup3.add(this.lbCallEvery);
 
-        style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
-        this.lbLookorGiveupWait = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton1.height, "看牌或弃牌", style);
+        style = { font: _fontString(24), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton1.width, align: "left" };
+        this.lbLookorGiveupWait = game.add.text(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton1.height, "看牌或弃牌", style);
         this.lbLookorGiveupWait.anchor.set(0, 0.5);
         this.lbLookorGiveupWait.scale.setTo(this.scale, this.scale);
-        this.imgLookorGiveupWait = game.add.image(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton1.height, "checkOff");
+        this.imgLookorGiveupWait = game.add.image(buttonPosRate1.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton1.width, buttonPosRate1.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton1.height, "checkOff");
         this.imgLookorGiveupWait.anchor.set(0.5);
         this.imgLookorGiveupWait.scale.setTo(this.scale, this.scale);
         this.waitButtonGroup1.add(this.waitbutton1);
         this.waitButtonGroup1.add(this.lbLookorGiveupWait);
         this.waitButtonGroup1.add(this.imgLookorGiveupWait);
-        style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
-        this.lbCallWait = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton2.height, "跟注", style);
+        style = { font: _fontString(24), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton2.width, align: "left" };
+        this.lbCallWait = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton2.height, "跟注", style);
         this.lbCallWait.anchor.set(0, 0.5);
         this.lbCallWait.scale.setTo(this.scale, this.scale);
-        this.imgCallWait = game.add.image(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton2.height, "checkOff");
+        this.imgCallWait = game.add.image(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton2.height, "checkOff");
         this.imgCallWait.anchor.set(0.5);
         this.imgCallWait.scale.setTo(this.scale, this.scale);
         this.waitButtonGroup2.add(this.waitbutton2);
         this.waitButtonGroup2.add(this.lbCallWait);
         this.waitButtonGroup2.add(this.imgCallWait);
-        style = { font: _fontString(24), fill: "#0069B2", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
-        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "跟任何注", style);
+        style = { font: _fontString(24), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: 0.6 * this.waitbutton3.width, align: "left" };
+        this.lbCallEveryWait = game.add.text(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.35 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton3.height, "跟任何注", style);
         this.lbCallEveryWait.anchor.set(0, 0.5);
         this.lbCallEveryWait.scale.setTo(this.scale, this.scale);
-        this.imgCallEveryWait = game.add.image(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.45 * this.waitbutton3.height, "checkOff");
+        this.imgCallEveryWait = game.add.image(buttonPosRate3.x * this.imageBK.width + this.xOffset + 0.2 * this.waitbutton3.width, buttonPosRate3.y * this.imageBK.height + this.yOffset + 0.51 * this.waitbutton3.height, "checkOff");
         this.imgCallEveryWait.anchor.set(0.5);
         this.imgCallEveryWait.scale.setTo(this.scale, this.scale);
         this.waitButtonGroup3.add(this.waitbutton3);
         this.waitButtonGroup3.add(this.lbCallEveryWait);
         this.waitButtonGroup3.add(this.imgCallEveryWait);
 
-        this.chipbox.x = this.button3.x + this.button3.width * 0.04;
+        this.chipbox.x = this.button3.x + this.button3.width * 0.01;
         this.chipbox.y = this.button3.y - this.chipbox.height * 0.99;
-        this.chipbox.width = this.button3.width * 0.92;
+
+        var chipboxButtonGap = 0.19;
+        var chipboxButtonStart = 0.28;
+        //this.chipbox.width = this.button3.width * 0.92;
         this.chipboxButton1.x = this.chipbox.x + this.chipbox.width * 0.1;
-        this.chipboxButton1.y = this.chipbox.y + this.chipbox.height * 0.08;
+        this.chipboxButton1.y = this.chipbox.y + this.chipbox.height * chipboxButtonStart;
         this.chipboxButton1.width = this.chipbox.width * 0.3;
-        this.chipboxButton1.height = this.chipbox.height * 0.18;
+        //this.chipboxButton1.height = this.chipbox.height * 0.18;
         this.chipboxButton2.x = this.chipbox.x + this.chipbox.width * 0.1;
-        this.chipboxButton2.y = this.chipbox.y + this.chipbox.height * 0.31;
+        this.chipboxButton2.y = this.chipbox.y + this.chipbox.height * (chipboxButtonStart + chipboxButtonGap);
         this.chipboxButton2.width = this.chipbox.width * 0.3;
-        this.chipboxButton2.height = this.chipbox.height * 0.18;
+        //this.chipboxButton2.height = this.chipbox.height * 0.18;
         this.chipboxButton3.x = this.chipbox.x + this.chipbox.width * 0.1;
-        this.chipboxButton3.y = this.chipbox.y + this.chipbox.height * 0.54;
+        this.chipboxButton3.y = this.chipbox.y + this.chipbox.height * (chipboxButtonStart + chipboxButtonGap*2);
         this.chipboxButton3.width = this.chipbox.width * 0.3;
-        this.chipboxButton3.height = this.chipbox.height * 0.18;
+        //this.chipboxButton3.height = this.chipbox.height * 0.18;
         this.chipboxButton4.x = this.chipbox.x + this.chipbox.width * 0.1;
-        this.chipboxButton4.y = this.chipbox.y + this.chipbox.height * 0.78;
+        this.chipboxButton4.y = this.chipbox.y + this.chipbox.height * (chipboxButtonStart + chipboxButtonGap*3);
         this.chipboxButton4.width = this.chipbox.width * 0.3;
-        this.chipboxButton4.height = this.chipbox.height * 0.18;
+        //this.chipboxButton4.height = this.chipbox.height * 0.18;
         this.chipboxText1.x = this.chipboxButton1.x + this.chipboxButton1.width * 0.5;
         this.chipboxText1.y = this.chipboxButton1.y + this.chipboxButton1.height * 0.45;
         this.chipboxText2.x = this.chipboxButton2.x + this.chipboxButton2.width * 0.5;
@@ -531,25 +558,25 @@ MainState.prototype = {
         this.chipboxText3.y = this.chipboxButton3.y + this.chipboxButton3.height * 0.45;
         this.chipboxText4.x = this.chipboxButton4.x + this.chipboxButton4.width * 0.5;
         this.chipboxText4.y = this.chipboxButton4.y + this.chipboxButton4.height * 0.45;
-        this.chipboxTextSlider.x = this.chipbox.x + this.chipbox.width * 0.7;
-        this.chipboxTextSlider.y = this.chipboxButton1.y + this.chipboxButton1.height * 0.5;
-        this.chipboxSliderGroove.width = this.chipbox.width * 0.1;
-        this.chipboxSliderGroove.height = this.chipbox.height * 0.7;
+        this.chipboxTextSlider.x = this.chipbox.x + this.chipbox.width / 2;
+        this.chipboxTextSlider.y = this.chipboxButton1.y - this.chipboxButton1.height * 1.3//+ this.chipboxButton1.height ;
+        //this.chipboxSliderGroove.width = this.chipbox.width * 0.1;
+        //this.chipboxSliderGroove.height = this.chipbox.height * 0.7;
         this.chipboxSliderGroove.x = this.chipbox.x + this.chipbox.width * 0.7;
         this.chipboxSliderGroove.y = this.chipboxButton4.y + this.chipboxButton4.height - this.chipboxSliderGroove.height * 0.5;
-        this.chipboxSliderHandle.width = this.chipbox.width * 0.2;
-        this.chipboxSliderHandle.height = this.chipboxSliderHandle.width * 0.5;
+        //this.chipboxSliderHandle.width = this.chipbox.width * 0.2;
+        //this.chipboxSliderHandle.height = this.chipboxSliderHandle.width * 0.5;
         this.chipboxSliderHandle.x = this.chipbox.x + this.chipbox.width * 0.7;
         this.chipboxSliderHandle.y = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
         this.chipboxSliderHandle.inputEnabled = true;
         this.chipboxSliderHandle.input.enableDrag();
         this.chipboxSliderHandle.input.setDragLock(false);
         this.dealer = null;
-        //this.chipboxSliderHandle.events.onDragStart.add(onDragStart, this);
-        //this.chipboxSliderHandle.events.onDragStop.add(onDragStop, this);
+        //this.chipboxSliderHandle.events.onDragStart.add(sliderDragStart, this);
+        //this.chipboxSliderHandle.events.onDragStop.add(sliderDragStop, this);
 
         style = { font: _fontString(16), fill: "#76FF68", wordWrap: true, wordWrapWidth: this.background.width, align: "center" };
-        this.blinds = game.add.text(this.background.width / 2 + this.xOffset, 0.25 * this.background.height + this.yOffset, "$" + this.sb + " / $" + this.bb, style);
+        this.blinds = game.add.text(this.background.width / 2 + this.xOffset, 0.28 * this.background.height + this.yOffset, "$" + this.sb + " / $" + this.bb, style);
         this.blinds.anchor.set(0.5);
         this.blinds.scale.setTo(this.scale);
 
@@ -598,7 +625,13 @@ MainState.prototype = {
         this.card_typebg=game.add.sprite(0, 0, "card_typebg");
         this.card_typebg.anchor.setTo(0);
         this.card_typebg.scale.setTo(this.scale, this.scale);
-        this.card_typebg.x = - this.card_typebg.width 
+        this.card_typebg.x = - this.card_typebg.width
+        this.card_typebg.inputEnabled = true;
+        var that = this
+        this.card_typebg.events.onInputDown.add(function(){
+            console.log("card_typebg clicked");
+            that.actionCardTypeToggle();
+        }, this);
 
     },
 
@@ -612,17 +645,19 @@ MainState.prototype = {
         tweens.to({x:to_x}, 200, Phaser.Easing.Quadratic.In, true);
     },
 
-    update:function()
-    {
-        for(var i = 0; i < this.userList.length; i++)
-        {
-            if(this.userList[i])
-            {
-                this.userList[i].update();
-            }
-        }
 
-        if(this.chipbox.visible) {
+    _setSliderValue1:function(value) {
+        var nMaxPos = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
+        var nMinPos = this.chipboxSliderGroove.y - this.chipboxSliderGroove.height * 0.5 + this.chipboxSliderHandle.height * 0.5
+
+        var deltaPos = nMaxPos - nMinPos
+        var deltaValue = this.sliderMaxNum - this.sliderMinNum
+        this.chipboxSliderHandle.y = nMaxPos - deltaPos / deltaValue * value
+    },
+
+
+    _updateSliderBar:function() {
+        if(this.chipboxGroup.visible == true) {
             var nMaxPos = this.chipboxSliderGroove.y + this.chipboxSliderGroove.height * 0.5 - this.chipboxSliderHandle.height * 0.5;
             var nMinPos = this.chipboxSliderGroove.y - this.chipboxSliderGroove.height * 0.5 + this.chipboxSliderHandle.height * 0.5;
             if(this.chipboxSliderHandle.y > nMaxPos)
@@ -637,7 +672,30 @@ MainState.prototype = {
             var value = Math.round(this.sliderMaxNum - (this.chipboxSliderHandle.y - nMinPos) / (nMaxPos - nMinPos) * (this.sliderMaxNum - this.sliderMinNum));
             value = Math.round(value / 5) * 5;
             this.chipboxTextSlider.setText(value);
+            if(value > 0) {
+                this.lbCallEvery.setText("加注 " + value);
+            } else {
+                this.lbCallEvery.setText("加注")
+            }
+
+            this.currentSliderValue = value;
+
+        } else {
+            this.lbCallEvery.setText("加注")
         }
+    },
+
+    update:function()
+    {
+        for(var i = 0; i < this.userList.length; i++)
+        {
+            if(this.userList[i])
+            {
+                this.userList[i].update();
+            }
+        }
+
+        this._updateSliderBar()
     },
 
     _fileComplete:function(progress, cacheKey, success, totalLoaded, totalFiles)
@@ -650,7 +708,7 @@ MainState.prototype = {
         }
     },
 
-    _fileError:function(key) {
+    _fileError:function(cacheKey) {
         if(key.indexOf("userImage") != -1) {
             var index = parseInt(cacheKey.substr(9));
             var user = this.userList[index];
@@ -682,7 +740,6 @@ MainState.prototype = {
             this.imgCallEveryWait.loadTexture("checkOff", this.imgCallEveryWait.frame);
         }
 
-        this.actionCardTypeToggle();
     },
 
     // 自动看牌／自动跟注
@@ -775,7 +832,7 @@ MainState.prototype = {
                 that._setBetButtonsVisible(false)
             })
 
-        this.chipboxGroup.visible = false;
+        that.chipboxGroup.visible = false;
     },
 
     // 加注
@@ -787,7 +844,7 @@ MainState.prototype = {
             var text = this.chipboxTextSlider.text
             var betValue = parseInt(text)
             this._raseAction(betValue)
-
+            this.lbCallEvery.setText("加注");
         }
         else
         {
@@ -805,31 +862,41 @@ MainState.prototype = {
             this._setSliderRange(bet, this.chips);
             this.chipboxGroup.visible = true;
             this.chipboxOpened = true;
+
+            this.lbCallEvery.setText("加注 "+bet);
         }
     },
 
     chipOnClick1:function()
     {
-        this._raseAction(this.chips)
+        //this._raseAction(this.chips)
+        this._setSliderValue1(this.chips)
     },
 
     chipOnClick2:function()
     {
         //this.chipboxGroup.visible = false;
         //this._setSliderValue(this.gameStateObj.chipboxValue3)
-        this._raseAction(this.gameStateObj.chipboxValue3)
+        //this._raseAction(this.gameStateObj.chipboxValue3)
+        this._setSliderValue1(this.gameStateObj.chipboxValue3 + this.currentSliderValue)
     },
 
     chipOnClick3:function()
     {
         //this._setSliderValue(this.gameStateObj.chipboxValue2)
-        this._raseAction(this.gameStateObj.chipboxValue2)
+        //this._raseAction(this.gameStateObj.chipboxValue2)
+        this._setSliderValue1(this.gameStateObj.chipboxValue2 + this.currentSliderValue)
     },
 
     chipOnClick4:function()
     {
         //this._setSliderValue(this.gameStateObj.chipboxValue1)
-        this._raseAction(this.gameStateObj.chipboxValue1)
+        //this._raseAction(this.gameStateObj.chipboxValue1)
+        this._setSliderValue1(this.gameStateObj.chipboxValue1 + this.currentSliderValue)
+    },
+
+    actionOnRuleShow:function() {
+        this.actionCardTypeToggle();
     },
 
     _showCoinAnime:function()
@@ -978,7 +1045,7 @@ MainState.prototype = {
     {
         this.roomID = data.room.id;
         game.betApi.setRoomID(this.roomID);
-        game.Native.roomCreated(this.rootID);
+        //game.Native.roomCreated(this.rootID);
     },
 
     handleJoin:function(data)
@@ -1548,6 +1615,8 @@ MainState.prototype = {
                 that.animation.stopShake = true;
                 if(blComplete == true) {
                     that._playSound(that.soundDing)
+                    that.chipboxGroup.visible = false;
+                    that.lbCallEvery.setText("加注")
                 } 
             })
 
@@ -1776,7 +1845,8 @@ MainState.prototype = {
         //this.gameStateObj.chipboxValue2 = minChip * 2;
         //this.gameStateObj.chipboxValue3 = minChip * 4;
 
-        var chip1 = minChip;
+        //var chip1 = minChip;
+        var chip1 = 20;  // 不动态变化了，只固定 20 40 80
         var chip2 =  chip1 * 2;
         var chip3 = chip2 * 2;
         this.gameStateObj.chipboxValue1 = chip1;
