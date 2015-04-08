@@ -484,8 +484,8 @@ MainState.prototype = {
         this.lbLookorGiveup.scale.setTo(this.scale, this.scale);
         this.buttonGroup1.add(this.button1);
         this.buttonGroup1.add(this.lbLookorGiveup);
-        style = { font: _fontString(28), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: this.button2.width, align: "left" };
-        this.lbCall = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.2 * this.button2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.51 * this.button2.height, "跟注", style);
+        style = { font: _fontString(28), fill: "#FFFFFF", wordWrap: false, wordWrapWidth: this.button2.width, align: "center" };
+        this.lbCall = game.add.text(buttonPosRate2.x * this.imageBK.width + this.xOffset + 0.32 * this.button2.width, buttonPosRate2.y * this.imageBK.height + this.yOffset + 0.51 * this.button2.height, "跟注", style);
         this.lbCall.anchor.set(0, 0.5);
         this.lbCall.scale.setTo(this.scale, this.scale);
         this.buttonGroup2.add(this.button2);
@@ -810,14 +810,19 @@ MainState.prototype = {
         var that = this
         var betdiff = this.gameStateObj.mybet-this.gameStateObj.mybetOnDesk
 
+        if(betdiff > this.chips) {
+            betdiff = this.chips; 
+        }
 
-        //if (betdiff > 0 ) {
+        //if (betdiff >= 0 ) {
             game.betApi.bet(betdiff,function(isok) {
                 // send OK or NOK
                 that._playSound(that.soundClick);
                 that._setBetButtonsVisible(false)
             })
-        //};
+        //}
+
+
         
        // test native interface
         // gameQuit("test");
