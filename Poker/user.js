@@ -332,8 +332,12 @@ User.prototype = {
 	},
 
 	setUserImage:function(imageid) {
-		if (imageid == null) {
+		if (imageid == null || imageid == undefined) {
 			return
+		}
+
+		if(imageid == "") {
+			imageid = "defaultProfile"
 		}
 		this.param["userImage"] = imageid;
 	    this.imagebody.scale.setTo(1, 1);

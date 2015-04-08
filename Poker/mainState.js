@@ -182,7 +182,7 @@ MainState.prototype = {
         game.load.image('blankBK', gImageDir+'player-blank.png');
         game.load.image('winBK', gImageDir+'win-frame-bg.png');
         game.load.image('winBKFrame', gImageDir+'win-frame.png');
-        game.load.image('defaultUserImage', gImageDir+'coin.png');
+        //game.load.image('defaultUserImage', gImageDir+'coin.png');
         game.load.image('buttonblue', gImageDir+'btn-big-green.png');
         game.load.image('buttongrey', gImageDir+'btn-big-green.png');
         game.load.image('buttonyellow', gImageDir+'btn-big-blue.png');
@@ -1846,7 +1846,7 @@ MainState.prototype = {
         //this.gameStateObj.chipboxValue3 = minChip * 4;
 
         //var chip1 = minChip;
-        var chip1 = 20;  // 不动态变化了，只固定 20 40 80
+        var chip1 = 20;  // 不动态变化了，只固定 20 40
         var chip2 =  chip1 * 2;
         var chip3 = chip2 * 2;
         this.gameStateObj.chipboxValue1 = chip1;

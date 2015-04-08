@@ -1,8 +1,8 @@
 'use strict';
 
 var game = null
-var gParam = {ws_server:"ice139.com:8989/ws", user_name:"", joinroom:null, platform:"PC", app_token:null}
-//var gParam = {ws_server:"172.24.222.54:8989/ws", user_name:"", joinroom:null, platform:"PC", app_token:null}
+//var gParam = {ws_server:"ice139.com:8989/ws", user_name:"", joinroom:null, platform:"PC", app_token:null}
+var gParam = {ws_server:"172.24.222.54:8989/ws", user_name:"", joinroom:null, platform:"PC", app_token:null}
 
 
 var gImageDir = "assets/2x/"
