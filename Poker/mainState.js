@@ -1091,7 +1091,19 @@ MainState.prototype = {
 
         this.chipPoolCoins = this.animation.showCollectChip(this.userList, this.chipPoolBK.x + this.chipPoolBK.width * 0.14, this.chipPoolBK.y + this.chipPoolBK.height * 0.5, this.chipPoolCoins);
         this._resetGameRoundStatus()
-        this.chipPool.setText(arrayPool[0]);
+
+        var poolall = 0;
+
+        for(var i = 0; i < arrayPool.length; i++) {
+            poolall += parseInt(arrayPool[i])
+        }
+
+        this.chipPool.setText(poolall);
+
+        // clear Use coin
+        for (var i = this.userList.length - 1; i >= 0; i--) {
+            this.userList[i].setUseCoin("");
+        };
     },
 
     handleGone:function(data) {
@@ -1334,7 +1346,7 @@ MainState.prototype = {
         var lastHasCardsIndex = -1; //保存最后一个出牌的人index
         var hashand = false;
         
-
+        
         for (var i = playerList.length - 1; i >= 0; i--) {
             var occupantInfo = playerList[i]
 
@@ -1349,15 +1361,6 @@ MainState.prototype = {
             if (occupantInfo.hand) {
                 hashand = true
             }
-            
-            if(occupantInfo.id == this.userID) {
-                if(occupantInfo.chip != undefined && occupantInfo.chip != null) {
-                    this.chips = occupantInfo.chip;
-                    var userMe = this._userByUserID(winOccupantItem.id)
-                    userMe.setChips(this.chips);
-                }
-            }
-
 
             var hand = occupantInfo.hand
             if (maxHand < hand) {
@@ -1374,10 +1377,17 @@ MainState.prototype = {
         var winOccupantItem = playerList[maxHandIndex]
 
         if (winOccupantItem != undefined && winOccupantItem != null) {
-            var winUser = this._userByUserID(winOccupantItem.id)
+                 var winUser = this._userByUserID(winOccupantItem.id)
+                 if(winOccupantItem.chips > 0) {
+                    this.chips = winOccupantItem.chips;
+                 }
+
+                 winUser.setChips(this.chips);
+
                 if (winOccupantItem.action != "fold") {
                     if(winOccupantItem.cards != null && winOccupantItem.cards != undefined) {
                         winUser.setWinCard(winOccupantItem.cards[0], winOccupantItem.cards[1]);
+
 
                         if(winOccupantItem.id != this.userID) {
                             this._playSound(this.soundLost);
@@ -1410,6 +1420,11 @@ MainState.prototype = {
 
             
         }
+
+
+        for (var i = this.userList.length - 1; i >= 0; i--) {
+            this.userList[i].setUseCoin("");
+        };
     },
 
     handleState:function(data)
@@ -1952,6 +1967,10 @@ MainState.prototype = {
                                   dcard.destroy();
                                   if(currentIndex < userList.length ) {
                                         sendCard();
+                                  }
+
+                                  if(usr.imagebody.visible == false) {
+                                    usr.dcard.visible = false;
                                   }
                                 }, that);
         }

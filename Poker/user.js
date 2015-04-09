@@ -436,7 +436,7 @@ User.prototype = {
 		this.param["userID"] = "";
         this.param["userName"] = "";
 		this.param["userCoin"] = "";
-		this.setParam("", "defaultUserImage", "");
+		this.setParam("", "defaultProfile", "");
 		this.setGiveUp(false);
 		this.setUseCoin("");
 	},
