@@ -233,6 +233,12 @@ MainState.prototype = {
         game.load.audio('ding', 'assets/sound/ding.mp3');
         game.load.audio('win', 'assets/sound/win.mp3');
         game.load.audio('lost', 'assets/sound/lose.mp3');
+        
+        
+        Phaser.Canvas.setSmoothingEnabled(this.game.context, false);
+        
+        this.game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+        this.game.scale.setScreenSize();
 
     },
 
@@ -1378,7 +1384,7 @@ MainState.prototype = {
 
         if (winOccupantItem != undefined && winOccupantItem != null) {
                  var winUser = this._userByUserID(winOccupantItem.id)
-                 if(winOccupantItem.chips > 0) {
+                 if(winOccupantItem.chips > 0 && winOccupantItem.id == this.userID) {
                     this.chips = winOccupantItem.chips;
                  }
 

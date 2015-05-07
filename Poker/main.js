@@ -133,6 +133,7 @@ function _fontString(size, fontname) {
 function startGame(gameParam) {
     try {
         // merge property
+        
         for(var p in gParam) {
             var value = gameParam[p];
             if(value != undefined && value != null) {
@@ -140,6 +141,8 @@ function startGame(gameParam) {
             }
         }
         if (gParam["platform"] == "IOS") {
+            var deviceWidth = 1136;
+            var deviceHeight = 640;
             document.body.setAttribute("orient", "landscape");
             gImageDir = "assets/1x/"
             gFontScale = 0.6;
@@ -147,9 +150,11 @@ function startGame(gameParam) {
             
             gImageDir = "assets/2x/"
             gFontScale = 1.2;
+            
+            game = new Phaser.Game(deviceWidth, deviceHeight, Phaser.CANVAS, "gamediv");
+        } else {
+            game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
         }
-        
-        game = new Phaser.Game("100", "100", Phaser.CANVAS, "gamediv");
         
         game.Native = Native;
         
