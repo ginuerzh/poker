@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/ginuerzh/poker"
+	"github.com/ginuerzh/poker/server"
 	"github.com/gorilla/websocket"
 	"log"
 	"math/rand"
@@ -31,11 +31,11 @@ func randName() string {
 }
 
 func main() {
-	c, err := net.Dial("tcp", "localhost:8000")
+	c, err := net.Dial("tcp", "localhost:8989")
 	if err != nil {
 		log.Fatal(err)
 	}
-	u, err := url.Parse("http://localhost:8000/")
+	u, err := url.Parse("http://localhost:8989/ws")
 	if err != nil {
 		log.Fatal(err)
 	}
