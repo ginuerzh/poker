@@ -3,8 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/ginuerzh/poker/server"
-	"github.com/gorilla/websocket"
 	"log"
 	"math/rand"
 	"net"
@@ -13,6 +11,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ginuerzh/poker/server"
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -35,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	u, err := url.Parse("http://localhost:8989/ws")
+	u, err := url.Parse("ws://localhost:8989/ws")
 	if err != nil {
 		log.Fatal(err)
 	}
